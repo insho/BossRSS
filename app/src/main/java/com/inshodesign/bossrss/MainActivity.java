@@ -22,16 +22,8 @@ import rx.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity implements MainFragment.OnMainOptionSelectedListener, AddRSSDialog.AddRSSDialogListener {
 
     MainFragment mainFragment;
-    private static final boolean debug = false;
-
+    private static final boolean debug = true;
     private static final String TAG = "MainActivity";
-//    private ArrayList<RSSList> loadedRSSLists;
-//    private Toolbar toolbar;
-
-//
-//   static void onActivityResult2(int requestCode, int resultCode, Intent data) {
-//Log.d(TAG,"BBBB");
-//}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,26 +63,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 onBackPressed();
                 return true;
             case 1: // addRSS
-
                 DialogFragment newFragment = AddRSSDialog.newInstance(2);
-
                 newFragment.show(getFragmentManager(), "dialog");
-//
-//                DialogFragment fragment = new AddRSSDialog();
-//                getSupportFragmentManager().beginTransaction()
-//                        .show(fragment)
-//                        .commit();
-//
-//                FragmentManager fm = getFragmentManager();
-//                DialogFragment newFragment = AddRSSDialog.newInstance(1);
-//                newFragment.setTargetFragment(mainFragment, 1);
-//                newFragment.show(fm, "abc");
-
                 return true;
             default:
                 return false;
         }
-
     };
 
     public void onMainOptionSelected(int position) {
@@ -118,12 +96,62 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     @Override
     public void onDialogPositiveClick(String rssURI) {
         Toast.makeText(this, "POS CLICK", Toast.LENGTH_SHORT).show();
+
     }
 
-    public void onComplete(String time) {
-        // After the dialog fragment completes, it calls this callback.
-        // use the string here
-        Toast.makeText(this, "POS CLICssssssK", Toast.LENGTH_SHORT).show();
+
+
+    private void getRSS(String URL) {
+
+        RSSFeedClient.getInstance(URL)
+                .getArticles(requesttype, section,time,apikey)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<NYTimesArticleWrapper>() {
+                    @Override public void onCompleted() {
+                        if(debug){Log.d(TAG, "In onCompleted()");}
+
+                        if(loadedArticles != null) {
+
+                            if (articleListFragment == null) {
+                                articleListFragment = new ArticleListFragment();
+
+                                Bundle args = new Bundle();
+                                args.putParcelableArrayList("loadedArticles",loadedArticles);
+                                articleListFragment.setArguments(args);
+                            }
+
+                            getSupportFragmentManager().beginTransaction()
+                                    .addToBackStack("articlelistfrag")
+                                    .replace(R.id.container, articleListFragment)
+                                    .commit();
+
+
+                            showToolBarBackButton(true,getArticleRequestType(requesttype));
+                        }
+                    }
+
+                    @Override public void onError(Throwable e) {
+                        e.printStackTrace();
+                        if(debug){Log.d(TAG, "In onError()");}
+                        Toast.makeText(getBaseContext(), "Unable to connect to NYTimes API", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override public void onNext(NYTimesArticleWrapper nytimesArticles) {
+                        if(debug) {
+                            Log.d(TAG, "In onNext()");
+                            Log.d(TAG, "nytimesArticles: " + nytimesArticles.num_results);
+                        }
+
+                        /***TMP**/
+                        if(loadedArticles == null) {
+                            loadedArticles = nytimesArticles.results;
+                        }
+
+
+                    }
+                });
     }
+
 }
 

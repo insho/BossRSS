@@ -93,23 +93,12 @@ public void onActivityCreated(Bundle savedInstanceState) {
         builder.setView(dialogView);
 
         final EditText editText = (EditText) dialogView.findViewById(R.id.input);
-        editText.setText("test label");
-//
-//
-//
-//    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-//    builder.setTitle(getString(R.string.dialog_title));
-//
-//    final EditText input = new EditText(getActivity());
-//    input.setInputType(InputType.TYPE_CLASS_TEXT);
-//    builder.setView(input);
+        editText.setText(R.string.testurl);
     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             Log.d(TAG,"mAddRSSDialogListener: " + mAddRSSDialogListener);
             mAddRSSDialogListener.onDialogPositiveClick(editText.getText().toString().trim());
-//            getActivity().onActivi
-
             dialog.dismiss();
         }
     });
@@ -120,8 +109,6 @@ public void onActivityCreated(Bundle savedInstanceState) {
             dialog.cancel();
         }
     });
-
-//        builder.show();
 
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
