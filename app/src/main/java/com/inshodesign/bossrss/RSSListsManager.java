@@ -47,10 +47,10 @@ public class RSSListsManager extends InternalDB {
 
                     itemData.setId(cursor.getInt(0));
 
-                    itemData.setRowNumber(cursor.getInt(1));
-                    itemData.setName(cursor.getString(2));
-                    itemData.setImage(cursor.getBlob(3));
-                    itemData.setURL(cursor.getString(4));
+//                    itemData.setRowNumber(cursor.getInt(1));
+                    itemData.setName(cursor.getString(1));
+                    itemData.setImage(cursor.getBlob(2));
+                    itemData.setURL(cursor.getString(3));
 
                     rssLists.add(itemData);
                 } while (cursor.moveToNext());
@@ -68,10 +68,10 @@ public class RSSListsManager extends InternalDB {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        values.put(COL1, rssList.getRowNumber());
-        values.put(COL2, rssList.getName());
-        values.put(COL3, rssList.getImage());
-        values.put(COL4, rssList.getURL());
+//        values.put(COL1, rssList.getRowNumber());
+        values.put(COL1, rssList.getName());
+        values.put(COL2, rssList.getImage());
+        values.put(COL3, rssList.getURL());
 
         long x=db.insert(TABLE, null, values);
         db.close();
@@ -82,10 +82,10 @@ public class RSSListsManager extends InternalDB {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        values.put(COL1, rssList.getRowNumber());
-        values.put(COL2, rssList.getName());
-        values.put(COL3, rssList.getImage());
-        values.put(COL4, rssList.getURL());
+//        values.put(COL1, rssList.getRowNumber());
+        values.put(COL1, rssList.getName());
+        values.put(COL2, rssList.getImage());
+        values.put(COL3, rssList.getURL());
 
         db.update(TABLE, values, COL_ID + "=" + rssList.getId(), null);
         db.close();

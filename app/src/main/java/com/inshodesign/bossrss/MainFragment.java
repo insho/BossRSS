@@ -32,10 +32,10 @@ public class MainFragment extends ListFragment implements AdapterView.OnItemClic
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ArrayAdapter adapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.mainListOptions, android.R.layout.simple_list_item_1);
-        setListAdapter(adapter);
-        getListView().setOnItemClickListener(this);
+//        ArrayAdapter adapter = ArrayAdapter.createFromResource(getActivity(),
+//                R.array.mainListOptions, android.R.layout.simple_list_item_1);
+//        setListAdapter(adapter);
+//        getListView().setOnItemClickListener(this);
 
     }
 

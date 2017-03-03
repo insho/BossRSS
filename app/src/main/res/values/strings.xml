@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BossRSS</string>
+    <string name="dialog_title">Enter RSS Feed</string>
+    <string name="dialog_empty">RSS feed is blank</string>
+
+    okMessage = handler.obtainMessage(MY_MSG_WHAT, MY_MSG_OK);
+</resources>

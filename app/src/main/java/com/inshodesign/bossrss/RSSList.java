@@ -40,13 +40,13 @@ public class RSSList {
         this.id = id;
     }
 
-    public Integer getRowNumber() {
-        return rowNumber;
-    }
-
-    public void setRowNumber(Integer rowNumber) {
-        this.rowNumber = rowNumber;
-    }
+//    public Integer getRowNumber() {
+//        return rowNumber;
+//    }
+//
+//    public void setRowNumber(Integer rowNumber) {
+//        this.rowNumber = rowNumber;
+//    }
 
 
     public String getName() {
