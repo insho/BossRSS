@@ -34,8 +34,8 @@ public class AddRSSDialog extends DialogFragment {
     public AddRSSDialogListener mAddRSSDialogListener;
 
     public interface AddRSSDialogListener {
-        void onDialogPositiveClick(DialogFragment dialog);
-        void onDialogNegativeClick(DialogFragment dialog);
+        void onDialogPositiveClick(String rssURI);
+//        void onDialogNegativeClick();
     }
 
     @Override
@@ -53,15 +53,6 @@ public class AddRSSDialog extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
-        try {
-            // Instantiate the NoticeDialogListener so we can send events to the host
-            mAddRSSDialogListener = (AddRSSDialogListener) activity;
-        } catch (ClassCastException e) {
-            // The activity doesn't implement the interface, throw exception
-            throw new ClassCastException(activity.toString()
-                    + " must implement NoticeDialogListener");
-        }
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(getString(R.string.dialog_title));
 
@@ -71,32 +62,19 @@ public class AddRSSDialog extends DialogFragment {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
-
+                mAddRSSDialogListener.onDialogPositiveClick(input.getText().toString().trim());
                     dialog.dismiss();
                 }
-            }
-        });
-        builder2.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
         });
 
-        builder2.show();
-
-        btn.setOnClickListener(new android.view.View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-                myListener.onButtonClick(); // I am giving the click to the
-                // interface function which we need
-                // to implements where we call this
-                // class
-
-            }
-        });
+        builder.show();
     };
 
 
