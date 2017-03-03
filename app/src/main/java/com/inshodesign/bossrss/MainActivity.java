@@ -94,9 +94,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     }
 
     @Override
-    public void onDialogPositiveClick(String rssURI) {
-        Toast.makeText(this, "POS CLICK", Toast.LENGTH_SHORT).show();
-
+    public void onDialogPositiveClick(String inputText) {
+//        Toast.makeText(this, "POS CLICK", Toast.LENGTH_SHORT).show();
+        getRSS(inputText);
     }
 
 
@@ -104,48 +104,26 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     private void getRSS(String URL) {
 
         RSSFeedClient.getInstance(URL)
-                .getArticles(requesttype, section,time,apikey)
+                .getRSSFeed()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<NYTimesArticleWrapper>() {
+                .subscribe(new Observer<RSSObject>() {
                     @Override public void onCompleted() {
                         if(debug){Log.d(TAG, "In onCompleted()");}
 
-                        if(loadedArticles != null) {
 
-                            if (articleListFragment == null) {
-                                articleListFragment = new ArticleListFragment();
-
-                                Bundle args = new Bundle();
-                                args.putParcelableArrayList("loadedArticles",loadedArticles);
-                                articleListFragment.setArguments(args);
-                            }
-
-                            getSupportFragmentManager().beginTransaction()
-                                    .addToBackStack("articlelistfrag")
-                                    .replace(R.id.container, articleListFragment)
-                                    .commit();
-
-
-                            showToolBarBackButton(true,getArticleRequestType(requesttype));
-                        }
                     }
 
                     @Override public void onError(Throwable e) {
                         e.printStackTrace();
                         if(debug){Log.d(TAG, "In onError()");}
-                        Toast.makeText(getBaseContext(), "Unable to connect to NYTimes API", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "Unable to connect to RSS feed", Toast.LENGTH_SHORT).show();
                     }
 
-                    @Override public void onNext(NYTimesArticleWrapper nytimesArticles) {
+                    @Override public void onNext(RSSObject rssObject) {
                         if(debug) {
                             Log.d(TAG, "In onNext()");
-                            Log.d(TAG, "nytimesArticles: " + nytimesArticles.num_results);
-                        }
-
-                        /***TMP**/
-                        if(loadedArticles == null) {
-                            loadedArticles = nytimesArticles.results;
+//                            Log.d(TAG, "nytimesArticles: " + rssObjec);
                         }
 
 

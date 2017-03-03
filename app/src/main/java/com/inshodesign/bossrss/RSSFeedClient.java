@@ -14,7 +14,7 @@ public class RSSFeedClient {
     //TODO -- MAKE DYNAMIC
 //    private static String TESTURL = "https://www.espn.com/espnradio/feeds/rss/podcast.xml/_/id/2406595";
     private static RSSFeedClient instance;
-//    private NYTimesService nytimesService;
+    private RSSInterface rssInterface;
 
 
 
@@ -31,13 +31,15 @@ public class RSSFeedClient {
 //                .client(client.build())
 //                .build();
 
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(URL)
                 .client(new OkHttpClient())
                 .addConverterFactory(SimpleXmlConverterFactory.create())
                 .build();
 
-        nytimesService = retrofit.create(NYTimesService.class);
+        rssInterface = retrofit.create(RSSInterface.class);
+
     }
 
     public static RSSFeedClient getInstance(String URL) {
@@ -47,9 +49,9 @@ public class RSSFeedClient {
         return instance;
     }
 
-//    public Observable<NYTimesArticleWrapper> getArticles(@NonNull String requesttype, @NonNull String section, @NonNull String time, @NonNull String apikey) {
-//        return nytimesService.getArticles(requesttype, section, time,apikey);
-//    }
+    public Observable<RSSObject> getRSSFeed() {
+        return rssInterface.getRSSFeed();
+    }
 
 
 }
