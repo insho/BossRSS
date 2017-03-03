@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 /**
  * Created by JClassic on 2/21/2017.
@@ -57,7 +58,23 @@ public class MainFragment extends ListFragment implements AdapterView.OnItemClic
     }
 
 
+//    @Override
+//    public void onDialogPositiveClick(String rssURI) {
+//        Toast.makeText(getActivity(), "POS CLICK", Toast.LENGTH_SHORT).show();
+//    }
 
+
+
+
+//    @Override
+//    public void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//
+//        if (savedInstanceState != null) {
+//            mStackLevel = savedInstanceState.getInt("level");
+//        }
+//    }
 
 
 }
+

@@ -3,8 +3,6 @@ package com.inshodesign.bossrss;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-
-import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,11 +10,13 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-        import android.widget.Button;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -29,19 +29,25 @@ import android.widget.Toast;
 public class AddRSSDialog extends DialogFragment {
 
     public AddRSSDialogListener mAddRSSDialogListener;
+    String TAG = "TEST";
 
     public interface AddRSSDialogListener {
         void onDialogPositiveClick(String rssURI);
-//        void onDialogNegativeClick();
     }
 
+//    public static interface OnCompleteListener {
+//        public abstract void onComplete(String time);
+//    }
+//    private OnCompleteListener mListener;
+
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
         try {
-            mAddRSSDialogListener = (AddRSSDialogListener) context;
+//            this.mListener = (OnCompleteListener)activity;
+            mAddRSSDialogListener = (AddRSSDialogListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement mAddRSSDialogListener");
+            throw new ClassCastException(activity.toString() + " must implement mAddRSSDialogListener");
         }
     }
 
@@ -53,120 +59,57 @@ public class AddRSSDialog extends DialogFragment {
         return frag;
     }
 
-
 //    @Override
 //    public Dialog onCreateDialog(Bundle savedInstanceState) {
 //
-//        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-//        builder.setTitle(getString(R.string.dialog_title));
-//
-//        final EditText input = new EditText(getActivity());
-//        input.setInputType(InputType.TYPE_CLASS_TEXT);
-//        builder.setView(input);
-//        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                mAddRSSDialogListener.onDialogPositiveClick(input.getText().toString().trim());
-//                dialog.dismiss();
-//            }
-//        });
-//
-//        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                dialog.cancel();
-//            }
-//        });
-//
-//        builder.show();
-//
-//        return super.onCreateDialog(savedInstanceState);
+//        return new AlertDialog.Builder(getActivity())
+//                .setTitle(R.string.dialog_title)
+//                .setIcon(android.R.drawable.ic_dialog_alert)
+//                .setPositiveButton("OK",
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int whichButton) {
+////                                getActivity().mAddRSSDialogListener.onDialogPositiveClick("XXX");
+//                                mListener.onComplete("F");
+////                                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, getActivity().getIntent());
+//                            }
+//                        }
+//                )
+//                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int whichButton) {
+//                        getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_CANCELED, getActivity().getIntent());
+//                    }
+//                })
+//                .create();
 //    }
 
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//
-//        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-//        builder.setTitle(getString(R.string.dialog_title));
-//
-//        final EditText input = new EditText(getActivity());
-//        input.setInputType(InputType.TYPE_CLASS_TEXT);
-//        builder.setView(input);
-//        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                mAddRSSDialogListener.onDialogPositiveClick(input.getText().toString().trim());
-//                    dialog.dismiss();
-//                }
-//            });
-//
-//        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                dialog.cancel();
-//            }
-//        });
-//
-//        builder.show();
-//    };
-
-//    @Override
-//    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-////        View rootView = inflater.inflate(R.layout.dialog_fragment, container, false);
-////        getDialog().setTitle("Simple Dialog");
-//
-//
-//        /****
-//         *
-//
-//         final View view=inflater.inflate(R.layout.fragment_dialog, null);
-//         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-//         builder.setTitle(R.string.dialog_title)
-//         .setView(view);
-//         final EditText input = (EditText)view. findViewById(R.id.input);
-//         //        final EditText input = new EditText(getActivity());
-//         input.setInputType(InputType.TYPE_CLASS_TEXT);
-//         //        builder.setView(input);
-//         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//        @Override
-//        public void onClick(DialogInterface dialog, int which) {
-//        mAddRSSDialogListener.onDialogPositiveClick(input.getText().toString().trim());
-//        dialog.dismiss();
-//        }
-//        });
-//
-//         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//        @Override
-//        public void onClick(DialogInterface dialog, int which) {
-//        dialog.cancel();
-//        }
-//        });
-//
-//         builder.show();
-//
-//         *
-//         */
-//
-//
-//        return view;
-//    }
-//
-@Override
+    @Override
 public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
-    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-    builder.setTitle(getString(R.string.dialog_title));
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+// ...Irrelevant code for customizing the buttons and title
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.fragment_dialog, null);
+        builder.setView(dialogView);
 
-
-
-    final EditText input = new EditText(getActivity());
-    input.setInputType(InputType.TYPE_CLASS_TEXT);
-    builder.setView(input);
+        final EditText editText = (EditText) dialogView.findViewById(R.id.input);
+        editText.setText("test label");
+//
+//
+//
+//    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//    builder.setTitle(getString(R.string.dialog_title));
+//
+//    final EditText input = new EditText(getActivity());
+//    input.setInputType(InputType.TYPE_CLASS_TEXT);
+//    builder.setView(input);
     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            mAddRSSDialogListener.onDialogPositiveClick(input.getText().toString().trim());
+            Log.d(TAG,"mAddRSSDialogListener: " + mAddRSSDialogListener);
+            mAddRSSDialogListener.onDialogPositiveClick(editText.getText().toString().trim());
+//            getActivity().onActivi
+
             dialog.dismiss();
         }
     });
@@ -178,9 +121,11 @@ public void onActivityCreated(Bundle savedInstanceState) {
         }
     });
 
-    builder.show();
+//        builder.show();
 
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 }
-
 
 }
