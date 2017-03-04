@@ -42,14 +42,22 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     private TextView mNoLists;
     private RecyclerView.LayoutManager mLayoutManager;
 
+//    @Override
+//    public View onCreateView(LayoutInflater inflater,
+//                             ViewGroup container, Bundle savedInstanceState) {
+//        mRecyclerView = (RecyclerView) container.findViewById(R.id.recycler);
+//        mNoLists = (TextView) container.findViewById(R.id.nolists);
+//        return inflater.inflate(R.layout.fragment_main, container, false);
+//    }
+
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        mRecyclerView = (RecyclerView) container.findViewById(R.id.recycler);
-        mNoLists = (TextView) container.findViewById(R.id.nolists);
-        return inflater.inflate(R.layout.fragment_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerMain);
+        mNoLists = (TextView) view.findViewById(R.id.nolists);
+        return view;
     }
-
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -65,10 +73,21 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     }
 
     public void filltheAdapter() {
+        //Initialize the rsslist;
         List<RSSList> rssLists = InternalDB.getInstance(getContext()).getRSSLists();
-        if(rssLists == null || rssLists.size() == 0) {
+
+        if(rssLists != null && rssLists.size()>0) {
+            Log.d("InternalDB","Filladapterlist TITLE: " + rssLists.get(0).getTitle());
+        }
+
+        if(rssLists != null && rssLists.size() > 0) {
 
             mAdapter = new RSSListAdapter(rssLists, _rxBus, getContext());
+
+
+                Log.d("InternalDB", "count: " + mAdapter.getItemCount());
+
+
             showRecyclerView(true);
 
             _rxBus.toObserverable()
@@ -78,6 +97,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
 
                             if(event instanceof Integer) {
 //                            getBeerData(beerRecTMP,article );
+                                Toast.makeText(getContext(), "Clicked POS: " + event.toString(), Toast.LENGTH_SHORT).show();
                             }
                         }
 
@@ -95,11 +115,11 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     private void showRecyclerView(boolean show) {
 
         if(show) {
-            mRecyclerView.setVisibility(View.GONE);
-            mNoLists.setVisibility(View.VISIBLE);
-        } else {
             mRecyclerView.setVisibility(View.VISIBLE);
             mNoLists.setVisibility(View.GONE);
+        } else {
+            mRecyclerView.setVisibility(View.GONE);
+            mNoLists.setVisibility(View.VISIBLE);
         }
     }
 

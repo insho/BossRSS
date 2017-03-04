@@ -104,22 +104,24 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     }
 
     private void saveURL(RSSList rssList) {
-            InternalDB helper = InternalDB.getInstance(getBaseContext());
-            helper.saveEndPointURL(rssList);
+            InternalDB.getInstance(getBaseContext()).saveEndPointURL(rssList);
             Toast.makeText(this, "Saved ", Toast.LENGTH_SHORT).show();
 
-        mainFragment.filltheAdapter();
+            mainFragment.filltheAdapter();
     }
 
 
     private void getRSS(final String endpoint) {
 
+
+
         final RSSList rssList = new RSSList();
         Channel channel = new Channel();
 
         //TODO -- SWITCH FOR REAL URL!
+//        String endpoint = "http://www.thestar.com/feeds.topstories.rss";
  RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "http://www.thestar.com/");
-        Observable<RSS> rssObservable = xmlAdapterFor.getFeed("http://www.thestar.com/feeds.topstories.rss");
+        Observable<RSS> rssObservable = xmlAdapterFor.getFeed(endpoint);
 
 
         rssObservable.subscribeOn(Schedulers.io())
@@ -129,6 +131,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             public void onCompleted() {
                 Log.d(TAG, "onCompleted() called");
 
+                if(!rssList.hasURL()) {
+                    rssList.setURL(endpoint);
+                    Log.d(TAG,"Setting URL: " + endpoint);
+                    Log.d(TAG,"GETURL FROM RSSLIT: " + rssList.getURL());
+                }
                 //Add URL to Key EndpointURL and notify user
                 saveURL(rssList);
 
@@ -152,7 +159,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                     /** Assign a title for the feed*/
                     if(rss.getChannel().getTitle() != null && !rssList.hasTitle()) {
                         rssList.setTitle(rss.getChannel().getTitle());
-                    };
+                    }
+
+//                    if(rss.getChannel().getImage() != null && !rssList.hasImage()) {
+//                        rssList.setTitle(rss.getChannel().getImage());
+//                    };
 
                 };
             }

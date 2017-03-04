@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,6 +68,9 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
         } else {
             holder.image.setVisibility(View.GONE);
         }
+
+        Log.d("InternalDB","Holdertest: " + mDataset.get(position).getTitle());
+
         holder.txtTitle.setText(mDataset.get(position).getTitle());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,4 +86,10 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
         return mDataset.size();
     }
 
+
+    public RSSList getList(int position) {
+
+        return mDataset.get(position);
+
+    }
 }

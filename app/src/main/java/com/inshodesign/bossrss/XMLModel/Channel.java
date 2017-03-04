@@ -38,6 +38,7 @@ public class Channel {
     @Element(name = "pubDate", required = false)
     String pubDate;
 
+
     @Override
     public String toString() {
         return "Channel{" +
@@ -107,6 +108,16 @@ public class Channel {
 
     }
 
+    @Root(name = "image", strict = false)
+    public static class Image {
+
+        @Element(name = "title", required = false)
+        String title;
+        @Element(name = "link", required = false)
+        String link;
+        @Element(name = "url", required = true)
+        String url;
+    }
 
     public List<Link> getLinks() {
         return links;
@@ -119,4 +130,6 @@ public class Channel {
     public String getTitle() {
         return title;
     }
+
+
 }

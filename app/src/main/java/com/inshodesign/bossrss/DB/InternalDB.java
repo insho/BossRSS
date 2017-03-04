@@ -56,27 +56,29 @@ public class InternalDB extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqlDB) {
         String sqlQueryMain =
                 String.format("CREATE TABLE IF NOT EXISTS %s (" +
-                                "%s INTEGER AUTOINCREMENT PRIMARY KEY, " +
+                                "%s INTEGER PRIMARY KEY AUTOINCREMENT, " +
                                 "%s TEXT, " +
-                                "%s TEXT)", TABLE_MAIN,
+                                "%s TEXT, " +
+                                "%s BLOB)", TABLE_MAIN,
                         COL_ID,
                         COL0,
-                        COL_T1_TITLE);
+                        COL_T1_TITLE
+                        ,COL2);
 
         sqlDB.execSQL(sqlQueryMain);
 
-        String sqlQuerySub =
-                String.format("CREATE TABLE IF NOT EXISTS %s (" +
-                                "%s INTEGER AUTOINCREMENT PRIMARY KEY, " +
-                                "%s INTEGER,  " +
-                                "%s TEXT, " +
-                                "%s BLOB)", TABLE_SUB,
-                        COL_ID,
-                        COL_FOREIGNKEY,
-                        COL1,
-                        COL2);
-
-        sqlDB.execSQL(sqlQuerySub);
+//        String sqlQuerySub =
+//                String.format("CREATE TABLE IF NOT EXISTS %s (" +
+//                                "%s INTEGER PRIMARY KEY AUTOINCREMENT, " +
+//                                "%s INTEGER,  " +
+//                                "%s TEXT, " +
+//                                "%s BLOB)", TABLE_SUB,
+//                        COL_ID,
+//                        COL_FOREIGNKEY,
+//                        COL1,
+//                        COL2);
+//
+//        sqlDB.execSQL(sqlQuerySub);
 
     }
 
@@ -91,7 +93,11 @@ public class InternalDB extends SQLiteOpenHelper {
 
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
-            values.put(COL0, rssList.getURL());
+
+        Log.d(TAG,"putting url: " + rssList.getURL() );
+        Log.d(TAG,"putting title: " +rssList.getTitle() );
+
+        values.put(COL0, rssList.getURL());
             values.put(COL_T1_TITLE, rssList.getTitle());
 
         long x=db.insert(TABLE_MAIN, null, values);
@@ -105,19 +111,32 @@ public class InternalDB extends SQLiteOpenHelper {
         List<RSSList> rssLists = new ArrayList<RSSList>();
         String refQuery = "Select * From " + TABLE_MAIN;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(refQuery, null);
+        Cursor c = db.rawQuery(refQuery, null);
+
+
         try {
-            if (cursor.moveToFirst()) {
+            if (c.moveToFirst()) {
                 do {
                     RSSList itemData = new RSSList();
 
-                    itemData.setId(cursor.getInt(0));
-                    itemData.setTitle(cursor.getString(1));
-                    itemData.setImage(cursor.getBlob(2));
-                    itemData.setURL(cursor.getString(3));
+                    Log.d(TAG,"putting url: " + c.getInt(0) );
+                    Log.d(TAG,"putting title: " + c.getString(1) );
+
+                    itemData.setId(c.getInt(0));
+                    itemData.setURL(c.getString(1));
+                    itemData.setTitle(c.getString(2));
+
+                    if (!c.isNull(3)) {
+                        itemData.setImage(c.getBlob(3));
+                    }
 
                     rssLists.add(itemData);
-                } while (cursor.moveToNext());
+
+
+                    Log.d(TAG,"itemData url: " +itemData.getURL() );
+                    Log.d(TAG,"itemData title: " +itemData.getTitle() );
+
+                } while (c.moveToNext());
             }
 
         } finally {

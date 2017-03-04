@@ -68,4 +68,8 @@ public class RSSList {
     public void setURL(String URL) {
         this.URL = URL;
     }
+
+    public boolean hasURL() {
+        return (URL != null);
+    }
 }

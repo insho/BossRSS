@@ -5,7 +5,8 @@
 
 
     <!--<string name="testendpoint">http://www.ka-news.de/</string>-->
-    <string name="testurl">http://www.ka-news.de/storage/rss/</string>
-    <string name="nolists">Click + to add a list</string>
+    <string name="enterfeedurl">Enter Feed URL</string>
+    <string name="testurl">http://www.thestar.com/feeds.topstories.rss</string>
+    <string name="nolists">no saved feeds</string>
 
 </resources>
