@@ -1,10 +1,12 @@
 package com.inshodesign.bossrss;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 import rx.Observable;
 
@@ -18,7 +20,10 @@ public class RSSFeedClient {
 
 
 
-    private RSSFeedClient(String URL) {
+    private RSSFeedClient(String endpoint) {
+
+
+        endpoint = "http://www.thestar.com/";
 
         OkHttpClient.Builder client = new OkHttpClient.Builder();
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
@@ -32,26 +37,40 @@ public class RSSFeedClient {
 //                .build();
 
 
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl(URL)
+//                .client(new OkHttpClient())
+//                .addConverterFactory(SimpleXmlConverterFactory.create())
+//                .build();
+
+//        RSSInterface xmlAdapterFor = createXmlAdapterFor(RSSInterface.class, "http://www.thestar.com/");
+//        Observable<RSS> rssObservable = xmlAdapterFor.getFeed("http://www.thestar.com/feeds.topstories.rss");
+
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(URL)
-                .client(new OkHttpClient())
-                .addConverterFactory(SimpleXmlConverterFactory.create())
+                .baseUrl(endpoint)
+                .client(new OkHttpClient()) // Use OkHttp3 client
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) // RxJava adapter
+                .addConverterFactory(SimpleXmlConverterFactory.create()) // Simple XML converter
                 .build();
+//        return retrofit.create(api);
+
 
         rssInterface = retrofit.create(RSSInterface.class);
 
     }
 
-    public static RSSFeedClient getInstance(String URL) {
+    public static RSSFeedClient getInstance(String endpoint) {
         if (instance == null) {
-            instance = new RSSFeedClient(URL);
+            instance = new RSSFeedClient(endpoint);
         }
         return instance;
     }
 
-    public Observable<RSSObject> getRSSFeed() {
-        return rssInterface.getRSSFeed();
+    public Observable<RSS> getRSSFeed(String feedUrl) {
+        return rssInterface.getFeed(feedUrl);
     }
+
+
 
 
 }

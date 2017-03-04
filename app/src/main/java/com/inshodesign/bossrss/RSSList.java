@@ -56,7 +56,7 @@ public class RSSList {
     public void setName(String name) {
         this.name = name;
     }
-
+//
 
     public byte[] getImage() {
         return image;

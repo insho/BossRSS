@@ -19,11 +19,18 @@
         android:layout_alignParentTop="true"
         style="?android:attr/progressBarStyleSmall" />
 
-    <android.support.v7.widget.RecyclerView
+    <ListView
+        android:id="@android:id/list"
+        android:layout_below="@+id/progressbar"
         android:layout_width="match_parent"
-        android:layout_below="@id/progressbar"
-        android:layout_height="wrap_content"
-        android:id="@+id/recyclerMain"
-        />
+        android:layout_height="wrap_content" >
+    </ListView>
+
+    <!--<android.support.v7.widget.RecyclerView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_below="@id/progressbar"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/recyclerMain"-->
+        <!--/>-->
 
 </RelativeLayout>

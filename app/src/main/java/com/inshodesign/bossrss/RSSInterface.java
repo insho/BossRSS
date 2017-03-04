@@ -3,6 +3,7 @@ package com.inshodesign.bossrss;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Url;
 import rx.Observable;
 
 /**
@@ -11,7 +12,8 @@ import rx.Observable;
 
 
 public interface RSSInterface {
-    @GET("/xml/simple.xml")
-    Observable<RSSObject> getRSSFeed();
-
+//    @GET("rss/karlsruhe.xml")
+//    Observable<RSS> getRSSFeed();
+@GET
+Observable<RSS> getFeed(@Url String feedUrl);
 }

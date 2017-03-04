@@ -2,7 +2,10 @@
     <string name="app_name">BossRSS</string>
     <string name="dialog_title">Enter RSS Feed</string>
     <string name="dialog_empty">RSS feed is blank</string>
-    <string name="testurl">https://www.espn.com/espnradio/feeds/rss/podcast.xml/_/id/2406595</string>
+
+
+    <!--<string name="testendpoint">http://www.ka-news.de/</string>-->
+    <string name="testurl">http://www.ka-news.de/storage/rss/</string>
 
 
 </resources>

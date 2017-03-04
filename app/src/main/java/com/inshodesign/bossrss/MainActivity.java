@@ -15,7 +15,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 import java.util.ArrayList;
+
+import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -101,34 +104,56 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
 
 
-    private void getRSS(String URL) {
+    private void getRSS(String endpoint) {
 
-        RSSFeedClient.getInstance(URL)
-                .getRSSFeed()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<RSSObject>() {
-                    @Override public void onCompleted() {
-                        if(debug){Log.d(TAG, "In onCompleted()");}
+ RSSInterface xmlAdapterFor = APIService.createXmlAdapterFor(RSSInterface.class, "http://www.thestar.com/");
+        Observable<RSS> rssObservable = xmlAdapterFor.getFeed("http://www.thestar.com/feeds.topstories.rss");
+        rssObservable.subscribeOn(Schedulers.io())
+                 .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<RSS>() {
+            @Override
+            public void onCompleted() {
+                Log.d(TAG, "onCompleted() called");
+            }
 
+            @Override
+            public void onError(final Throwable e) {
+                Log.d(TAG, "onError() called with: e = [" + e + "]");
+            }
 
-                    }
+            @Override
+            public void onNext(final RSS rss) {
+                Log.d(TAG, "onNext() called with: rss = [" + rss + "]");
+            }
+        });
 
-                    @Override public void onError(Throwable e) {
-                        e.printStackTrace();
-                        if(debug){Log.d(TAG, "In onError()");}
-                        Toast.makeText(getBaseContext(), "Unable to connect to RSS feed", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override public void onNext(RSSObject rssObject) {
-                        if(debug) {
-                            Log.d(TAG, "In onNext()");
-//                            Log.d(TAG, "nytimesArticles: " + rssObjec);
-                        }
-
-
-                    }
-                });
+//
+//        RSSFeedClient.getInstance(endpoint)
+//                .getRSSFeed(endpoint)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Observer<RSS>() {
+//                    @Override public void onCompleted() {
+//                        if(debug){Log.d(TAG, "In onCompleted()");}
+//
+//
+//                    }
+//
+//                    @Override public void onError(Throwable e) {
+//                        e.printStackTrace();
+//                        if(debug){Log.d(TAG, "In onError()");}
+//                        Toast.makeText(getBaseContext(), "Unable to connect to RSS feed", Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                    @Override public void onNext(RSS RSS) {
+//                        if(debug) {
+//                            Log.d(TAG, "In onNext()");
+////                            Log.d(TAG, "nytimesArticles: " + rssObjec);
+//                        }
+//
+//
+//                    }
+//                });
     }
 
 }
