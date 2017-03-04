@@ -3,26 +3,27 @@ package com.inshodesign.bossrss;
 import android.app.DialogFragment;
 //import android.app.Fragment;
 //import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-import java.util.ArrayList;
+
+import com.inshodesign.bossrss.DB.InternalDB;
+import com.inshodesign.bossrss.XMLModel.Channel;
+import com.inshodesign.bossrss.XMLModel.RSS;
+import com.inshodesign.bossrss.XMLModel.RSSList;
 
 import rx.Observable;
-import rx.Observer;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity implements MainFragment.OnMainOptionSelectedListener, AddRSSDialog.AddRSSDialogListener {
+public class MainActivity extends AppCompatActivity implements MainFragment.OnMainOptionSelectedListener, AddFeedDialog.AddRSSDialogListener {
 
     MainFragment mainFragment;
     private static final boolean debug = true;
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 onBackPressed();
                 return true;
             case 1: // addRSS
-                DialogFragment newFragment = AddRSSDialog.newInstance(2);
+                DialogFragment newFragment = AddFeedDialog.newInstance(2);
                 newFragment.show(getFragmentManager(), "dialog");
                 return true;
             default:
@@ -102,19 +103,38 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         getRSS(inputText);
     }
 
+    private void saveURL(RSSList rssList) {
+            InternalDB helper = InternalDB.getInstance(getBaseContext());
+            helper.saveEndPointURL(rssList);
+            Toast.makeText(this, "Saved ", Toast.LENGTH_SHORT).show();
+
+        mainFragment.filltheAdapter();
+    }
 
 
-    private void getRSS(String endpoint) {
+    private void getRSS(final String endpoint) {
 
- RSSInterface xmlAdapterFor = APIService.createXmlAdapterFor(RSSInterface.class, "http://www.thestar.com/");
+        final RSSList rssList = new RSSList();
+        Channel channel = new Channel();
+
+        //TODO -- SWITCH FOR REAL URL!
+ RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "http://www.thestar.com/");
         Observable<RSS> rssObservable = xmlAdapterFor.getFeed("http://www.thestar.com/feeds.topstories.rss");
+
+
         rssObservable.subscribeOn(Schedulers.io())
                  .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<RSS>() {
             @Override
             public void onCompleted() {
                 Log.d(TAG, "onCompleted() called");
+
+                //Add URL to Key EndpointURL and notify user
+                saveURL(rssList);
+
             }
+
+
 
             @Override
             public void onError(final Throwable e) {
@@ -124,6 +144,17 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             @Override
             public void onNext(final RSS rss) {
                 Log.d(TAG, "onNext() called with: rss = [" + rss + "]");
+                if(rss.getChannel() != null ) {
+
+                    /** Do something with the list */
+
+
+                    /** Assign a title for the feed*/
+                    if(rss.getChannel().getTitle() != null && !rssList.hasTitle()) {
+                        rssList.setTitle(rss.getChannel().getTitle());
+                    };
+
+                };
             }
         });
 

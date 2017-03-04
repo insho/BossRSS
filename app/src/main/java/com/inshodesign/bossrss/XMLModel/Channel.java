@@ -1,4 +1,4 @@
-package com.inshodesign.bossrss;
+package com.inshodesign.bossrss.XMLModel;
 
 /**
  * Created by github/macsystems
@@ -103,5 +103,20 @@ public class Channel {
                     ", source='" + source + '\'' +
                     '}';
         }
+
+
+    }
+
+
+    public List<Link> getLinks() {
+        return links;
+    }
+
+    public List<Item> getItemList() {
+        return itemList;
+    }
+
+    public String getTitle() {
+        return title;
     }
 }

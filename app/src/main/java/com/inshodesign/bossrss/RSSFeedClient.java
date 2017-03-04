@@ -1,7 +1,6 @@
 package com.inshodesign.bossrss;
 
-import android.support.annotation.NonNull;
-import android.util.Log;
+import com.inshodesign.bossrss.XMLModel.RSS;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -16,7 +15,7 @@ public class RSSFeedClient {
     //TODO -- MAKE DYNAMIC
 //    private static String TESTURL = "https://www.espn.com/espnradio/feeds/rss/podcast.xml/_/id/2406595";
     private static RSSFeedClient instance;
-    private RSSInterface rssInterface;
+    private RSSService rssService;
 
 
 
@@ -43,7 +42,7 @@ public class RSSFeedClient {
 //                .addConverterFactory(SimpleXmlConverterFactory.create())
 //                .build();
 
-//        RSSInterface xmlAdapterFor = createXmlAdapterFor(RSSInterface.class, "http://www.thestar.com/");
+//        RSSService xmlAdapterFor = createXmlAdapterFor(RSSService.class, "http://www.thestar.com/");
 //        Observable<RSS> rssObservable = xmlAdapterFor.getFeed("http://www.thestar.com/feeds.topstories.rss");
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -55,7 +54,7 @@ public class RSSFeedClient {
 //        return retrofit.create(api);
 
 
-        rssInterface = retrofit.create(RSSInterface.class);
+        rssService = retrofit.create(RSSService.class);
 
     }
 
@@ -67,7 +66,7 @@ public class RSSFeedClient {
     }
 
     public Observable<RSS> getRSSFeed(String feedUrl) {
-        return rssInterface.getFeed(feedUrl);
+        return rssService.getFeed(feedUrl);
     }
 
 

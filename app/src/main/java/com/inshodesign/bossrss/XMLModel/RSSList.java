@@ -1,4 +1,4 @@
-package com.inshodesign.bossrss;
+package com.inshodesign.bossrss.XMLModel;
 
 
         import android.os.Parcel;
@@ -16,15 +16,15 @@ package com.inshodesign.bossrss;
 public class RSSList {
 
     private Integer id;
-    private Integer rowNumber;
-    private String name;
+    private String title;
     private byte[] image;
     private String URL;
 
-    public RSSList(Integer _id, Integer _rowNumber, String name, byte[] _image, String _URL) {
+    public RSSList(Integer _id) {
+     }
+    public RSSList(Integer _id, String title, byte[] _image, String _URL) {
         this.id = _id;
-        this.rowNumber = _rowNumber;
-        this.name = name;
+        this.title = title;
         this.image = _image;
         this.URL = _URL;
     }
@@ -40,23 +40,18 @@ public class RSSList {
         this.id = id;
     }
 
-//    public Integer getRowNumber() {
-//        return rowNumber;
-//    }
-//
-//    public void setRowNumber(Integer rowNumber) {
-//        this.rowNumber = rowNumber;
-//    }
 
-
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String name) {
+        this.title = name;
     }
-//
+
+    public boolean hasTitle() {
+        return (title != null);
+    }
 
     public byte[] getImage() {
         return image;

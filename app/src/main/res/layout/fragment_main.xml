@@ -11,6 +11,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.inshodesign.bossrss.MainActivity">
 
+
     <ProgressBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,18 +20,22 @@
         android:layout_alignParentTop="true"
         style="?android:attr/progressBarStyleSmall" />
 
-    <ListView
-        android:id="@android:id/list"
-        android:layout_below="@+id/progressbar"
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
+        android:layout_below="@id/progressbar"
+        android:layout_height="wrap_content"
+        android:id="@+id/recyclerMain"
+        />
 
-    <!--<android.support.v7.widget.RecyclerView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_below="@id/progressbar"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:id="@+id/recyclerMain"-->
-        <!--/>-->
+    <TextView
+        android:id="@+id/nolists"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="30dp"
+        android:layout_marginTop="4dp"
+        android:text="@string/nolists"
+        android:clickable="false"
+        android:visibility="gone"
+        android:textSize="18sp" />
 
 </RelativeLayout>

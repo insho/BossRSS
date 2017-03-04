@@ -1,8 +1,8 @@
 package com.inshodesign.bossrss;
 
+import com.inshodesign.bossrss.XMLModel.RSS;
+
 import retrofit2.http.GET;
-import retrofit2.http.Path;
-import retrofit2.http.Query;
 import retrofit2.http.Url;
 import rx.Observable;
 
@@ -11,9 +11,7 @@ import rx.Observable;
  */
 
 
-public interface RSSInterface {
-//    @GET("rss/karlsruhe.xml")
-//    Observable<RSS> getRSSFeed();
+public interface RSSService {
 @GET
 Observable<RSS> getFeed(@Url String feedUrl);
 }

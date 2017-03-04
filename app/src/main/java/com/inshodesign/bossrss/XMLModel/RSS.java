@@ -1,8 +1,10 @@
-package com.inshodesign.bossrss;
+package com.inshodesign.bossrss.XMLModel;
 
 /**
  * Created by JClassic on 3/3/2017.
  */
+
+import com.inshodesign.bossrss.XMLModel.Channel;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -16,6 +18,7 @@ public class RSS {
 
     @Element
     Channel channel;
+
 
 
     public Channel getChannel() {

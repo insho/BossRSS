@@ -6,6 +6,6 @@
 
     <!--<string name="testendpoint">http://www.ka-news.de/</string>-->
     <string name="testurl">http://www.ka-news.de/storage/rss/</string>
-
+    <string name="nolists">Click + to add a list</string>
 
 </resources>
