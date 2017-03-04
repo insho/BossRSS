@@ -146,7 +146,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
 //        mCallback.onMainOptionSelected(position);
-        Toast.makeText(getActivity(), "ITS CLICKED: " + position, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), "ITS CLICKED: " + position, Toast.LENGTH_SHORT).show();
     }
 
 

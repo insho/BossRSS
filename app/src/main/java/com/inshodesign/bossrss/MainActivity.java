@@ -84,6 +84,15 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         }
     };
 
+
+
+    /** The user has clicked on one of the feeds in the list
+     *  Either go to the listfragment and pull rss list, or
+     *  firstly (if the list is missing title and whatnot), pull title data into the db,
+     *  and then go into the list
+     *
+     *  Either way firstly run the progress bar and search for info
+     * **/
     public void showRSSListFragment(RSSList rssList) {
 
 
@@ -147,9 +156,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 Toast.makeText(this, "Feed already exists", Toast.LENGTH_SHORT).show();
             } else if(!isOnline()) {
                 Toast.makeText(getBaseContext(), "Device is not online", Toast.LENGTH_SHORT).show();
+                mainFragment.filltheAdapter();
             } else if(success != 0) {
                    //It was a true error, and we couldn't get the feed
                     Toast.makeText(getBaseContext(), "Error, couldn't access RSS feed", Toast.LENGTH_SHORT).show();
+                mainFragment.filltheAdapter();
             } else {
                 mainFragment.filltheAdapter();
                 return true;

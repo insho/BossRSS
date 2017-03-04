@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.inshodesign.bossrss.R;
 import com.inshodesign.bossrss.XMLModel.RSS;
 import com.inshodesign.bossrss.XMLModel.RSSList;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -65,9 +66,11 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
 
         /** If there is an image icon, show it**/
         if(mDataset.get(position).hasImage()) {
-//            Drawable image = new BitmapDrawable(mContext.getResources(), BitmapFactory.decodeByteArray(mDataset.get(position).getImage(), 0, mDataset.get(position).getImage().length));
-//            holder.image.setVisibility(View.VISIBLE);
-//            holder.image.setImageDrawable(image);
+            Drawable image = new BitmapDrawable(mContext.getResources(), mDataset.get(position).getImage());
+            holder.image.setVisibility(View.VISIBLE);
+            holder.image.setImageDrawable(image);
+
+
         }  else {
             holder.image.setVisibility(View.GONE);
 
