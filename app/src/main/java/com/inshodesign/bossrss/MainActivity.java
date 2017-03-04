@@ -20,6 +20,7 @@ import com.inshodesign.bossrss.DB.InternalDB;
 import com.inshodesign.bossrss.XMLModel.Channel;
 import com.inshodesign.bossrss.XMLModel.RSS;
 import com.inshodesign.bossrss.XMLModel.RSSList;
+import com.squareup.picasso.Picasso;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -140,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
 
 
-    private void saveURL(RSSList rssList) {
+    private Boolean saveURL(RSSList rssList) {
             int success = InternalDB.getInstance(getBaseContext()).saveEndPointURL(rssList);
             if(success == -2) {
                 Toast.makeText(this, "Feed already exists", Toast.LENGTH_SHORT).show();
@@ -149,10 +150,17 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             } else if(success != 0) {
                    //It was a true error, and we couldn't get the feed
                     Toast.makeText(getBaseContext(), "Error, couldn't access RSS feed", Toast.LENGTH_SHORT).show();
+            } else {
+                mainFragment.filltheAdapter();
+                return true;
             }
-            mainFragment.filltheAdapter();
+        return false;
+
     }
 
+    private void getFeedIcon(Context context, String imageURL, String title, Integer rowid) {
+        Picasso.with(context).load(imageURL).into(new TargetPhoneGallery(getContentResolver(), rowid, title));
+    }
 
     private void getRSS(final String endpoint) {
 
@@ -179,8 +187,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                     Log.d(TAG,"Setting URL: " + endpoint);
                     Log.d(TAG,"GETURL FROM RSSLIT: " + rssList.getURL());
                 }
-                //Add URL to Key EndpointURL and notify user
-                saveURL(rssList);
+
+                //If the rssList data was a success, try to download the image icon
+                if(saveURL(rssList) && rssList.getImageURL() != null ) {
+                    int rowID = InternalDB.getInstance(getBaseContext()).getRowIDforURL(rssList.getURL());
+                    getFeedIcon(getBaseContext(),rssList.getImageURL(),rssList.getTitle(),rowID);
+                };
 
             }
 

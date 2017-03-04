@@ -1,21 +1,27 @@
 package com.inshodesign.bossrss.DB;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 
+import com.inshodesign.bossrss.TargetPhoneGallery;
 import com.inshodesign.bossrss.XMLModel.RSSList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.Pack200;
 
 //import com.jukuproject.juku.CharacterLists;
 
 
-public class InternalDB extends SQLiteOpenHelper {
+public class InternalDB extends SQLiteOpenHelper implements TargetPhoneGallery.addMediaURIListener {
 
 //    private static boolean debug = false;
     private static String TAG = "InternalDB";
@@ -28,13 +34,12 @@ public class InternalDB extends SQLiteOpenHelper {
     public static final String TABLE_MAIN = "EndpointURL";
     public static final String TABLE_SUB = "RSSData";
     public static final String COL_ID = "_id";
-    public static final String COL_T1_TITLE = "Title";
 
-
-    public static final String COL_FOREIGNKEY = "FK_Endpoint_RSSData";
     public static final String COL0 = "URL";
-    public static final String COL1 = "Name";
-    public static final String COL2 = "Image";
+    public static final String COL1 = "Title";
+    public static final String COL2 = "ImageURL";
+    public static final String COL3 = "ImageURI";
+
 
 
     public static synchronized InternalDB getInstance(Context context) {
@@ -59,11 +64,13 @@ public class InternalDB extends SQLiteOpenHelper {
                                 "%s INTEGER PRIMARY KEY AUTOINCREMENT, " +
                                 "%s TEXT, " +
                                 "%s TEXT, " +
-                                "%s BLOB)", TABLE_MAIN,
+                                "%s TEXT, " +
+                                "%s TEXT)", TABLE_MAIN,
                         COL_ID,
                         COL0,
-                        COL_T1_TITLE
-                        ,COL2);
+                        COL1,
+                        COL2,
+                        COL3);
 
         sqlDB.execSQL(sqlQueryMain);
 
@@ -88,6 +95,33 @@ public class InternalDB extends SQLiteOpenHelper {
     }
 
 
+    public int getRowIDforURL(String URL) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        /** Before inserting record, check to see if feed already exists */
+        String queryRecordExists = "Select _id From " + TABLE_MAIN + " where url = ?" ;
+        Cursor c = db.rawQuery(queryRecordExists, new String[]{URL.trim()});
+        int result;
+        if (c.moveToFirst()) {
+            //A record already exists, so return -2
+            result = c.getInt(0);
+        } else {
+            result = -1;
+        }
+
+        c.close();
+        return result;
+    }
+
+    public void addMediaURItoDB(String URI, int rowID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL3, URI);
+        long x=db.insert(TABLE_MAIN, null, values);
+        db.close();
+        Log.d(TAG,"insert URI value:" + x);
+
+    }
 
     public int  saveEndPointURL(RSSList rssList) {
 
@@ -113,7 +147,7 @@ public class InternalDB extends SQLiteOpenHelper {
 
 //        /** If the device is offline, or otherwise fails to pull data, just save the URL only */
 //        if(!offlineURLOnly) {
-            values.put(COL_T1_TITLE, rssList.getTitle());
+            values.put(COL1, rssList.getTitle());
 //        }
 
         long x=db.insert(TABLE_MAIN, null, values);
@@ -123,7 +157,7 @@ public class InternalDB extends SQLiteOpenHelper {
     }
 
 
-    public List<RSSList> getRSSLists() {
+    public List<RSSList> getRSSLists(Context context) {
         List<RSSList> rssLists = new ArrayList<RSSList>();
         String querySelectAll = "Select * From " + TABLE_MAIN;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -141,10 +175,11 @@ public class InternalDB extends SQLiteOpenHelper {
                     itemData.setId(c.getInt(0));
                     itemData.setURL(c.getString(1));
                     itemData.setTitle(c.getString(2));
-
-                    if (!c.isNull(3)) {
-                        itemData.setImage(c.getBlob(3));
-                    }
+                    itemData.setImageURL(c.getString(3));
+                    itemData.setImageURI(c.getString(4));
+//                    if (!c.isNull(3)) {
+//                        itemData.setImage(c.getBlob(3));
+//                    }
 
                     rssLists.add(itemData);
 
@@ -160,7 +195,26 @@ public class InternalDB extends SQLiteOpenHelper {
             db.close();
         }
 
-//        Collections.sort(itemDataList);
+        //Now look for and attach images to the RSS LIST
+
+
+
+        return attachImagestoRSSLists(rssLists,context);
+    }
+
+    private List<RSSList> attachImagestoRSSLists(List<RSSList> rssLists, Context context) {
+        for (RSSList rssList : rssLists) {
+            if(rssList.getImageURI() != null) {
+                long selectedImageUri = ContentUris.parseId(Uri.parse(rssList.getImageURI()));
+                Bitmap bm = MediaStore.Images.Thumbnails.getThumbnail(
+                        context.getContentResolver(), selectedImageUri,MediaStore.Images.Thumbnails.MICRO_KIND,
+                        null );
+                rssList.setImage(bm);
+            }
+
+        }
+
+
         return rssLists;
     }
 

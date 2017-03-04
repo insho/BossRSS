@@ -1,6 +1,7 @@
 package com.inshodesign.bossrss.XMLModel;
 
 
+        import android.graphics.Bitmap;
         import android.os.Parcel;
         import android.os.Parcelable;
         import android.support.annotation.NonNull;
@@ -17,15 +18,19 @@ public class RSSList {
 
     private Integer id;
     private String title;
-    private byte[] image;
+    private Bitmap image;
+    private String imageURL;
+    private String imageURI;
     private String URL;
 
     public RSSList(Integer _id) {
      }
-    public RSSList(Integer _id, String title, byte[] _image, String _URL) {
+    public RSSList(Integer _id, String title, Bitmap _image, String _imageURL, String _imageURI, String _URL) {
         this.id = _id;
         this.title = title;
         this.image = _image;
+        this.imageURL = _imageURL;
+        this.imageURI = _imageURI;
         this.URL = _URL;
     }
 
@@ -53,7 +58,7 @@ public class RSSList {
         return (title != null);
     }
 
-    public byte[] getImage() {
+    public Bitmap getImage() {
         return image;
     }
 
@@ -61,7 +66,7 @@ public class RSSList {
         return (image != null);
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(Bitmap image) {
         this.image = image;
     }
 
@@ -70,10 +75,25 @@ public class RSSList {
     }
 
     public void setURL(String URL) {
-        this.URL = URL;
-    }
+        this.URL = URL;}
 
     public boolean hasURL() {
         return (URL != null);
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    public String getImageURI() {
+        return imageURI;
+    }
+
+    public void setImageURI(String imageURI) {
+        this.imageURI = imageURI;
     }
 }

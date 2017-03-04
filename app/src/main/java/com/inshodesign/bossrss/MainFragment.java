@@ -76,7 +76,8 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
 
     public void filltheAdapter() {
         //Initialize the rsslist;
-        List<RSSList> rssLists = InternalDB.getInstance(getContext()).getRSSLists();
+        List<RSSList> rssLists = InternalDB.getInstance(getContext()).getRSSLists(getContext());
+
 
         if(rssLists != null && rssLists.size()>0) {
             Log.d("InternalDB","Filladapterlist TITLE: " + rssLists.get(0).getTitle());
