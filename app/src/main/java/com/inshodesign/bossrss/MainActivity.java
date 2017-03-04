@@ -3,8 +3,11 @@ package com.inshodesign.bossrss;
 import android.app.DialogFragment;
 //import android.app.Fragment;
 //import android.app.FragmentManager;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,9 +26,12 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity implements MainFragment.OnMainOptionSelectedListener, AddFeedDialog.AddRSSDialogListener {
+public class MainActivity extends AppCompatActivity implements MainFragment.OnMainOptionSelectedListener, AddFeedDialog.AddRSSDialogListener, RemoveFeedDialog.RemoveRSSDialogListener {
 
     MainFragment mainFragment;
+    private AddFeedDialog addFeedDialogFragment;
+    private RemoveFeedDialog removeFeedDialogFragment;
+
     private static final boolean debug = true;
     private static final String TAG = "MainActivity";
 
@@ -52,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             }
 
             Drawable addRSS = ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp);
-            menu.add(0, 1, 0, "Cancel").setIcon(addRSS)
+            menu.add(0, 1, 0, "Add Feed").setIcon(addRSS)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }
@@ -67,18 +73,53 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 onBackPressed();
                 return true;
             case 1: // addRSS
-                DialogFragment newFragment = AddFeedDialog.newInstance(2);
-                newFragment.show(getFragmentManager(), "dialog");
+                if(addFeedDialogFragment == null || !addFeedDialogFragment.isAdded() ) {
+                    addFeedDialogFragment = AddFeedDialog.newInstance(false);
+                    addFeedDialogFragment.show(getFragmentManager(), "dialogAdd");
+                }
                 return true;
             default:
                 return false;
         }
     };
 
-    public void onMainOptionSelected(int position) {
+    public void showRSSListFragment(RSSList rssList) {
 
 
     }
+
+
+
+    @Override
+    public void onAddRSSDialogPositiveClick(String inputText) {
+//        Toast.makeText(this, "POS CLICK", Toast.LENGTH_SHORT).show();
+        getRSS(inputText);
+    }
+
+
+    public void showRemoveDialog(Integer removeRowID) {
+        if(removeFeedDialogFragment == null || !removeFeedDialogFragment.isAdded()) {
+            removeFeedDialogFragment = RemoveFeedDialog.newInstance(removeRowID);
+            removeFeedDialogFragment.show(getFragmentManager(), "dialogRemove");
+        }
+
+
+
+    }
+
+    @Override
+    public void onRemoveRSSDialogPositiveClick(int removeid) {
+
+
+        if(InternalDB.getInstance(getBaseContext()).deletedRSSFeed(removeid)) {
+            //If successfuly deleted, update fragment adapter
+            mainFragment.filltheAdapter();
+        } else {
+            Toast.makeText(this, "Could not remove item", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
 
     /**
      * You can add a time and section chooser element to the main activity if you want
@@ -97,16 +138,18 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     }
 
-    @Override
-    public void onDialogPositiveClick(String inputText) {
-//        Toast.makeText(this, "POS CLICK", Toast.LENGTH_SHORT).show();
-        getRSS(inputText);
-    }
+
 
     private void saveURL(RSSList rssList) {
-            InternalDB.getInstance(getBaseContext()).saveEndPointURL(rssList);
-            Toast.makeText(this, "Saved ", Toast.LENGTH_SHORT).show();
-
+            int success = InternalDB.getInstance(getBaseContext()).saveEndPointURL(rssList);
+            if(success == -2) {
+                Toast.makeText(this, "Feed already exists", Toast.LENGTH_SHORT).show();
+            } else if(!isOnline()) {
+                Toast.makeText(getBaseContext(), "Device is not online", Toast.LENGTH_SHORT).show();
+            } else if(success != 0) {
+                   //It was a true error, and we couldn't get the feed
+                    Toast.makeText(getBaseContext(), "Error, couldn't access RSS feed", Toast.LENGTH_SHORT).show();
+            }
             mainFragment.filltheAdapter();
     }
 
@@ -146,6 +189,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             @Override
             public void onError(final Throwable e) {
                 Log.d(TAG, "onError() called with: e = [" + e + "]");
+                if(!rssList.hasURL()) {
+                    rssList.setURL(endpoint);
+                }
+                saveURL(rssList);
+
+
             }
 
             @Override
@@ -198,5 +247,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 //                });
     }
 
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 }
 

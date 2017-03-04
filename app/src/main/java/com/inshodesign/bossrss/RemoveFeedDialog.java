@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.w3c.dom.Text;
@@ -26,63 +27,55 @@ import org.w3c.dom.Text;
  */
 
 
-public class AddFeedDialog extends DialogFragment {
+public class RemoveFeedDialog extends DialogFragment {
 
-    public AddRSSDialogListener mAddRSSDialogListener;
+    public RemoveRSSDialogListener mRemoveRSSDialogListener;
     String TAG = "TEST";
 
-    public interface AddRSSDialogListener {
-        void onAddRSSDialogPositiveClick(String rssURI);
+    public interface RemoveRSSDialogListener {
+        void onRemoveRSSDialogPositiveClick(int removeid);
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mAddRSSDialogListener = (AddRSSDialogListener) activity;
+            mRemoveRSSDialogListener = (RemoveRSSDialogListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement mAddRSSDialogListener");
         }
     }
 
-    public static AddFeedDialog newInstance(Boolean renamelist) {
-        AddFeedDialog frag = new AddFeedDialog();
+    public static RemoveFeedDialog newInstance(int removeid) {
+        RemoveFeedDialog frag = new RemoveFeedDialog();
         Bundle args = new Bundle();
-        args.putBoolean("renamelist", renamelist);
+        args.putInt("removeid", removeid);
         frag.setArguments(args);
         return frag;
     }
+
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.fragment_dialog, null);
+
+        final int removeid = getArguments().getInt("removeid",-1);
 
         TextView title = new TextView(getActivity());
-        title.setText(R.string.dialog_title);
+        title.setText(R.string.remove_dialog_title);
         title.setTextSize(18);
+        title.setPadding(20,0,0,0);
+        title.setGravity(Gravity.CENTER_VERTICAL);
+        title.setTextColor(ContextCompat.getColor(getActivity(),android.R.color.black));
         title.setMinHeight(80);
-        title.setGravity(Gravity.CENTER);
-        title.setTextColor(ContextCompat.getColor(getActivity(),android.R.color.white));
-        title.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary));
-        builder.setCustomTitle(title);
 
-
-//        View customtitleview = inflater.inflate(R.layout.customtitleview, null);
-
-        builder.setView(dialogView);
-
-//        TextView customTitle = (TextView) customtitleview.findViewById(R.id.customtitle);
-
-        final EditText editText = (EditText) dialogView.findViewById(R.id.input);
-        editText.setText(R.string.testurl);
+        builder.setView(title);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.d(TAG,"mAddRSSDialogListener: " + mAddRSSDialogListener);
-                mAddRSSDialogListener.onAddRSSDialogPositiveClick(editText.getText().toString().trim());
+//                Log.d(TAG,"mRemoveRSSDialogListener: " + mRemoveRSSDialogListener);
+                mRemoveRSSDialogListener.onRemoveRSSDialogPositiveClick(removeid);
                 dialog.dismiss();
             }
         });

@@ -57,6 +57,10 @@ public class RSSList {
         return image;
     }
 
+    public boolean hasImage() {
+        return (image != null);
+    }
+
     public void setImage(byte[] image) {
         this.image = image;
     }

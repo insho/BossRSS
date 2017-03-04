@@ -34,7 +34,9 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     OnMainOptionSelectedListener mCallback;
 
     public interface OnMainOptionSelectedListener {
-        void onMainOptionSelected(int position);
+        void showRSSListFragment(RSSList rssList);
+        void showRemoveDialog(Integer removeRowID);
+
     }
     private RxBus _rxBus = new RxBus();
     private RecyclerView mRecyclerView;
@@ -84,24 +86,30 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
 
             mAdapter = new RSSListAdapter(rssLists, _rxBus, getContext());
 
-
                 Log.d("InternalDB", "count: " + mAdapter.getItemCount());
 
 
             showRecyclerView(true);
 
-            _rxBus.toObserverable()
+            _rxBus.toClickObserverable()
                     .subscribe(new Action1<Object>() {
                         @Override
                         public void call(Object event) {
 
-                            if(event instanceof Integer) {
-//                            getBeerData(beerRecTMP,article );
-                                Toast.makeText(getContext(), "Clicked POS: " + event.toString(), Toast.LENGTH_SHORT).show();
+                            //If it's a short click, send user to RSSListFragment for that row
+                            if(event instanceof RSSList) {
+                                RSSList rssList = (RSSList) event;
+
+                                mCallback.showRSSListFragment(rssList);
+
+                            } else if (event instanceof Integer){
+                                mCallback.showRemoveDialog((Integer)event);
                             }
                         }
 
                     });
+
+
 
             mRecyclerView.setAdapter(mAdapter);
 
@@ -136,26 +144,13 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
-        mCallback.onMainOptionSelected(position);
+//        mCallback.onMainOptionSelected(position);
+        Toast.makeText(getActivity(), "ITS CLICKED: " + position, Toast.LENGTH_SHORT).show();
     }
 
 
-//    @Override
-//    public void onDialogPositiveClick(String rssURI) {
-//        Toast.makeText(getActivity(), "POS CLICK", Toast.LENGTH_SHORT).show();
-//    }
 
 
-
-
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//
-//        if (savedInstanceState != null) {
-//            mStackLevel = savedInstanceState.getInt("level");
-//        }
-//    }
 
 
 }

@@ -17,7 +17,7 @@ public class RxBus {
         _bus.onNext(o);
     }
 
-    public Observable<Object> toObserverable() {
+    public Observable<Object> toClickObserverable() {
         return _bus;
     }
 

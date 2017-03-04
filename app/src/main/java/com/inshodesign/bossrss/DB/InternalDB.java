@@ -94,11 +94,27 @@ public class InternalDB extends SQLiteOpenHelper {
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
 
+        /** Before inserting record, check to see if feed already exists */
+        String queryRecordExists = "Select _id From " + TABLE_MAIN + " where url = ?" ;
+        Cursor c = db.rawQuery(queryRecordExists, new String[]{rssList.getURL().trim()});
+            if (c.moveToFirst()) {
+                //A record already exists, so return -2
+                return -2;
+            }
+
+            c.close();
+
+
+
         Log.d(TAG,"putting url: " + rssList.getURL() );
         Log.d(TAG,"putting title: " +rssList.getTitle() );
 
-        values.put(COL0, rssList.getURL());
+            values.put(COL0, rssList.getURL());
+
+//        /** If the device is offline, or otherwise fails to pull data, just save the URL only */
+//        if(!offlineURLOnly) {
             values.put(COL_T1_TITLE, rssList.getTitle());
+//        }
 
         long x=db.insert(TABLE_MAIN, null, values);
             db.close();
@@ -109,9 +125,9 @@ public class InternalDB extends SQLiteOpenHelper {
 
     public List<RSSList> getRSSLists() {
         List<RSSList> rssLists = new ArrayList<RSSList>();
-        String refQuery = "Select * From " + TABLE_MAIN;
+        String querySelectAll = "Select * From " + TABLE_MAIN;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor c = db.rawQuery(refQuery, null);
+        Cursor c = db.rawQuery(querySelectAll, null);
 
 
         try {
@@ -139,6 +155,7 @@ public class InternalDB extends SQLiteOpenHelper {
                 } while (c.moveToNext());
             }
 
+            c.close();
         } finally {
             db.close();
         }
@@ -147,4 +164,14 @@ public class InternalDB extends SQLiteOpenHelper {
         return rssLists;
     }
 
+
+    public boolean deletedRSSFeed(int removeid) {
+        if(removeid >= 0) {
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.delete(TABLE_MAIN, removeid + "=" + COL_ID, null);
+            db.close();
+            return true;
+        }
+        return false;
+    };
 }
