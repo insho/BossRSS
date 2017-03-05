@@ -117,7 +117,15 @@ public class Channel {
         String link;
         @Element(name = "url", required = true)
         String url;
+
+        public String getUrl() {
+            return url;
+        }
+
+
     }
+
+
 
     public List<Link> getLinks() {
         return links;

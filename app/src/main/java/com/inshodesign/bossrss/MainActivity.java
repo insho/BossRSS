@@ -22,6 +22,7 @@ import com.inshodesign.bossrss.XMLModel.RSS;
 import com.inshodesign.bossrss.XMLModel.RSSList;
 import com.squareup.picasso.Picasso;
 
+import fr.castorflex.android.smoothprogressbar.SmoothProgressDrawable;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     MainFragment mainFragment;
     private AddFeedDialog addFeedDialogFragment;
     private RemoveFeedDialog removeFeedDialogFragment;
+
 
     private static final boolean debug = true;
     private static final String TAG = "MainActivity";
@@ -157,11 +159,17 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             } else if(!isOnline()) {
                 Toast.makeText(getBaseContext(), "Device is not online", Toast.LENGTH_SHORT).show();
                 mainFragment.filltheAdapter();
-            } else if(success != 0) {
-                   //It was a true error, and we couldn't get the feed
-                    Toast.makeText(getBaseContext(), "Error, couldn't access RSS feed", Toast.LENGTH_SHORT).show();
-                mainFragment.filltheAdapter();
-            } else {
+            }
+//            else if(success != 0) {
+//                   //It was a true error, and we couldn't get the feed
+//                    Toast.makeText(getBaseContext(), "Error, couldn't access RSS feed", Toast.LENGTH_SHORT).show();
+//                mainFragment.filltheAdapter();
+//            }
+            else {
+//                MainFragment fragment = getFragmentManager().findFragmentByTag("yourstringtag");
+//                if(getFragmentManager().findFragmentByTag("yourstringtag") != null && getFragmentManager().findFragmentByTag("yourstringtag").isAdded()) {
+//                    asdf
+//                }
                 mainFragment.filltheAdapter();
                 return true;
             }
@@ -175,7 +183,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     private void getRSS(final String endpoint) {
 
-
+        //Show progressbar
+        if(mainFragment!= null && mainFragment.isAdded()) {
+            mainFragment.showProgressBar(true);
+        }
 
         final RSSList rssList = new RSSList();
         Channel channel = new Channel();
@@ -186,12 +197,17 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         Observable<RSS> rssObservable = xmlAdapterFor.getFeed(endpoint);
 
 
+
         rssObservable.subscribeOn(Schedulers.io())
                  .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<RSS>() {
             @Override
             public void onCompleted() {
                 Log.d(TAG, "onCompleted() called");
+
+                if(mainFragment!= null && mainFragment.isAdded()) {
+                    mainFragment.showProgressBar(false);
+                }
 
                 if(!rssList.hasURL()) {
                     rssList.setURL(endpoint);
@@ -212,6 +228,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             @Override
             public void onError(final Throwable e) {
                 Log.d(TAG, "onError() called with: e = [" + e + "]");
+
+                if(mainFragment!= null && mainFragment.isAdded()) {
+                    mainFragment.showProgressBar(false);
+                }
+
                 if(!rssList.hasURL()) {
                     rssList.setURL(endpoint);
                 }
@@ -230,6 +251,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
                     /** Assign a title for the feed*/
                     if(rss.getChannel().getTitle() != null && !rssList.hasTitle()) {
+                        rssList.setTitle(rss.getChannel().getTitle());
+                    }
+                    if(rss.getChannel().getI() != null && !rssList.hasTitle()) {
                         rssList.setTitle(rss.getChannel().getTitle());
                     }
 

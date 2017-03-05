@@ -171,6 +171,8 @@ public class InternalDB extends SQLiteOpenHelper implements TargetPhoneGallery.a
 
                     Log.d(TAG,"putting url: " + c.getInt(0) );
                     Log.d(TAG,"putting title: " + c.getString(1) );
+                    Log.d(TAG,"putting imageURL: " + c.getString(2) );
+                    Log.d(TAG,"putting imageURI: " + c.getString(3) );
 
                     itemData.setId(c.getInt(0));
                     itemData.setURL(c.getString(1));

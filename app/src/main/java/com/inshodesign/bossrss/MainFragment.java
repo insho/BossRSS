@@ -22,6 +22,8 @@ import com.inshodesign.bossrss.XMLModel.RSSList;
 
 import java.util.List;
 
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
+import fr.castorflex.android.smoothprogressbar.SmoothProgressDrawable;
 import rx.functions.Action1;
 
 import static android.view.View.GONE;
@@ -43,7 +45,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     RSSListAdapter mAdapter;
     private TextView mNoLists;
     private RecyclerView.LayoutManager mLayoutManager;
-
+    private SmoothProgressBar progressbar;
 //    @Override
 //    public View onCreateView(LayoutInflater inflater,
 //                             ViewGroup container, Bundle savedInstanceState) {
@@ -58,6 +60,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerMain);
         mNoLists = (TextView) view.findViewById(R.id.nolists);
+        progressbar = (SmoothProgressBar) view.findViewById(R.id.progressbar);
         return view;
     }
 
@@ -72,6 +75,15 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
         filltheAdapter();
 
 
+    }
+
+    public void showProgressBar(Boolean show) {
+        if(show) {
+            progressbar.setVisibility(View.VISIBLE);
+        } else {
+            progressbar.setVisibility(View.GONE);
+
+        }
     }
 
     public void filltheAdapter() {
