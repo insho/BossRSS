@@ -163,6 +163,7 @@ public class Channel {
             this.pubDate = datasecond[1];
             this.source = datasecond[2];
 
+
         }
 
         public int describeContents(){
@@ -187,18 +188,28 @@ public class Channel {
                     this.source});
 
             };
+
+    public static final Parcelable.Creator<Item> CREATOR
+            = new Parcelable.Creator<Item>() {
+        public Item createFromParcel(Parcel in) {
+            return new Item(in);
         }
-        public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-            public Item createFromParcel(Parcel in) {
-                return new Item(in);
-            }
 
-            public Item[] newArray(int size) {
-                return new Item[size];
-            }
-        };
+        public Item[] newArray(int size) {
+            return new Item[size];
+        }
+    };
+//        public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+//            public Item createFromParcel(Parcel in) {
+//                return new Item(in);
+//            }
+//
+//            public Item[] newArray(int size) {
+//                return new Item[size];
+//            }
+//        };
 
-
+}
 
 
 

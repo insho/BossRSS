@@ -101,4 +101,9 @@ public class RSSList {
     public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
     }
+
+    public boolean hasBitmap() {
+        return (bitmap != null);
+    }
+
 }
