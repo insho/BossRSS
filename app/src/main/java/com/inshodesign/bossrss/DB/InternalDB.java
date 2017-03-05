@@ -146,9 +146,7 @@ public class InternalDB extends SQLiteOpenHelper implements TargetPhoneGallery.a
             values.put(COL0, rssList.getURL());
 
 //        /** If the device is offline, or otherwise fails to pull data, just save the URL only */
-//        if(!offlineURLOnly) {
             values.put(COL1, rssList.getTitle());
-//        }
 
         long x=db.insert(TABLE_MAIN, null, values);
             db.close();
@@ -159,7 +157,7 @@ public class InternalDB extends SQLiteOpenHelper implements TargetPhoneGallery.a
 
     public List<RSSList> getRSSLists(Context context) {
         List<RSSList> rssLists = new ArrayList<RSSList>();
-        String querySelectAll = "Select * From " + TABLE_MAIN;
+        String querySelectAll = "Select _id, URL, Title, ImageURL, ImageURI From " + TABLE_MAIN;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(querySelectAll, null);
 
@@ -179,15 +177,7 @@ public class InternalDB extends SQLiteOpenHelper implements TargetPhoneGallery.a
                     itemData.setTitle(c.getString(2));
                     itemData.setImageURL(c.getString(3));
                     itemData.setImageURI(c.getString(4));
-//                    if (!c.isNull(3)) {
-//                        itemData.setImage(c.getBlob(3));
-//                    }
-
                     rssLists.add(itemData);
-
-
-                    Log.d(TAG,"itemData url: " +itemData.getURL() );
-                    Log.d(TAG,"itemData title: " +itemData.getTitle() );
 
                 } while (c.moveToNext());
             }

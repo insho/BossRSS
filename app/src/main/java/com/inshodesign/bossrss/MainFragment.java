@@ -2,6 +2,7 @@ package com.inshodesign.bossrss;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import com.inshodesign.bossrss.Adapters.RSSListAdapter;
 import com.inshodesign.bossrss.Adapters.RxBus;
 import com.inshodesign.bossrss.DB.InternalDB;
+import com.inshodesign.bossrss.XMLModel.RSS;
 import com.inshodesign.bossrss.XMLModel.RSSList;
 
 import java.util.List;
@@ -32,27 +34,20 @@ import static android.view.View.GONE;
  * Created by JClassic on 2/21/2017.
  */
 
-public class MainFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class MainFragment extends Fragment {
     OnMainOptionSelectedListener mCallback;
 
     public interface OnMainOptionSelectedListener {
-        void showRSSListFragment(RSSList rssList);
+        void showRSSListFragment(RSSList rssList, @Nullable RSS rss);
         void showRemoveDialog(Integer removeRowID);
 
     }
+
     private RxBus _rxBus = new RxBus();
     private RecyclerView mRecyclerView;
     RSSListAdapter mAdapter;
     private TextView mNoLists;
-    private RecyclerView.LayoutManager mLayoutManager;
     private SmoothProgressBar progressbar;
-//    @Override
-//    public View onCreateView(LayoutInflater inflater,
-//                             ViewGroup container, Bundle savedInstanceState) {
-//        mRecyclerView = (RecyclerView) container.findViewById(R.id.recycler);
-//        mNoLists = (TextView) container.findViewById(R.id.nolists);
-//        return inflater.inflate(R.layout.fragment_main, container, false);
-//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -68,13 +63,9 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mLayoutManager = new LinearLayoutManager(getContext());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+        mRecyclerView.setLayoutManager(layoutManager);
         filltheAdapter();
-
-
     }
 
     public void showProgressBar(Boolean show) {
@@ -90,17 +81,13 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
         //Initialize the rsslist;
         List<RSSList> rssLists = InternalDB.getInstance(getContext()).getRSSLists(getContext());
 
-
         if(rssLists != null && rssLists.size()>0) {
             Log.d("InternalDB","Filladapterlist TITLE: " + rssLists.get(0).getTitle());
         }
 
         if(rssLists != null && rssLists.size() > 0) {
-
             mAdapter = new RSSListAdapter(rssLists, _rxBus, getContext());
-
                 Log.d("InternalDB", "count: " + mAdapter.getItemCount());
-
 
             showRecyclerView(true);
 
@@ -113,7 +100,7 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
                             if(event instanceof RSSList) {
                                 RSSList rssList = (RSSList) event;
 
-                                mCallback.showRSSListFragment(rssList);
+                                mCallback.showRSSListFragment(rssList, null);
 
                             } else if (event instanceof Integer){
                                 mCallback.showRemoveDialog((Integer)event);
@@ -133,8 +120,9 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
 
     }
 
-    private void showRecyclerView(boolean show) {
 
+    /** If there are no saved lists, hide recycler and show No Lists message **/
+    private void showRecyclerView(boolean show) {
         if(show) {
             mRecyclerView.setVisibility(View.VISIBLE);
             mNoLists.setVisibility(View.GONE);
@@ -155,16 +143,10 @@ public class MainFragment extends Fragment implements AdapterView.OnItemClickLis
         }
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
-//        mCallback.onMainOptionSelected(position);
-//        Toast.makeText(getActivity(), "ITS CLICKED: " + position, Toast.LENGTH_SHORT).show();
-    }
-
-
-
-
-
+//    @Override
+//    public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
+//
+//    }
 
 }
 

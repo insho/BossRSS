@@ -34,6 +34,8 @@ public class RemoveFeedDialog extends DialogFragment {
 
     public interface RemoveRSSDialogListener {
         void onRemoveRSSDialogPositiveClick(int removeid);
+        void onRemoveRSSDialogDismiss();
+
     }
 
     @Override
@@ -46,13 +48,27 @@ public class RemoveFeedDialog extends DialogFragment {
         }
     }
 
+//    private static RemoveFeedDialog instance;
+
     public static RemoveFeedDialog newInstance(int removeid) {
+//        if(RemoveFeedDialog.instance == null) {
+//
+//        }
+//
         RemoveFeedDialog frag = new RemoveFeedDialog();
         Bundle args = new Bundle();
         args.putInt("removeid", removeid);
         frag.setArguments(args);
         return frag;
     }
+
+//    public static MyDialogController getInstance() {
+//        if ( MyDialogController.instance == null ) {
+//            MyDialogController.instance = new MyDialogController();
+//        }
+//
+//        return MyDialogController.instance;
+//    }
 
 
     @Override
@@ -92,5 +108,13 @@ public class RemoveFeedDialog extends DialogFragment {
 
 
         return builder.create();
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+
+        mRemoveRSSDialogListener.onRemoveRSSDialogDismiss();
+
     }
 }

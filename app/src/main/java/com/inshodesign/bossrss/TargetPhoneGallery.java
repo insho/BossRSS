@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 
 import com.inshodesign.bossrss.DB.InternalDB;
 import com.squareup.picasso.Picasso;
@@ -20,10 +21,10 @@ public class TargetPhoneGallery implements Target {
     addMediaURIListener mCallback;
 
         private final WeakReference<ContentResolver> resolver;
-        private final String title;
+        private String title;
         private final int rowID;
 
-        public TargetPhoneGallery(ContentResolver r, int rowID, String title)
+        public TargetPhoneGallery(ContentResolver r, int rowID, @Nullable String title)
         {
             this.resolver = new WeakReference<ContentResolver>(r);
             this.rowID = rowID;
@@ -44,6 +45,9 @@ public class TargetPhoneGallery implements Target {
             ContentResolver r = resolver.get();
             if (r != null)
             {
+                if(title == null) {
+                    title = "BossRSSimage";
+                }
                String uri = MediaStore.Images.Media.insertImage(r, bitmap, "img-" + rowID, title);
                 //TODO == put this in a listener callback thing?
                 mCallback.addMediaURItoDB(uri, rowID);

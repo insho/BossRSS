@@ -19,7 +19,10 @@ public class RSS {
     @Element
     Channel channel;
 
+    @Element
+    Channel.Image image;
 
+    public Channel.Image getImage() { return image;}
 
     public Channel getChannel() {
         return channel;
