@@ -14,6 +14,7 @@ package com.inshodesign.bossrss.Adapters;
         import android.widget.TextView;
 
         import com.inshodesign.bossrss.R;
+        import com.inshodesign.bossrss.XMLModel.Channel;
         import com.inshodesign.bossrss.XMLModel.RSS;
         import com.inshodesign.bossrss.XMLModel.RSSList;
         import com.squareup.picasso.Picasso;
@@ -27,7 +28,7 @@ package com.inshodesign.bossrss.Adapters;
 public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.ViewHolder> {
 
 //    private RxBus _rxbus;
-    private List<RSS> mDataset;
+    private List<Channel.Item> mDataset;
     private Context mContext;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -43,7 +44,7 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
         }
     }
 
-    public RSSContentsAdapter(List<RSS> myDataset, Context context) {
+    public RSSContentsAdapter(List<Channel.Item> myDataset, Context context) {
         mDataset = myDataset;
 //        _rxbus = rxBus;
         mContext = context;
@@ -79,14 +80,14 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 //        }
 
 
-        Log.d("InternalDB","Holdertest: " + mDataset.get(position).getChannel().getTitle());
-        holder.txtTitle.setText(mDataset.get(position).getChannel().getTitle());
+//        Log.d("InternalDB","Holdertest: " + mDataset.get(position).;
+        holder.txtTitle.setText(mDataset.get(position).getTitle());
 
 
 
 
-        if(mDataset.get(position).getChannel().getImage() != null && mDataset.get(position).getChannel().getImage().getUrl() != null) {
-            Picasso.with(mContext).load(mDataset.get(position).getChannel().getImage().getUrl())
+        if(mDataset.get(position).getMediaThumbnail() != null && mDataset.get(position).getMediaThumbnail().getUrl() != null) {
+            Picasso.with(mContext).load(mDataset.get(position).getMediaThumbnail().getUrl())
 //                    .error(R.drawable.placeholder)
 //                    .placeholder(R.drawable.placeholder)
                     .into(holder.image);
@@ -107,11 +108,11 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
     }
 
 
-    public RSS getRSSItem(int position) {
-
-        return mDataset.get(position);
-
-    }
+//    public RSS getRSSItem(int position) {
+//
+//        return mDataset.get(position);
+//
+//    }
 
 
 

@@ -103,9 +103,9 @@ public class InternalDB extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL3, URI);
-        long x=db.insert(TABLE_MAIN, null, values);
+        db.update(TABLE_MAIN, values, COL_ID + "= ?", new String[] {String.valueOf(rowID)});
         db.close();
-        Log.d(TAG,"insert URI value:" + x);
+        Log.d(TAG,"SUCESSFUL INSERT URI value at ROW " + rowID);
 
     }
 

@@ -13,6 +13,7 @@ package com.inshodesign.bossrss;
         import android.widget.TextView;
 
         import com.inshodesign.bossrss.Adapters.RSSContentsAdapter;
+        import com.inshodesign.bossrss.XMLModel.Channel;
         import com.inshodesign.bossrss.XMLModel.RSS;
         import com.inshodesign.bossrss.XMLModel.RSSList;
 
@@ -70,14 +71,23 @@ public class DisplayRSSFragment extends Fragment  {
 
     private void filltheAdapter() {
 
-       final  List<RSS> rssList = new ArrayList<RSS>();
-        mAdapter = new RSSContentsAdapter(rssList, getContext());
-        mRecyclerView.setAdapter(mAdapter);
+        progressbar.setVisibility(View.VISIBLE);
+       final  Channel rssChannel = new Channel();
+
+        List<Channel.Item> listItems ;
+
 
         RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "http://www.google.com");
         Observable<RSS> rssObservable = xmlAdapterFor.getFeed(getArguments().getString("link"));
 
-        rssObservable.subscribeOn(Schedulers.io())
+//        fooContainerObservable
+//                .map(container -> container.getFooList())
+//                .flatMap(foo -> transformFooToFooBar(foo))
+//                .toList()
+//                .subscribe(fooBarList -> /* Display the list */);
+
+        rssObservable
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<RSS>() {
                     @Override
@@ -104,8 +114,8 @@ public class DisplayRSSFragment extends Fragment  {
                         if (rss.getChannel() != null) {
 
 
-                            rssList.add(rss);
-                            mAdapter.notifyDataSetChanged();
+                            mAdapter = new RSSContentsAdapter(rss.getChannel().getItemList(), getContext());
+                            mRecyclerView.setAdapter(mAdapter);
 
 
                         }

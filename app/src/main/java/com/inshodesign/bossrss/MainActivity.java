@@ -253,6 +253,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                     public void onCompleted() {
                         Log.d(TAG, "onCompleted() called");
 
+
+                        // TODO main fragment replace, or just do this in main fragment!!!
                         if (mainFragment != null && mainFragment.isAdded()) {
                             mainFragment.showProgressBar(false);
                         }
