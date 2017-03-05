@@ -24,7 +24,7 @@ import java.util.jar.Pack200;
 public class InternalDB extends SQLiteOpenHelper {
 
 //    private static boolean debug = false;
-    private static String TAG = "InternalDB";
+    private static String TAG = "TEST -- Internal";
     private static InternalDB sInstance;
 
     public static  String DB_NAME =  "JQuiz";
@@ -32,7 +32,6 @@ public class InternalDB extends SQLiteOpenHelper {
     public static final int DB_VERSION = 1;
 
     public static final String TABLE_MAIN = "EndpointURL";
-    public static final String TABLE_SUB = "RSSData";
     public static final String COL_ID = "_id";
 
     public static final String COL0 = "URL";
@@ -73,19 +72,6 @@ public class InternalDB extends SQLiteOpenHelper {
                         COL3);
 
         sqlDB.execSQL(sqlQueryMain);
-
-//        String sqlQuerySub =
-//                String.format("CREATE TABLE IF NOT EXISTS %s (" +
-//                                "%s INTEGER PRIMARY KEY AUTOINCREMENT, " +
-//                                "%s INTEGER,  " +
-//                                "%s TEXT, " +
-//                                "%s BLOB)", TABLE_SUB,
-//                        COL_ID,
-//                        COL_FOREIGNKEY,
-//                        COL1,
-//                        COL2);
-//
-//        sqlDB.execSQL(sqlQuerySub);
 
     }
 
@@ -189,7 +175,7 @@ public class InternalDB extends SQLiteOpenHelper {
 
         //Now look for and attach images to the RSS LIST
 
-
+        Log.d(TAG,"HEEEEERE");
 
         return attachImagestoRSSLists(rssLists,context);
     }

@@ -13,7 +13,7 @@ public class APIService {
 
     public static <T> T createXmlAdapterFor(final Class<T> api, final String endpoint) {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(endpoint)
+                .baseUrl("http://www.google.com/")
                 .client(new OkHttpClient()) // Use OkHttp3 client
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) // RxJava adapter
                 .addConverterFactory(SimpleXmlConverterFactory.create()) // Simple XML converter

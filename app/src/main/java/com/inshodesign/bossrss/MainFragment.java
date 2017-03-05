@@ -100,7 +100,7 @@ public class MainFragment extends Fragment {
                             //If it's a short click, send user to RSSListFragment for that row
                             if(event instanceof RSSList) {
                                 RSSList rssList = (RSSList) event;
-
+                                Log.d("TEST -- FRAGMAIN","callback to showRSS");
                                 mCallback.showRSSListFragment(rssList, null);
 
                             } else if (event instanceof Integer){

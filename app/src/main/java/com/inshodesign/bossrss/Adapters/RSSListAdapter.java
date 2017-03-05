@@ -67,9 +67,15 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
         /** If there is an image icon, show it**/
         if(mDataset.get(position).hasImage()) {
             Drawable image = new BitmapDrawable(mContext.getResources(), mDataset.get(position).getImage());
+
+                Picasso.with(mContext).load(mDataset.get(position).getImageURI())
+//                    .error(R.drawable.placeholder)
+//                    .placeholder(R.drawable.placeholder)
+                        .into(holder.image);
+
             holder.image.setVisibility(View.VISIBLE);
             holder.image.setImageDrawable(image);
-
+            holder.image.setAdjustViewBounds(true);
 
         }  else {
             holder.image.setVisibility(View.GONE);

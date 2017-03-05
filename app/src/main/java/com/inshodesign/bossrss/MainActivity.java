@@ -121,9 +121,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             getFeedIcon(getBaseContext(), rssList);
         }
 
+        Log.d(TAG,"HERE IN showRSSListFRagment");
 
         //If the RSS data is already downloaded, plug it in and move forward. If not, download data
-        if (rss != null) {
+//        if (rss != null) {
 
 
 //                DisplayRSSFragment rssFragment;
@@ -157,9 +158,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
             showToolBarBackButton(true, rssList.getTitle());
 
-        } else {
-            //GET RSS DATA
-        }
+//        } else {
+//            //GET RSS DATA
+//        }
 
     }
 
@@ -242,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
         //TODO -- SWITCH FOR REAL URL!
 //        String endpoint = "http://www.thestar.com/feeds.topstories.rss";
-        RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, endpoint);
+        RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "");
         Observable<RSS> rssObservable = xmlAdapterFor.getFeed(endpoint);
 
         rssObservable.subscribeOn(Schedulers.io())

@@ -12,8 +12,12 @@ package com.inshodesign.bossrss;
         import android.widget.AdapterView;
         import android.widget.TextView;
 
+        import com.inshodesign.bossrss.Adapters.RSSContentsAdapter;
         import com.inshodesign.bossrss.XMLModel.RSS;
         import com.inshodesign.bossrss.XMLModel.RSSList;
+
+        import java.util.ArrayList;
+        import java.util.List;
 
         import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
         import rx.Observable;
@@ -30,6 +34,7 @@ public class DisplayRSSFragment extends Fragment  {
     private RecyclerView mRecyclerView;
     private SmoothProgressBar progressbar;
     private String TAG = "TEST--RSSFRAG";
+    RSSContentsAdapter mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -53,9 +58,23 @@ public class DisplayRSSFragment extends Fragment  {
         filltheAdapter();
     }
 
-    private void filltheADapter() {
+    private void determinePattern(){
+        //TODO
 
-        RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, getArguments().getString("link"));
+        /**
+         * Determine pattern of the adapter
+         *
+         * spit out a the type of container we'll fill
+         * */
+    }
+
+    private void filltheAdapter() {
+
+       final  List<RSS> rssList = new ArrayList<RSS>();
+        mAdapter = new RSSContentsAdapter(rssList, getContext());
+        mRecyclerView.setAdapter(mAdapter);
+
+        RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "http://www.google.com");
         Observable<RSS> rssObservable = xmlAdapterFor.getFeed(getArguments().getString("link"));
 
         rssObservable.subscribeOn(Schedulers.io())
@@ -85,15 +104,9 @@ public class DisplayRSSFragment extends Fragment  {
                         if (rss.getChannel() != null) {
 
 
-                            /** Assign a title for the feed*/
-                            if (rss.getChannel() != null && !rssList.hasTitle()) {
-                                rssList.setTitle(rss.getChannel().getTitle());
-                            }
+                            rssList.add(rss);
+                            mAdapter.notifyDataSetChanged();
 
-                            /** Get imageURL*/
-                            if (rss.getChannel() != null && rss.getChannel().getImage() != null && rss.getChannel().getImage().getUrl() != null) {
-                                rssList.setImageURL(rss.getChannel().getImage().getUrl());
-                            }
 
                         }
                         ;
