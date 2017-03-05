@@ -16,6 +16,7 @@ package com.inshodesign.bossrss;
 
         import com.inshodesign.bossrss.Adapters.RSSContentsAdapter;
         import com.inshodesign.bossrss.XMLModel.Channel;
+        import com.inshodesign.bossrss.XMLModel.ParcebleItem;
         import com.inshodesign.bossrss.XMLModel.RSS;
         import com.inshodesign.bossrss.XMLModel.RSSList;
 
@@ -38,6 +39,7 @@ public class RSSItemsFragment extends Fragment  {
     private SmoothProgressBar progressbar;
     private String TAG = "TEST--RSSFRAG";
     RSSContentsAdapter mAdapter;
+    private ArrayList<ParcebleItem> mDataset;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -52,7 +54,7 @@ public class RSSItemsFragment extends Fragment  {
         return view;
     }
 
-    public static RSSItemsFragment newInstance(@Nullable final String listTitle, @Nullable String feedURL, @NonNull final ArrayList<Channel.Item> items) {
+    public static RSSItemsFragment newInstance(@Nullable final String listTitle, @Nullable String feedURL, @NonNull final ArrayList<ParcebleItem> items) {
         final RSSItemsFragment fragment = new RSSItemsFragment();
         final Bundle args = new Bundle();
         args.putString("title",listTitle);
@@ -71,14 +73,24 @@ public class RSSItemsFragment extends Fragment  {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
+
+        //SET TITLE
+        getArguments().getString("title");
+        mDataset = getArguments().getParcelableArrayList("items");
+        updateAdapter(mDataset);
 //        filltheAdapter();
     }
 
-    public void updateItemListAdapter(List<Channel.Item> items) {
-
+    private void updateAdapter(ArrayList<ParcebleItem> items) {
         mAdapter = new RSSContentsAdapter(items, getContext());
         mRecyclerView.setAdapter(mAdapter);
     }
+
+//    public void updateItemListAdapter(List<Channel.Item> items) {
+//
+//        mAdapter = new RSSContentsAdapter(items, getContext());
+//        mRecyclerView.setAdapter(mAdapter);
+//    }
 
 
     private void determinePattern(){
@@ -91,60 +103,60 @@ public class RSSItemsFragment extends Fragment  {
          * */
     }
 
-    private void filltheAdapter() {
-
-        progressbar.setVisibility(View.VISIBLE);
-       final  Channel rssChannel = new Channel();
-
-        List<Channel.Item> listItems ;
-
-
-        RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "http://www.google.com");
-        Observable<RSS> rssObservable = xmlAdapterFor.getFeed(getArguments().getString("link"));
-
-//        fooContainerObservable
-//                .map(container -> container.getFooList())
-//                .flatMap(foo -> transformFooToFooBar(foo))
-//                .toList()
-//                .subscribe(fooBarList -> /* Display the list */);
-
-        rssObservable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<RSS>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d(TAG, "onCompleted() called");
-
-                        progressbar.setVisibility(View.GONE);
-
-                    }
-
-
-                    @Override
-                    public void onError(final Throwable e) {
-                        Log.d(TAG, "onError() called with: e = [" + e + "]");
-
-
-
-
-                    }
-
-                    @Override
-                    public void onNext(final RSS rss) {
-                        Log.d(TAG, "onNext() called with: rss = [" + rss + "]");
-                        if (rss.getChannel() != null) {
-
-
-                            mAdapter = new RSSContentsAdapter(rss.getChannel().getItemList(), getContext());
-                            mRecyclerView.setAdapter(mAdapter);
-
-
-                        }
-                        ;
-                    }
-                });
-    }
+//    private void filltheAdapter() {
+//
+//        progressbar.setVisibility(View.VISIBLE);
+//       final  Channel rssChannel = new Channel();
+//
+//        List<Channel.Item> listItems ;
+//
+//
+//        RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "http://www.google.com");
+//        Observable<RSS> rssObservable = xmlAdapterFor.getFeed(getArguments().getString("link"));
+//
+////        fooContainerObservable
+////                .map(container -> container.getFooList())
+////                .flatMap(foo -> transformFooToFooBar(foo))
+////                .toList()
+////                .subscribe(fooBarList -> /* Display the list */);
+//
+//        rssObservable
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Subscriber<RSS>() {
+//                    @Override
+//                    public void onCompleted() {
+//                        Log.d(TAG, "onCompleted() called");
+//
+//                        progressbar.setVisibility(View.GONE);
+//
+//                    }
+//
+//
+//                    @Override
+//                    public void onError(final Throwable e) {
+//                        Log.d(TAG, "onError() called with: e = [" + e + "]");
+//
+//
+//
+//
+//                    }
+//
+//                    @Override
+//                    public void onNext(final RSS rss) {
+//                        Log.d(TAG, "onNext() called with: rss = [" + rss + "]");
+//                        if (rss.getChannel() != null) {
+//
+//
+//                            mAdapter = new RSSContentsAdapter(rss.getChannel().getItemList(), getContext());
+//                            mRecyclerView.setAdapter(mAdapter);
+//
+//
+//                        }
+//                        ;
+//                    }
+//                });
+//    }
 
 
 

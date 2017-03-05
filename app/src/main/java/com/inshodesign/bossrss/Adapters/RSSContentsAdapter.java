@@ -15,10 +15,12 @@ package com.inshodesign.bossrss.Adapters;
 
         import com.inshodesign.bossrss.R;
         import com.inshodesign.bossrss.XMLModel.Channel;
+        import com.inshodesign.bossrss.XMLModel.ParcebleItem;
         import com.inshodesign.bossrss.XMLModel.RSS;
         import com.inshodesign.bossrss.XMLModel.RSSList;
         import com.squareup.picasso.Picasso;
 
+        import java.util.ArrayList;
         import java.util.List;
 
 /**
@@ -28,7 +30,7 @@ package com.inshodesign.bossrss.Adapters;
 public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.ViewHolder> {
 
 //    private RxBus _rxbus;
-    private List<Channel.Item> mDataset;
+    private ArrayList<ParcebleItem> mDataset;
     private Context mContext;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -44,7 +46,7 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
         }
     }
 
-    public RSSContentsAdapter(List<Channel.Item> myDataset, Context context) {
+    public RSSContentsAdapter(ArrayList<ParcebleItem> myDataset, Context context) {
         mDataset = myDataset;
 //        _rxbus = rxBus;
         mContext = context;
@@ -55,7 +57,7 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
     public RSSContentsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                         int viewType) {
 
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_rsslist_recycler_row, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_rssitems_recycler_row, parent, false);
 
 
         return new ViewHolder(v);
@@ -86,8 +88,8 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 
 
 
-        if(mDataset.get(position).getMediaThumbnail() != null && mDataset.get(position).getMediaThumbnail().getUrl() != null) {
-            Picasso.with(mContext).load(mDataset.get(position).getMediaThumbnail().getUrl())
+        if(mDataset.get(position).getThumbnailURL() != null) {
+            Picasso.with(mContext).load(mDataset.get(position).getThumbnailURL())
 //                    .error(R.drawable.placeholder)
 //                    .placeholder(R.drawable.placeholder)
                     .into(holder.image);
