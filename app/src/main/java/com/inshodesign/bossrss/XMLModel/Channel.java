@@ -146,7 +146,7 @@ public class Channel {
 
         // Parcelling part
         private  Item(Parcel in){
-            String[] datafirst = new String[7];
+            String[] datafirst = new String[10];
 
             in.readStringArray(datafirst);
             this.title = datafirst[0];
@@ -156,12 +156,13 @@ public class Channel {
             this.category = datafirst[4];
             this.comments = datafirst[5];
             this.enclosure = datafirst[6];
+
+            this.guid = datafirst[0];
+            this.pubDate = datafirst[1];
+            this.source = datafirst[2];
+
             in.readTypedList(mediaContentList,MediaContent.CREATOR);
             in.readTypedList(mediaThumbnailList,MediaThumbnail.CREATOR);
-            String[] datasecond = new String[3];
-            this.guid = datasecond[0];
-            this.pubDate = datasecond[1];
-            this.source = datasecond[2];
 
 
         }
@@ -179,13 +180,13 @@ public class Channel {
                     this.author,
                     this.category,
                     this.comments,
-                    this.enclosure});
-            dest.writeTypedList(mediaContentList);
-            dest.writeTypedList(mediaThumbnailList);
-            dest.writeStringArray(new String[] {
+                    this.enclosure,
                     this.guid,
                     this.pubDate,
                     this.source});
+
+            dest.writeTypedList(mediaContentList);
+            dest.writeTypedList(mediaThumbnailList);
 
             };
 
