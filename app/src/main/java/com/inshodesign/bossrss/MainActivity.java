@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
 
     /** Try to pull the feed.  */
-    private void getRSSFeed(final String feedURL) {
+    public void getRSSFeed(final String feedURL) {
         final MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment");
         if (mainFragment != null && mainFragment.isAdded()) {
             mainFragment.showProgressBar(true);

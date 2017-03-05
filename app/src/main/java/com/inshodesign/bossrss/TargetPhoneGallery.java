@@ -22,48 +22,48 @@ import java.lang.ref.WeakReference;
 public class TargetPhoneGallery implements Target {
 //    private AddMediaURIListener mCallback;
 
-        private final WeakReference<ContentResolver> resolver;
-        private String title;
-        private final String feedURL;
+    private final WeakReference<ContentResolver> resolver;
+    private String title;
+    private final int rowID;
     private Context context;
 
 
-        public TargetPhoneGallery(ContentResolver r, String feedURL, @Nullable String title, Context context)
-        {
-            this.resolver = new WeakReference<ContentResolver>(r);
-            this.feedURL = feedURL;
-            this.title = title;
-            this.context = context;
+    public TargetPhoneGallery(ContentResolver r, int rowID, @Nullable String title, Context context)
+    {
+        this.resolver = new WeakReference<ContentResolver>(r);
+        this.rowID = rowID;
+        this.title = title;
+        this.context = context;
 //            this.addMediaURIListener = callback;
-        }
-
-
-
-        @Override
-        public void onPrepareLoad (Drawable arg0)
-        {
-        }
-
-        @Override
-        public void onBitmapLoaded (Bitmap bitmap, Picasso.LoadedFrom arg1)
-        {
-            ContentResolver r = resolver.get();
-            if (r != null)
-            {
-                if(title == null) {
-                    title = "BossRSSimage";
-                }
-               String uri = MediaStore.Images.Media.insertImage(r, bitmap, "img-" + rowID, title);
-
-                InternalDB.getInstance(context).addMediaURItoDB(uri, feedURL);
-//                mCallback.addMediaURItoDB(uri, rowID);
-            }
-        }
-
-        @Override
-        public void onBitmapFailed (Drawable arg0)
-        {
-        }
-
-
     }
+
+
+
+    @Override
+    public void onPrepareLoad (Drawable arg0)
+    {
+    }
+
+    @Override
+    public void onBitmapLoaded (Bitmap bitmap, Picasso.LoadedFrom arg1)
+    {
+        ContentResolver r = resolver.get();
+        if (r != null)
+        {
+            if(title == null) {
+                title = "BossRSSimage";
+            }
+            String uri = MediaStore.Images.Media.insertImage(r, bitmap, "img-" + rowID, title);
+
+            InternalDB.getInstance(context).addMediaURItoDB(uri, rowID);
+//                mCallback.addMediaURItoDB(uri, rowID);
+        }
+    }
+
+    @Override
+    public void onBitmapFailed (Drawable arg0)
+    {
+    }
+
+
+}

@@ -40,7 +40,7 @@ public class MainFragment extends Fragment {
     OnMainOptionSelectedListener mCallback;
 
     public interface OnMainOptionSelectedListener {
-        void showRSSListFragment(String title, String feedURL, ArrayList<Channel.Item> items);
+        void getRSSFeed(final String feedURL);
         void showRemoveDialog(Integer removeRowID);
     }
 
@@ -66,7 +66,9 @@ public class MainFragment extends Fragment {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
-        filltheAdapter();
+        if(mAdapter == null) {
+            updateAdapter();
+        }
     }
 
     public void showProgressBar(Boolean show) {
@@ -98,13 +100,14 @@ public class MainFragment extends Fragment {
                         @Override
                         public void call(Object event) {
 
-                            //If it's a short click, send user to RSSListFragment for that row
+                            /** Ignorant way of differentiating between short and long clicks... **/
                             if(event instanceof RSSList) {
                                 RSSList rssList = (RSSList) event;
                                 Log.d("TEST -- FRAGMAIN","callback to showRSS");
-                                mCallback.showRSSListFragment(rssList, null);
+                                mCallback.getRSSFeed(rssList.getURL());
 
                             } else if (event instanceof Integer){
+                                /** On long click show remove list dialog **/
                                 mCallback.showRemoveDialog((Integer)event);
                             }
                         }

@@ -83,9 +83,6 @@ public class InternalDB extends SQLiteOpenHelper {
 
 
 
-
-    /*********/
-
     public boolean duplicateFeed(String feedURL) {
 
         /** Before inserting record, check to see if feed already exists */
@@ -172,51 +169,52 @@ public class InternalDB extends SQLiteOpenHelper {
         return result;
     }
 
-    public void addMediaURItoDB(String URI, String feedURL) {
+    public void addMediaURItoDB(String URI, int rowID) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL3, URI);
-        db.update(TABLE_MAIN, values, COL0 + "= ?", new String[] {feedURL});
+        db.update(TABLE_MAIN, values, COL_ID + "= ?", new String[] {String.valueOf(rowID)});
         db.close();
-        Log.d(TAG,"SUCESSFUL INSERT URI value at feedURL: " + feedURL);
+        Log.d(TAG,"SUCESSFUL INSERT URI value at row: " + rowID);
 
     }
 
 
+//
+//    public int  saveEndPointURL(RSSList rssList) {
+//
+//            SQLiteDatabase db = this.getWritableDatabase();
+//            ContentValues values = new ContentValues();
+//
+//        /** Before inserting record, check to see if feed already exists */
+//        String queryRecordExists = "Select _id From " + TABLE_MAIN + " where url = ?" ;
+//        Cursor c = db.rawQuery(queryRecordExists, new String[]{rssList.getURL().trim()});
+//            if (c.moveToFirst()) {
+//                //A record already exists, so return -2
+//                return -2;
+//            }
+//
+//            c.close();
+//
+//
+//
+//        Log.d(TAG,"putting url: " + rssList.getURL() );
+//        Log.d(TAG,"putting title: " +rssList.getTitle() );
+//
+//            values.put(COL0, rssList.getURL());
+//
+////        /** If the device is offline, or otherwise fails to pull data, just save the URL only */
+//            values.put(COL1, rssList.getTitle());
+//
+//        long x=db.insert(TABLE_MAIN, null, values);
+//            db.close();
+//            Log.d(TAG,"insert x value:" + x);
+//            return (int)x;
+//    }
 
-    public int  saveEndPointURL(RSSList rssList) {
 
-            SQLiteDatabase db = this.getWritableDatabase();
-            ContentValues values = new ContentValues();
-
-        /** Before inserting record, check to see if feed already exists */
-        String queryRecordExists = "Select _id From " + TABLE_MAIN + " where url = ?" ;
-        Cursor c = db.rawQuery(queryRecordExists, new String[]{rssList.getURL().trim()});
-            if (c.moveToFirst()) {
-                //A record already exists, so return -2
-                return -2;
-            }
-
-            c.close();
-
-
-
-        Log.d(TAG,"putting url: " + rssList.getURL() );
-        Log.d(TAG,"putting title: " +rssList.getTitle() );
-
-            values.put(COL0, rssList.getURL());
-
-//        /** If the device is offline, or otherwise fails to pull data, just save the URL only */
-            values.put(COL1, rssList.getTitle());
-
-        long x=db.insert(TABLE_MAIN, null, values);
-            db.close();
-            Log.d(TAG,"insert x value:" + x);
-            return (int)x;
-    }
-
-
-
+    /** This pulls the RSSList dataset for the mainfragment recycler **/
+    /** IT is also chained to the attachImagestoRSSLists which matches downloaded thumbnails to the RSSList rows **/
     public List<RSSList> getRSSLists(Context context) {
         List<RSSList> rssLists = new ArrayList<RSSList>();
         String querySelectAll = "Select _id, URL, Title, ImageURL, ImageURI From " + TABLE_MAIN;
@@ -250,28 +248,20 @@ public class InternalDB extends SQLiteOpenHelper {
         }
 
         //Now look for and attach images to the RSS LIST
-
-        Log.d(TAG,"HEEEEERE");
-
         return attachImagestoRSSLists(rssLists,context);
     }
 
     private List<RSSList> attachImagestoRSSLists(List<RSSList> rssLists, Context context) {
 
-        Log.d("TEST -- INTERNAL", "RSSLIST SIZE: " + rssLists.size());
         for (RSSList rssList : rssLists) {
             if(rssList.getImageURI() != null) {
                 long selectedImageUri = ContentUris.parseId(Uri.parse(rssList.getImageURI()));
                 Bitmap bm = MediaStore.Images.Thumbnails.getThumbnail(
                         context.getContentResolver(), selectedImageUri,MediaStore.Images.Thumbnails.MICRO_KIND,
                         null );
-                rssList.setImage(bm);
+                rssList.setBitmap(bm);
             }
-
         }
-
-        Log.d("TEST -- INTERNAL", "RSSLIST SIZE2: " + rssLists.size());
-
         return rssLists;
     }
 
