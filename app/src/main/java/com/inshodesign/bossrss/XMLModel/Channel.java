@@ -26,6 +26,12 @@ public class Channel {
     @ElementList(name = "item", required = true, inline = true)
     public List<Item> itemList;
 
+//    @ElementList(name = "image", required = false, inline = true)
+//    public List<Image> imageList;
+//
+
+    @Element(name = "image", required = false)
+    Image image;
 
     @Element
     String title;
@@ -133,6 +139,10 @@ public class Channel {
 
     public List<Item> getItemList() {
         return itemList;
+    }
+
+    public Image getImage() {
+        return image;
     }
 
     public String getTitle() {

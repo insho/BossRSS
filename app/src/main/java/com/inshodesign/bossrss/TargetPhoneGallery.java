@@ -1,10 +1,12 @@
 package com.inshodesign.bossrss;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.inshodesign.bossrss.DB.InternalDB;
 import com.squareup.picasso.Picasso;
@@ -18,22 +20,25 @@ import java.lang.ref.WeakReference;
  */
 
 public class TargetPhoneGallery implements Target {
-    addMediaURIListener mCallback;
+//    private AddMediaURIListener mCallback;
 
         private final WeakReference<ContentResolver> resolver;
         private String title;
         private final int rowID;
+    private Context context;
 
-        public TargetPhoneGallery(ContentResolver r, int rowID, @Nullable String title)
+
+        public TargetPhoneGallery(ContentResolver r, int rowID, @Nullable String title, Context context)
         {
             this.resolver = new WeakReference<ContentResolver>(r);
             this.rowID = rowID;
             this.title = title;
+            this.context = context;
+//            this.addMediaURIListener = callback;
         }
 
-    public interface addMediaURIListener {
-        void addMediaURItoDB(String URI, int rowID);
-    }
+
+
         @Override
         public void onPrepareLoad (Drawable arg0)
         {
@@ -49,8 +54,9 @@ public class TargetPhoneGallery implements Target {
                     title = "BossRSSimage";
                 }
                String uri = MediaStore.Images.Media.insertImage(r, bitmap, "img-" + rowID, title);
-                //TODO == put this in a listener callback thing?
-                mCallback.addMediaURItoDB(uri, rowID);
+
+                InternalDB.getInstance(context).addMediaURItoDB(uri, rowID);
+//                mCallback.addMediaURItoDB(uri, rowID);
             }
         }
 
@@ -58,4 +64,6 @@ public class TargetPhoneGallery implements Target {
         public void onBitmapFailed (Drawable arg0)
         {
         }
+
+
     }

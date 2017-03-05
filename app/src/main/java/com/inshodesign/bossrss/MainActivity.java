@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,15 +31,17 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity implements MainFragment.OnMainOptionSelectedListener, AddFeedDialog.AddRSSDialogListener, RemoveFeedDialog.RemoveRSSDialogListener {
+public class MainActivity extends AppCompatActivity implements MainFragment.OnMainOptionSelectedListener
+        , AddFeedDialog.AddRSSDialogListener, RemoveFeedDialog.RemoveRSSDialogListener {
 
+    //TargetPhoneGallery.addMediaURIListener
 //    MainFragment mainFragment;
     private AddFeedDialog addFeedDialogFragment;
     private RemoveFeedDialog removeFeedDialogFragment;
-
+    DisplayRSSFragment displayRSSFragment;
 
     private static final boolean debug = true;
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "TEST -- MAIN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +50,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
         new InternalDB(this);
         if (savedInstanceState == null) {
-            MainFragment  mainFragment = new MainFragment();
+            MainFragment mainFragment = new MainFragment();
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, mainFragment,"mainfragment")
+                    .add(R.id.container, mainFragment, "mainfragment")
                     .commit();
         } else {
             //TODO -- handle data recycle
@@ -64,16 +67,15 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     public boolean onCreateOptionsMenu(Menu menu) {
 
-            if(getSupportActionBar() != null) {
-                getSupportActionBar().setTitle("BossRSS");
-            }
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("BossRSS");
+        }
 
-            Drawable addRSS = ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp);
-            menu.add(0, 1, 0, "Add Feed").setIcon(addRSS)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        Drawable addRSS = ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp);
+        menu.add(0, 1, 0, "Add Feed").setIcon(addRSS)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }
-
 
 
     @Override
@@ -84,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                 onBackPressed();
                 return true;
             case 1: // addRSS
-                if(addFeedDialogFragment == null || !addFeedDialogFragment.isAdded() ) {
+                if (addFeedDialogFragment == null || !addFeedDialogFragment.isAdded()) {
                     addFeedDialogFragment = AddFeedDialog.newInstance(false);
                     addFeedDialogFragment.show(getFragmentManager(), "dialogAdd");
                 }
@@ -92,40 +94,74 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             default:
                 return false;
         }
-    };
+    }
+
+    ;
 
 
+    /**
+     * The user has clicked on one of the feeds in the list
+     * Either go to the listfragment and pull rss list, or
+     * firstly (if the list is missing title and whatnot), pull title data into the db,
+     * and then go into the list
+     * <p>
+     * Either way firstly run the progress bar and search for info
+     **/
 
-    /** The user has clicked on one of the feeds in the list
-     *  Either go to the listfragment and pull rss list, or
-     *  firstly (if the list is missing title and whatnot), pull title data into the db,
-     *  and then go into the list
-     *
-     *  Either way firstly run the progress bar and search for info
-     * **/
 
-
+    //TODO remove this nullable RSS rss. I'm just going to pull it again in the fragment
     public void showRSSListFragment(RSSList rssList, @Nullable RSS rss) {
 
         //If it's missing the title, try to find it first
-        if(!rssList.hasTitle()) {
+        if (!rssList.hasTitle()) {
             getRSS(rssList.getURL());
         }
 
-        if(!rssList.hasImage() && rssList.getImageURL() != null) {
-            getFeedIcon(getBaseContext(),rssList);
+        if (!rssList.hasImage() && rssList.getImageURL() != null) {
+            getFeedIcon(getBaseContext(), rssList);
         }
 
 
-            //If the RSS data is already downloaded, plug it in and move forward. If not, download data
-            if(rss != null) {
+        //If the RSS data is already downloaded, plug it in and move forward. If not, download data
+        if (rss != null) {
 
-            } else {
 
+//                DisplayRSSFragment rssFragment;
+
+//                if(((DisplayRSSFragment) getSupportFragmentManager().findFragmentByTag("listfragment")) == null) {
+//                    rssFragment = new DisplayRSSFragment();
+//                } else {
+//                    rssFragment = ((DisplayRSSFragment) getSupportFragmentManager().findFragmentByTag("listfragment"));
+//                }
+//
+//                getSupportFragmentManager().beginTransaction()
+//                        .addToBackStack("mainfragment")
+//                        .replace(R.id.container, rssFragment)
+//                        .commit();
+
+            if (displayRSSFragment == null) {
+                displayRSSFragment = new DisplayRSSFragment();
+
+                Bundle args = new Bundle();
+                args.putString("link", rssList.getURL());
+                args.putString("title", rssList.getTitle());
+
+                displayRSSFragment.setArguments(args);
             }
 
-    }
+            getSupportFragmentManager().beginTransaction()
+                    .addToBackStack("articlelistfrag")
+                    .replace(R.id.container, displayRSSFragment)
+                    .commit();
 
+
+            showToolBarBackButton(true, rssList.getTitle());
+
+        } else {
+            //GET RSS DATA
+        }
+
+    }
 
 
     @Override
@@ -140,19 +176,18 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
 
     public void showRemoveDialog(Integer removeRowID) {
-        if(removeFeedDialogFragment == null) {
+        if (removeFeedDialogFragment == null) {
             removeFeedDialogFragment = RemoveFeedDialog.newInstance(removeRowID);
             removeFeedDialogFragment.show(getFragmentManager(), "dialogRemove");
         }
     }
 
 
-
     @Override
     public void onRemoveRSSDialogPositiveClick(int removeid) {
 
 
-        if(InternalDB.getInstance(getBaseContext()).deletedRSSFeed(removeid)) {
+        if (InternalDB.getInstance(getBaseContext()).deletedRSSFeed(removeid)) {
             //If successfuly deleted, update fragment adapter
             ((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")).filltheAdapter();
         } else {
@@ -162,26 +197,24 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     }
 
 
-
-
 //    @Override
 //    public void onBackPressed() {
 //        super.onBackPressed();
 //    }
 
 
-
-
     /***
      * After adding a RSS feed in the AddFeed dialog,
-     * */
+     */
     private Boolean saveURL(RSSList rssList) {
         int success = InternalDB.getInstance(getBaseContext()).saveEndPointURL(rssList);
-        Log.d(TAG,"SAVE URL SUCCESS TAG: " + success);
-        if(success == -2) {
+        Log.d(TAG, "SAVE URL SUCCESS TAG: " + success);
+        if (success == -2) {
             Toast.makeText(this, "Feed already exists", Toast.LENGTH_SHORT).show();
         } else {
-            if(!isOnline()) {Toast.makeText(getBaseContext(), "Device is not online", Toast.LENGTH_SHORT).show();}
+            if (!isOnline()) {
+                Toast.makeText(getBaseContext(), "Device is not online", Toast.LENGTH_SHORT).show();
+            }
             ((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")).filltheAdapter();
             return true;
         }
@@ -189,13 +222,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     }
 
 
-
-
-
-
     private void getFeedIcon(Context context, RSSList rssList) {
         int rowID = InternalDB.getInstance(getBaseContext()).getRowIDforURL(rssList.getURL());
-       Picasso.with(context).load(rssList.getImageURL()).into(new TargetPhoneGallery(getContentResolver(), rowID, rssList.getTitle()));
+
+        Picasso.with(context).load(rssList.getImageURL()).into(new TargetPhoneGallery(getContentResolver(), rowID, rssList.getTitle(), getBaseContext()));
 
         //TODO -- make it update the recycler view when its loaded
     }
@@ -204,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         final MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment");
         //Show progressbar
 
-        if(mainFragment!= null && mainFragment.isAdded()) {
+        if (mainFragment != null && mainFragment.isAdded()) {
             mainFragment.showProgressBar(true);
         }
 
@@ -212,76 +242,74 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
         //TODO -- SWITCH FOR REAL URL!
 //        String endpoint = "http://www.thestar.com/feeds.topstories.rss";
-        RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "http://www.thestar.com/");
+        RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, endpoint);
         Observable<RSS> rssObservable = xmlAdapterFor.getFeed(endpoint);
 
         rssObservable.subscribeOn(Schedulers.io())
-                 .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<RSS>() {
-            @Override
-            public void onCompleted() {
-                Log.d(TAG, "onCompleted() called");
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted() called");
 
-                if(mainFragment!= null && mainFragment.isAdded()) {
-                    mainFragment.showProgressBar(false);
-                }
+                        if (mainFragment != null && mainFragment.isAdded()) {
+                            mainFragment.showProgressBar(false);
+                        }
 
-                if(!rssList.hasURL()) {
-                    rssList.setURL(endpoint);
-                }
+                        if (!rssList.hasURL()) {
+                            rssList.setURL(endpoint);
+                        }
 
-                //If the rssList data was a success, try to download the image icon
-                if(saveURL(rssList) && rssList.getImageURL() != null ) {
+                        //If the rssList data was a success, try to download the image icon
+                        if (saveURL(rssList) && rssList.getImageURL() != null) {
 
-                    getFeedIcon(getBaseContext(),rssList);
-                };
-
-
-            }
+                            getFeedIcon(getBaseContext(), rssList);
+                        }
+                        ;
 
 
-
-            @Override
-            public void onError(final Throwable e) {
-                Log.d(TAG, "onError() called with: e = [" + e + "]");
-
-                if(mainFragment!= null && mainFragment.isAdded()) {
-                    mainFragment.showProgressBar(false);
-                }
-
-                if(!rssList.hasURL()) {
-                    rssList.setURL(endpoint);
-                }
-                saveURL(rssList);
-
-
-            }
-
-            @Override
-            public void onNext(final RSS rss) {
-                Log.d(TAG, "onNext() called with: rss = [" + rss + "]");
-                if(rss.getChannel() != null ) {
-
-
-
-
-                    /** Assign a title for the feed*/
-                    if(rss.getChannel() != null && !rssList.hasTitle()) {
-                        rssList.setTitle(rss.getChannel().getTitle());
                     }
 
-                    /** Get imageURL*/
-                    if(rss.getImage() != null && rss.getImage().getUrl() != null) {
-                        rssList.setImageURL(rss.getImage().getUrl());
+
+                    @Override
+                    public void onError(final Throwable e) {
+                        Log.d(TAG, "onError() called with: e = [" + e + "]");
+
+                        if (mainFragment != null && mainFragment.isAdded()) {
+                            mainFragment.showProgressBar(false);
+                        }
+
+                        if (!rssList.hasURL()) {
+                            rssList.setURL(endpoint);
+                        }
+                        saveURL(rssList);
+
+
                     }
 
-                };
-            }
-        });
+                    @Override
+                    public void onNext(final RSS rss) {
+                        Log.d(TAG, "onNext() called with: rss = [" + rss + "]");
+                        if (rss.getChannel() != null) {
+
+
+                            /** Assign a title for the feed*/
+                            if (rss.getChannel() != null && !rssList.hasTitle()) {
+                                rssList.setTitle(rss.getChannel().getTitle());
+                            }
+
+                            /** Get imageURL*/
+                            if (rss.getChannel() != null && rss.getChannel().getImage() != null && rss.getChannel().getImage().getUrl() != null) {
+                                rssList.setImageURL(rss.getChannel().getImage().getUrl());
+                            }
+
+                        }
+                        ;
+                    }
+                });
 
 
     }
-
 
 
     private boolean isOnline() {
@@ -290,5 +318,19 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
+
+//    public void addMediaURItoDB(String URI, int rowID) {
+//        InternalDB.getInstance(getBaseContext()).addMediaURItoDB(URI,rowID);
+//    }
+
+    public void showToolBarBackButton(Boolean showBack, CharSequence title) {
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(showBack);
+            getSupportActionBar().setTitle(title);
+        }
+
+    }
+
 }
 

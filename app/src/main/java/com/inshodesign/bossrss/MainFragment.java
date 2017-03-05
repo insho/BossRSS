@@ -78,6 +78,7 @@ public class MainFragment extends Fragment {
     }
 
     public void filltheAdapter() {
+
         //Initialize the rsslist;
         List<RSSList> rssLists = InternalDB.getInstance(getContext()).getRSSLists(getContext());
 

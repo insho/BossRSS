@@ -21,7 +21,7 @@ import java.util.jar.Pack200;
 //import com.jukuproject.juku.CharacterLists;
 
 
-public class InternalDB extends SQLiteOpenHelper implements TargetPhoneGallery.addMediaURIListener {
+public class InternalDB extends SQLiteOpenHelper {
 
 //    private static boolean debug = false;
     private static String TAG = "InternalDB";
@@ -195,6 +195,8 @@ public class InternalDB extends SQLiteOpenHelper implements TargetPhoneGallery.a
     }
 
     private List<RSSList> attachImagestoRSSLists(List<RSSList> rssLists, Context context) {
+
+        Log.d("TEST -- INTERNAL", "RSSLIST SIZE: " + rssLists.size());
         for (RSSList rssList : rssLists) {
             if(rssList.getImageURI() != null) {
                 long selectedImageUri = ContentUris.parseId(Uri.parse(rssList.getImageURI()));
@@ -206,6 +208,7 @@ public class InternalDB extends SQLiteOpenHelper implements TargetPhoneGallery.a
 
         }
 
+        Log.d("TEST -- INTERNAL", "RSSLIST SIZE2: " + rssLists.size());
 
         return rssLists;
     }
