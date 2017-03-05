@@ -19,9 +19,11 @@ import android.widget.Toast;
 import com.inshodesign.bossrss.Adapters.RSSListAdapter;
 import com.inshodesign.bossrss.Adapters.RxBus;
 import com.inshodesign.bossrss.DB.InternalDB;
+import com.inshodesign.bossrss.XMLModel.Channel;
 import com.inshodesign.bossrss.XMLModel.RSS;
 import com.inshodesign.bossrss.XMLModel.RSSList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
@@ -38,9 +40,8 @@ public class MainFragment extends Fragment {
     OnMainOptionSelectedListener mCallback;
 
     public interface OnMainOptionSelectedListener {
-        void showRSSListFragment(RSSList rssList, @Nullable RSS rss);
+        void showRSSListFragment(String title, String feedURL, ArrayList<Channel.Item> items);
         void showRemoveDialog(Integer removeRowID);
-
     }
 
     private RxBus _rxBus = new RxBus();
@@ -77,7 +78,7 @@ public class MainFragment extends Fragment {
         }
     }
 
-    public void filltheAdapter() {
+    public void updateAdapter() {
 
         //Initialize the rsslist;
         List<RSSList> rssLists = InternalDB.getInstance(getContext()).getRSSLists(getContext());

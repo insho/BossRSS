@@ -4,6 +4,9 @@ package com.inshodesign.bossrss.XMLModel;
  * Created by github/macsystems
  */
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
@@ -12,6 +15,7 @@ import org.simpleframework.xml.NamespaceList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @NamespaceList({
@@ -72,7 +76,10 @@ public class Channel {
     }
 
     @Root(name = "item", strict = false)
-    public static class Item {
+    public static class Item implements Parcelable {
+
+        public ArrayList<MediaContent> mediaContentList = new ArrayList<MediaContent>();
+        public ArrayList<MediaThumbnail> mediaThumbnailList = new ArrayList<MediaThumbnail>();
 
         @Element(name = "title", required = true)
         String title;//The title of the item.	Venice Film Festival Tries to Quit Sinking
@@ -136,7 +143,64 @@ public class Channel {
             return mediaThumbnail;
         }
 
-    }
+
+        // Parcelling part
+        private  Item(Parcel in){
+            String[] datafirst = new String[7];
+
+            in.readStringArray(datafirst);
+            this.title = datafirst[0];
+            this.link = datafirst[1];
+            this.description = datafirst[2];
+            this.author = datafirst[3];
+            this.category = datafirst[4];
+            this.comments = datafirst[5];
+            this.enclosure = datafirst[6];
+            in.readTypedList(mediaContentList,MediaContent.CREATOR);
+            in.readTypedList(mediaThumbnailList,MediaThumbnail.CREATOR);
+            String[] datasecond = new String[3];
+            this.guid = datasecond[0];
+            this.pubDate = datasecond[1];
+            this.source = datasecond[2];
+
+        }
+
+        public int describeContents(){
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+
+            dest.writeStringArray(new String[] {this.title,
+                    this.link,
+                    this.description,
+                    this.author,
+                    this.category,
+                    this.comments,
+                    this.enclosure});
+            dest.writeTypedList(mediaContentList);
+            dest.writeTypedList(mediaThumbnailList);
+            dest.writeStringArray(new String[] {
+                    this.guid,
+                    this.pubDate,
+                    this.source});
+
+            };
+        }
+        public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+            public Item createFromParcel(Parcel in) {
+                return new Item(in);
+            }
+
+            public Item[] newArray(int size) {
+                return new Item[size];
+            }
+        };
+
+
+
+
 
     @Root(name = "image", strict = false)
     public static class Image {
@@ -155,7 +219,7 @@ public class Channel {
 
     }
 
-    public class MediaContent {
+    public static class MediaContent implements Parcelable {
 
         @Attribute(name = "url", required = false)
         private String url;
@@ -170,9 +234,42 @@ public class Channel {
         public String getMedium() {
             return medium;
         }
+
+
+        // Parcelling part
+        private MediaContent(Parcel in){
+            String[] data = new String[12];
+
+            in.readStringArray(data);
+            this.url = data[0];
+            this.medium = data[1];
+
+
+        }
+
+        public int describeContents(){
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeStringArray(new String[] {this.url,
+                    this.medium
+            });
+        }
+        public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+            public MediaContent createFromParcel(Parcel in) {
+                return new MediaContent(in);
+            }
+
+            public MediaContent[] newArray(int size) {
+                return new MediaContent[size];
+            }
+        };
+
     }
 
-    public class MediaThumbnail {
+    public static class MediaThumbnail implements Parcelable {
 
         @Attribute(name = "url", required = false)
         private String url;
@@ -180,6 +277,34 @@ public class Channel {
         public String getUrl() {
             return url;
         }
+
+        // Parcelling part
+        public MediaThumbnail(Parcel in){
+            String[] data = new String[12];
+
+            in.readStringArray(data);
+            this.url = data[0];
+
+        }
+
+        public int describeContents(){
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeStringArray(new String[] {this.url
+            });
+        }
+        public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+            public MediaThumbnail createFromParcel(Parcel in) {
+                return new MediaThumbnail(in);
+            }
+
+            public MediaThumbnail[] newArray(int size) {
+                return new MediaThumbnail[size];
+            }
+        };
     }
 
     public List<Link> getLinks() {

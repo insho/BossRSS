@@ -24,14 +24,14 @@ public class TargetPhoneGallery implements Target {
 
         private final WeakReference<ContentResolver> resolver;
         private String title;
-        private final int rowID;
+        private final String feedURL;
     private Context context;
 
 
-        public TargetPhoneGallery(ContentResolver r, int rowID, @Nullable String title, Context context)
+        public TargetPhoneGallery(ContentResolver r, String feedURL, @Nullable String title, Context context)
         {
             this.resolver = new WeakReference<ContentResolver>(r);
-            this.rowID = rowID;
+            this.feedURL = feedURL;
             this.title = title;
             this.context = context;
 //            this.addMediaURIListener = callback;
@@ -55,7 +55,7 @@ public class TargetPhoneGallery implements Target {
                 }
                String uri = MediaStore.Images.Media.insertImage(r, bitmap, "img-" + rowID, title);
 
-                InternalDB.getInstance(context).addMediaURItoDB(uri, rowID);
+                InternalDB.getInstance(context).addMediaURItoDB(uri, feedURL);
 //                mCallback.addMediaURItoDB(uri, rowID);
             }
         }

@@ -18,19 +18,20 @@ public class RSSList {
 
     private Integer id;
     private String title;
-    private Bitmap image;
     private String imageURL;
     private String imageURI;
+    private Bitmap bitmap;
     private String URL;
 
-    public RSSList(Integer _id) {
+    public RSSList(String _URL) {
+        this.URL = _URL;
      }
-    public RSSList(Integer _id, String title, Bitmap _image, String _imageURL, String _imageURI, String _URL) {
+    public RSSList(Integer _id, String title, String _imageURL, String _imageURI, Bitmap _bitmap, String _URL) {
         this.id = _id;
         this.title = title;
-        this.image = _image;
         this.imageURL = _imageURL;
         this.imageURI = _imageURI;
+        this.bitmap = _bitmap;
         this.URL = _URL;
     }
 
@@ -58,18 +59,6 @@ public class RSSList {
         return (title != null);
     }
 
-    public Bitmap getImage() {
-        return image;
-    }
-
-    public boolean hasImage() {
-        return (image != null);
-    }
-
-    public void setImage(Bitmap image) {
-        this.image = image;
-    }
-
     public String getURL() {
         return URL;
     }
@@ -89,11 +78,27 @@ public class RSSList {
         this.imageURL = imageURL;
     }
 
+    public boolean hasImageURL() {
+        return (imageURL != null);
+    }
+
     public String getImageURI() {
         return imageURI;
     }
 
     public void setImageURI(String imageURI) {
         this.imageURI = imageURI;
+    }
+
+    public boolean hasImageURI() {
+        return (imageURI != null);
+    }
+
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
     }
 }

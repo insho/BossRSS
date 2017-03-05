@@ -33,6 +33,7 @@ public class AddFeedDialog extends DialogFragment {
 
     public interface AddRSSDialogListener {
         void onAddRSSDialogPositiveClick(String rssURI);
+        void onAddRSSDialogDismiss();
     }
 
     @Override
@@ -99,5 +100,13 @@ public class AddFeedDialog extends DialogFragment {
 
 
         return builder.create();
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+
+        mAddRSSDialogListener.onAddRSSDialogDismiss();
+
     }
 }

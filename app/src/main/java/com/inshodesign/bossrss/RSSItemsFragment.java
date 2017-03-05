@@ -2,6 +2,8 @@
 package com.inshodesign.bossrss;
 
         import android.os.Bundle;
+        import android.support.annotation.NonNull;
+        import android.support.annotation.Nullable;
         import android.support.v4.app.Fragment;
         import android.support.v7.widget.LinearLayoutManager;
         import android.support.v7.widget.RecyclerView;
@@ -30,7 +32,7 @@ package com.inshodesign.bossrss;
  * Created by JClassic on 3/5/2017.
  */
 
-public class DisplayRSSFragment extends Fragment  {
+public class RSSItemsFragment extends Fragment  {
 
     private RecyclerView mRecyclerView;
     private SmoothProgressBar progressbar;
@@ -50,14 +52,34 @@ public class DisplayRSSFragment extends Fragment  {
         return view;
     }
 
+    public static RSSItemsFragment newInstance(@Nullable final String listTitle, @Nullable String feedURL, @NonNull final ArrayList<Channel.Item> items) {
+        final RSSItemsFragment fragment = new RSSItemsFragment();
+        final Bundle args = new Bundle();
+        args.putString("title",listTitle);
+        args.putString("feedURL",feedURL);
+        args.putParcelableArrayList("items",items);
+
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
-        filltheAdapter();
+//        filltheAdapter();
     }
+
+    public void updateItemListAdapter(List<Channel.Item> items) {
+
+        mAdapter = new RSSContentsAdapter(items, getContext());
+        mRecyclerView.setAdapter(mAdapter);
+    }
+
 
     private void determinePattern(){
         //TODO
@@ -123,6 +145,7 @@ public class DisplayRSSFragment extends Fragment  {
                     }
                 });
     }
+
 
 
 }
