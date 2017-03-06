@@ -204,14 +204,14 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
                             InternalDB.getInstance(getBaseContext()).addTitleandImageURLtoDB(rssList.getURL(),rssList.getTitle(),rssList.getImageURL());
                         }
 
-
-                        /** Instantiate RSSItemsFragment **/
-                        showRSSListFragment(rssList,items);
-
                         /** Ty to download the image icon **/
                         if (rssList.getImageURL() == null) {
                             getFeedIcon(getBaseContext(), rssList);
                         }
+                        /** Instantiate RSSItemsFragment **/
+                        showRSSListFragment(rssList,items);
+
+
 
                     }
 
@@ -242,10 +242,16 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
                             }
 
                             /** Assign the imageURL for the feed to the RSSList object */
-                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && rss.getChannel().getImage() != null && !rssList.hasImageURL()) {
-
+//                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && rss.getChannel().getImage() != null && !rssList.hasImageURL()) {
+//
+//                                rssList.setImageURL(rss.getChannel().getImage().getUrl());
+//                            }
+                            /** Get imageURL*/
+                            if (rss.getChannel() != null && rss.getChannel().getImage() != null && rss.getChannel().getImage().getUrl() != null) {
                                 rssList.setImageURL(rss.getChannel().getImage().getUrl());
                             }
+
+
 
                             /**** Assign items list to "items" to be passed through to fragment in OnComplete somewhat redundant ***/
                             if (rss.getChannel() != null) {
