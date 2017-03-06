@@ -15,7 +15,9 @@ import org.simpleframework.xml.NamespaceList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Text;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ParcebleItem implements Parcelable {
 
@@ -48,7 +50,15 @@ public class ParcebleItem implements Parcelable {
                 this.thumbnailURL = item.getMediaThumbnailURL();
             }
 
+            this.description = item.description;
+
             this.link = item.link;
+            this.author = item.author;
+            if(item.pubDate != null) {
+                this.pubDate = item.pubDate;
+//                this.pubDate = sdf.format(item.pubDate).toString();
+            }
+
 //            item.mediaThumbnail.url = this.mediaThumbnail.url;
         }
 
@@ -72,6 +82,15 @@ public class ParcebleItem implements Parcelable {
 //            return mediaThumbnail;
 //        }
 
+
+//    public void setPubDate(String pubDate) {
+//        SimpleDateFormat sdf = new SimpleDateFormat("MMM MM dd, yyyy h:mm a", Locale.getDefault());
+//        this.pubDate = sdf.format(pubDate);
+//    }
+
+    public String getPubDate() {
+        return pubDate;
+    }
 
     public String getThumbnailURL() {
         return thumbnailURL;

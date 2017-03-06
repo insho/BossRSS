@@ -15,6 +15,7 @@ package com.inshodesign.bossrss;
         import android.widget.AdapterView;
         import android.widget.TextView;
 
+        import com.facebook.FacebookSdk;
         import com.facebook.share.model.ShareLinkContent;
         import com.facebook.share.widget.ShareDialog;
         import com.inshodesign.bossrss.Adapters.RSSContentsAdapter;
@@ -43,6 +44,7 @@ public class RSSItemsFragment extends Fragment  {
     private String TAG = "TEST--RSSFRAG";
     RSSContentsAdapter mAdapter;
     private ArrayList<ParcebleItem> mDataset;
+//    ShareDialog shareDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -53,6 +55,8 @@ public class RSSItemsFragment extends Fragment  {
 
 //        mNoLists = (TextView) view.findViewById(R.id.nolists);
         progressbar = (SmoothProgressBar) view.findViewById(R.id.progressbar);
+//        FacebookSdk.sdkInitialize(getContext());
+//        shareDialog = new ShareDialog(this);
 
         return view;
     }
@@ -74,7 +78,6 @@ public class RSSItemsFragment extends Fragment  {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
 
@@ -86,25 +89,45 @@ public class RSSItemsFragment extends Fragment  {
 //        filltheAdapter();
     }
 
-    public void shareURL() {
-        try {
-//            if(getArguments().getString("feedURL") != null) {
-                String url = getArguments().getString("feedURL");
-                String imageURL = getArguments().getString("imageURL");
-
-            Log.d("TEST","SHARING...");
-                ShareLinkContent shareLinkContent = new ShareLinkContent.Builder()
-                        .setContentTitle("Your Title")
-                        .setContentDescription("Your Description")
-                        .setContentUrl(Uri.parse(getArguments().getString("feedURL")))
-                        .setImageUrl(Uri.parse(imageURL))
-                        .build();
-                ShareDialog.show(getActivity(),shareLinkContent);
-        } catch(Exception e ) {
-
-        }
-
-    }
+//    public void shareURL() {
+//
+////            FacebookSdk.setApplicationId("1842775815961608");
+////            FacebookSdk.sdkInitialize(getActivity());
+////
+////            ShareDialog shareDialog = new ShareDialog(this);
+////            ShareLinkContent linkContent = new ShareLinkContent.Builder()
+////                    .setContentTitle("Hello Facebook")
+////                    .setContentDescription(
+////                            "The 'Hello Facebook' sample  showcases simple Facebook integration")
+////                    .setContentUrl(Uri.parse("http://developers.facebook.com/android"))
+////                    .build();
+////
+////            ShareDialog.show(this,linkContent);
+////
+//        if (ShareDialog.canShow(ShareLinkContent.class)) {
+//
+//            try {
+//
+//
+////            if(getArguments().getString("feedURL") != null) {
+//                String url = getArguments().getString("feedURL");
+//                String imageURL = getArguments().getString("imageURL");
+//
+//                Log.d("TEST","SHARING... -- " + url);
+//                ShareLinkContent shareLinkContent = new ShareLinkContent.Builder()
+//                        .setContentTitle("Your Title")
+//                        .setContentDescription("Your Description")
+//                        .setContentUrl(Uri.parse(url))
+//                        .setImageUrl(Uri.parse(imageURL))
+//                        .build();
+//                ShareDialog.show(getActivity(),shareLinkContent);
+//            } catch(Exception e ) {
+//
+//            }
+//        }
+//
+//
+//    }
 
 
     private void updateAdapter(ArrayList<ParcebleItem> items) {
@@ -186,4 +209,13 @@ public class RSSItemsFragment extends Fragment  {
 
 
 
+    public RSSList getCurrentList() {
+        RSSList rssList = new RSSList();
+        if(getArguments() != null) {
+            rssList.setURL(getArguments().getString("feedURL"));
+            rssList.setImageURL(getArguments().getString("imageURL"));
+            rssList.setTitle(getArguments().getString("title"));
+        }
+        return rssList;
+    }
 }

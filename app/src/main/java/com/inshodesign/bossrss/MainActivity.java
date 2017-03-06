@@ -8,7 +8,8 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-        import android.support.v4.content.ContextCompat;
+import android.net.Uri;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -20,7 +21,9 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.widget.Toast;
 
+import com.facebook.FacebookSdk;
 import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
 import com.inshodesign.bossrss.DB.InternalDB;
 import com.inshodesign.bossrss.XMLModel.Channel;
 //import com.inshodesign.bossrss.XMLModel.ItemParceble;
@@ -78,7 +81,16 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             String url = intent.getStringExtra(Intent.EXTRA_TEXT);
 
             if(url != null) {
-                onAddRSSDialogPositiveClick(url.trim());
+
+                if(InternalDB.getInstance(getBaseContext()).duplicateFeed(url)) {
+                    Toast.makeText(this, "Feed already exists", Toast.LENGTH_SHORT).show();
+                } else {
+                    /** Otherwise enter the URL into the DB */
+                    InternalDB.getInstance(getBaseContext()).saveFeedURL(url);
+                    Toast.makeText(this, "Added feed to BossRSS", Toast.LENGTH_SHORT).show();
+
+                }
+               finish();
             }
         }
     }
@@ -146,17 +158,24 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 
                 return true;
             case R.id.shareFacebook:
-
-                if(rssItemsFragment != null) {
-                    Log.d("TEST","sharing");
-                    rssItemsFragment.shareURL();
+                if(!this.openFacebookDialog()) {
+                    Toast.makeText(this, "Unable to access facebook", Toast.LENGTH_SHORT).show();
                 }
+
+//                FacebookSdk.setApplicationId("1842775815961608");
+//                FacebookSdk.sdkInitialize(this);
+
+//                ShareDialog shareDialog = new ShareDialog(this);
+
+
+
 
                 return true;
             default:
                 return false;
         }
     }
+
 
 
     /** The user has entered a new RSS feed into the window and clicked OK */
@@ -169,8 +188,8 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
         } else {
             /** Otherwise enter the URL into the DB and update the adapter */
             internalDBInstance.saveFeedURL(inputText.trim());
-            if(((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")) != null) {
-                ((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")).updateAdapter();
+            if(mainFragment!= null) {
+                mainFragment.updateAdapter();
             }
 
             /** Now try to pull the feed. First check for internet connection. **/
@@ -190,7 +209,7 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 
     /** Try to pull the feed.  */
     public void getRSSFeed(final String feedURL) {
-        final MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment");
+//        final MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment");
         if (mainFragment != null && mainFragment.isAdded()) {
             mainFragment.showProgressBar(true);
         }
@@ -226,7 +245,6 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 
 
                         /** Instantiate RSSItemsFragment **/
-
                         showRSSListFragment(rssList,items);
 
                         /** Ty to download the image icon **/
@@ -299,12 +317,15 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
                 .replace(R.id.container, rssItemsFragment,"rssItemsFragment")
                 .commit();
         showToolBarBackButton(true, rssList.getTitle());
+
+
     }
 
 
     private void getFeedIcon(Context context, RSSList rssList) {
         int rowID = InternalDB.getInstance(getBaseContext()).getRowIDforURL(rssList.getURL());
         Picasso.with(context).load(rssList.getImageURL()).into(new TargetPhoneGallery(getContentResolver(), rowID, rssList.getTitle(), getBaseContext()));
+        mainFragment.mAdapter.notifyDataSetChanged();
     }
 
 
@@ -335,8 +356,8 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
     @Override
     public void onRemoveRSSDialogPositiveClick(int removeid) {
 
-        if (InternalDB.getInstance(getBaseContext()).deletedRSSFeed(removeid)) {
-            ((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")).updateAdapter();
+        if (InternalDB.getInstance(getBaseContext()).deletedRSSFeed(removeid) && mainFragment != null) {
+            mainFragment.updateAdapter();
         } else {
             Toast.makeText(this, "Could not remove item", Toast.LENGTH_SHORT).show();
         }
@@ -350,7 +371,7 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 
         int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
         Log.d(TAG,"Backstack entry: " + backStackEntryCount);
-        if (backStackEntryCount == 0) {
+        if (backStackEntryCount == 1) {
             showToolBarBackButton(false, "BossRSS");
 //            if(((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")) == null || !((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")).isAdded())
                 mainFragment = new MainFragment();
@@ -408,6 +429,36 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 
     }
 
+    public boolean openFacebookDialog() {
+        if(rssItemsFragment != null) {
+            RSSList rssList =  rssItemsFragment.getCurrentList();
+            if(rssList == null || rssList.getURL() == null) {
+                return false;
+            } else {
+                ShareLinkContent linkContent;
+
+                if(rssList.getImageURL() != null) {
+                    linkContent = new ShareLinkContent.Builder()
+                            .setContentTitle(rssList.getTitle())
+                            .setContentDescription("Sweet new RSS feed")
+                            .setContentUrl(Uri.parse(rssList.getURL()))
+                            .setImageUrl(Uri.parse(rssList.getImageURL()))
+                            .build();
+                } else {
+                    linkContent = new ShareLinkContent.Builder()
+                            .setContentTitle(rssList.getTitle())
+                            .setContentDescription("Sweet new RSS feed")
+                            .setContentUrl(Uri.parse(rssList.getURL()))
+                            .build();
+                }
+
+
+                ShareDialog.show(this,linkContent);
+                return true;
+            }
+        }
+        return false;
+    }
 
 
 }

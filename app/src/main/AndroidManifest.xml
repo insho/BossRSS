@@ -14,9 +14,6 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
 
-            <provider android:authorities="com.facebook.app.FacebookContentProvider1842775815961608"
-                android:name="com.facebook.FacebookContentProvider"
-                android:exported="true"/>
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,6 +29,20 @@
             </intent-filter>
 
         </activity>
+
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/app_id" />
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationName"
+            android:value="@string/app_name" />
+
+        <provider
+            android:name="com.facebook.FacebookContentProvider"
+            android:authorities="com.facebook.app.FacebookContentProvider1842775815961608"
+            android:exported="true" />
+
     </application>
 
 

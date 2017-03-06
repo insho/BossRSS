@@ -109,6 +109,11 @@ public class Channel {
             this.mediaThumbnailURL = mediaThumbnailURL;
         }
 
+        public String getPubDate() {
+            return pubDate;
+        }
+
+
         @Element(name = "title", required = true)
         String title;//The title of the item.	Venice Film Festival Tries to Quit Sinking
         @Element(name = "link", required = true)

@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">BossRSS</string>
+    <string name="app_id">1842775815961608</string>
+
     <string name="dialog_title">Enter RSS Feed</string>
     <string name="remove_dialog_title">Remove Feed?</string>
     <string name="dialog_empty">RSS feed is blank</string>

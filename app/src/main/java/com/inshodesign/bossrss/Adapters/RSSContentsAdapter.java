@@ -20,6 +20,8 @@ package com.inshodesign.bossrss.Adapters;
         import com.inshodesign.bossrss.XMLModel.RSSList;
         import com.squareup.picasso.Picasso;
 
+        import org.w3c.dom.Text;
+
         import java.util.ArrayList;
         import java.util.List;
 
@@ -35,13 +37,18 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView txtTitle;
-        public ImageView image;
-//        public TextView txtDescription;
+        private TextView txtTitle;
+        private ImageView image;
+        private TextView txtDescription;
+        private TextView txtAuthor;
+        private TextView txtDate;
 
         public ViewHolder(View v) {
             super(v);
             txtTitle = (TextView) v.findViewById(R.id.title);
+            txtDescription = (TextView) v.findViewById(R.id.description);
+            txtAuthor = (TextView) v.findViewById(R.id.author);
+            txtDate = (TextView) v.findViewById(R.id.date);
             image = (ImageView) v.findViewById(R.id.image);
         }
     }
@@ -85,7 +92,10 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 //        Log.d("InternalDB","Holdertest: " + mDataset.get(position).;
         holder.txtTitle.setText(mDataset.get(position).getTitle());
 
+        if(mDataset.get(position).getPubDate() != null) {
 
+            holder.txtDate.setText(mDataset.get(position).getPubDate());
+        }
 
         Log.d("TEST","thumb url: " + mDataset.get(position).getThumbnailURL());
         if(mDataset.get(position).getThumbnailURL() != null) {
