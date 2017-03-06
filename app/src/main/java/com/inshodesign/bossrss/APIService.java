@@ -26,7 +26,6 @@ public class APIService {
                 .build();
 
 
-
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://www.google.com/")
                 .client(okHttpClient) // Use OkHttp3 client

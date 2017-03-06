@@ -64,9 +64,6 @@ public class Channel {
     @Element(name = "pubDate", required = false)
     String pubDate;
 
-//    @Element(name = "image", required = false)
-//    Image imagex;
-
     @ElementList(entry="image", inline=true)
     private List<Image> images;
 

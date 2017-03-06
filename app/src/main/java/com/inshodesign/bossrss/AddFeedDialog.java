@@ -76,7 +76,6 @@ public class AddFeedDialog extends DialogFragment {
                 dialog.cancel();
             }
         });
-
         builder.setCancelable(true);
 
 

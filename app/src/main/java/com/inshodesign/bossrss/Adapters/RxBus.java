@@ -15,5 +15,4 @@ public class RxBus {
     public Observable<Object> toClickObserverable() {
         return _bus;
     }
-
 }

@@ -145,7 +145,6 @@ public class InternalDB extends SQLiteOpenHelper {
     }
 
 
-
     public int getRowIDforURL(String URL) {
         SQLiteDatabase db = this.getWritableDatabase();
 

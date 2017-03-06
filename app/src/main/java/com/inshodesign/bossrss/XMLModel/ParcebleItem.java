@@ -23,7 +23,6 @@ public class ParcebleItem implements Parcelable {
     private  String source;//	The RSS channel that the item came from. More.
 
 
-
         public ParcebleItem(Channel.Item item) {
             this.title = item.title;
 //            Log.d("TEST", "HAS THUMBNAIL? -- " + item.getMediaThumbnail() != null);

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-Log.d("TEST","ITEM ID: " + item.getItemId());
+//Log.d("TEST","ITEM ID: " + item.getItemId());
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
@@ -341,16 +342,16 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 
         int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
 //        Log.d(TAG,"Backstack entry: " + backStackEntryCount);
-        if (backStackEntryCount == 1) {
+        if (backStackEntryCount >= 1) {
             showToolBarBackButton(false, "BossRSS");
                 mainFragment = new MainFragment();
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, mainFragment, "mainfragment")
                         .commit();
+
+            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
-
-
 
 
 

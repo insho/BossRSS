@@ -23,7 +23,6 @@ public class RSSList {
         this.bitmap = _bitmap;
         this.URL = _URL;
     }
-
     public RSSList() {
     }
 

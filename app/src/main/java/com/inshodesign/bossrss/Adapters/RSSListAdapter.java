@@ -71,7 +71,6 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
                     .into(holder.image);
         } else {
             holder.image.setVisibility(View.GONE);
-
         }
 
 //        Log.d("InternalDB","Holdertest: " + mDataset.get(position).getTitle());

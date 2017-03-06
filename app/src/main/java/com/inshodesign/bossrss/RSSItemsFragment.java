@@ -47,7 +47,6 @@ public class RSSItemsFragment extends Fragment  {
         return fragment;
     }
 
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

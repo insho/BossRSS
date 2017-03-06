@@ -25,5 +25,4 @@ public class RSS {
                 ", channel=" + channel +
                 '}';
     }
-
 }
