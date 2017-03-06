@@ -64,12 +64,19 @@ public class Channel {
     @Element(name = "pubDate", required = false)
     String pubDate;
 
-    @Element
-    Image image;
+//    @Element(name = "image", required = false)
+//    Image imagex;
 
-    public Image getImage() {
-        return image;
+    @ElementList(entry="image", inline=true)
+    private List<Image> images;
+
+    public List<Image> getImagesone() {
+        return images;
     }
+
+//    public Image getImage() {
+//        return imagex;
+//    }
 
     @Root(name = "image", strict = false)
     public static class Image {
@@ -78,7 +85,7 @@ public class Channel {
         String title;
         @Element(name = "link", required = false)
         String link;
-        @Element(name = "url", required = true)
+        @Element(name = "url", required = false)
         String url;
 
         public String getUrl() {

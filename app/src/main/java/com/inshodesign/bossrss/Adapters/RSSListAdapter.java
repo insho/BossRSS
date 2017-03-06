@@ -66,7 +66,10 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
             holder.image.setVisibility(View.VISIBLE);
             holder.image.setAdjustViewBounds(true);
 
-        }  else {
+        } else if(mDataset.get(position).getImageURL() != null) {
+            Picasso.with(mContext).load(mDataset.get(position).getImageURL()).fit()
+                    .into(holder.image);
+        } else {
             holder.image.setVisibility(View.GONE);
 
         }

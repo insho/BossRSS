@@ -120,7 +120,7 @@ public class InternalDB extends SQLiteOpenHelper {
         values.put(COL2, imageURL);
         db.update(TABLE_MAIN, values, COL0 + "= ?", new String[] {URL});
         db.close();
-        Log.d(TAG,"SUCESSFUL INSERT TITLE AND IMAGE URL FOR: " + title + ", " + imageURL);
+//        Log.d(TAG,"SUCESSFUL INSERT TITLE AND IMAGE URL FOR: " + title + ", " + imageURL);
 
     }
 

@@ -247,8 +247,8 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 //                                rssList.setImageURL(rss.getChannel().getImage().getUrl());
 //                            }
                             /** Get imageURL*/
-                            if (rss.getChannel() != null && rss.getChannel().getImage() != null && rss.getChannel().getImage().getUrl() != null) {
-                                rssList.setImageURL(rss.getChannel().getImage().getUrl());
+                            if (rss.getChannel() != null && rss.getChannel().getImagesone().get(0) != null && rss.getChannel().getImagesone().get(0).getUrl() != null) {
+                                rssList.setImageURL(rss.getChannel().getImagesone().get(0).getUrl());
                             }
 
 
