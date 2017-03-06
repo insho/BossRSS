@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.widget.Toast;
 
+import com.facebook.share.model.ShareLinkContent;
 import com.inshodesign.bossrss.DB.InternalDB;
 import com.inshodesign.bossrss.XMLModel.Channel;
 //import com.inshodesign.bossrss.XMLModel.ItemParceble;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     private static boolean debug = true;
     private static final String TAG = "TEST -- MAIN";
     private Menu menu;
+    MainFragment mainFragment;
 //    private Toolbar toolbar;
 
     @Override
@@ -54,20 +56,41 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         setContentView(R.layout.activity_main);
 
         new InternalDB(this);
+
+
         if (savedInstanceState == null) {
-            MainFragment mainFragment = new MainFragment();
+            mainFragment = new MainFragment();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, mainFragment, "mainfragment")
                     .commit();
         } else {
-            //TODO -- handle data recycle
+
+            if(getSupportFragmentManager().getBackStackEntryCount() >0 &&
+                    savedInstanceState.getString("title") != null) {
+                showToolBarBackButton(true, savedInstanceState.getString("title"));
+            }
+        }
+
+
+        /** Handle a URL intent from web, if user is on RSS feed there */
+        Intent intent = getIntent();
+        if (intent.getAction().equals(Intent.ACTION_SEND)) {
+            String url = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+            if(url != null) {
+                onAddRSSDialogPositiveClick(url.trim());
+            }
         }
     }
 
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-
+        if(getSupportActionBar() != null && getSupportActionBar().getTitle() != null) {
+            savedInstanceState.putString("title",getSupportActionBar().getTitle().toString());
+        }
     }
+
+
 
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -109,12 +132,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+Log.d("TEST","ITEM ID: " + item.getItemId());
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
                 return true;
-            case 0: // addRSS
+            case R.id.addFeed:
                 if (addFeedDialogFragment == null || !addFeedDialogFragment.isAdded()) {
                     addFeedDialogFragment = AddFeedDialog.newInstance(false);
                     addFeedDialogFragment.show(getFragmentManager(), "dialogAdd");
@@ -122,8 +145,13 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
 
                 return true;
-            case 1: // addRSS
-                Toast.makeText(this, "SHARE ON FACEBOOK", Toast.LENGTH_SHORT).show();
+            case R.id.shareFacebook:
+
+                if(rssItemsFragment != null) {
+                    Log.d("TEST","sharing");
+                    rssItemsFragment.shareURL();
+                }
+
                 return true;
             default:
                 return false;
@@ -132,7 +160,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
 
     /** The user has entered a new RSS feed into the window and clicked OK */
-
     @Override
     public void onAddRSSDialogPositiveClick(String inputText) {
         InternalDB internalDBInstance = InternalDB.getInstance(getBaseContext());
@@ -200,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
                         /** Instantiate RSSItemsFragment **/
 
-                        showRSSListFragment(rssList.getTitle(),rssList.getURL(),items);
+                        showRSSListFragment(rssList,items);
 
                         /** Ty to download the image icon **/
                         if (!rssListValuesAlreadyExist && rssList.getImageURL() != null) {
@@ -255,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     }
 
 
-    public void showRSSListFragment(String title, String feedURL, ArrayList<Channel.Item> items) {
+    public void showRSSListFragment(RSSList rssList,ArrayList<Channel.Item> items) {
 
         /** Convert items that aren't parceble to the parceble class... **/
         ArrayList<ParcebleItem> parcebleItems = new ArrayList<>();
@@ -266,12 +293,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
 //        ParcebleItem converteditem = new ParcebleItem(items.get(0));
 
-        rssItemsFragment = RSSItemsFragment.newInstance(title,feedURL,parcebleItems);
+        rssItemsFragment = RSSItemsFragment.newInstance(rssList.getTitle(),rssList.getURL(),rssList.getImageURL(), parcebleItems);
         getSupportFragmentManager().beginTransaction()
-                .addToBackStack("rssItemsFragment")
-                .replace(R.id.container, rssItemsFragment)
+                .addToBackStack("mainfragment")
+                .replace(R.id.container, rssItemsFragment,"rssItemsFragment")
                 .commit();
-        showToolBarBackButton(true, title);
+        showToolBarBackButton(true, rssList.getTitle());
     }
 
 
@@ -322,8 +349,14 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         super.onBackPressed();
 
         int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+        Log.d(TAG,"Backstack entry: " + backStackEntryCount);
         if (backStackEntryCount == 0) {
             showToolBarBackButton(false, "BossRSS");
+//            if(((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")) == null || !((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")).isAdded())
+                mainFragment = new MainFragment();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, mainFragment, "mainfragment")
+                        .commit();
         }
     }
 

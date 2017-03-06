@@ -1,6 +1,7 @@
 
 package com.inshodesign.bossrss;
 
+        import android.net.Uri;
         import android.os.Bundle;
         import android.support.annotation.NonNull;
         import android.support.annotation.Nullable;
@@ -14,6 +15,8 @@ package com.inshodesign.bossrss;
         import android.widget.AdapterView;
         import android.widget.TextView;
 
+        import com.facebook.share.model.ShareLinkContent;
+        import com.facebook.share.widget.ShareDialog;
         import com.inshodesign.bossrss.Adapters.RSSContentsAdapter;
         import com.inshodesign.bossrss.XMLModel.Channel;
         import com.inshodesign.bossrss.XMLModel.ParcebleItem;
@@ -54,11 +57,12 @@ public class RSSItemsFragment extends Fragment  {
         return view;
     }
 
-    public static RSSItemsFragment newInstance(@Nullable final String listTitle, @Nullable String feedURL, @NonNull final ArrayList<ParcebleItem> items) {
+    public static RSSItemsFragment newInstance(@Nullable final String listTitle, @Nullable String feedURL, @Nullable String imageURL,@NonNull final ArrayList<ParcebleItem> items) {
         final RSSItemsFragment fragment = new RSSItemsFragment();
         final Bundle args = new Bundle();
         args.putString("title",listTitle);
         args.putString("feedURL",feedURL);
+        args.putString("imageURL",imageURL);
         args.putParcelableArrayList("items",items);
 
         fragment.setArguments(args);
@@ -76,10 +80,32 @@ public class RSSItemsFragment extends Fragment  {
 
         //SET TITLE
         getArguments().getString("title");
+
         mDataset = getArguments().getParcelableArrayList("items");
         updateAdapter(mDataset);
 //        filltheAdapter();
     }
+
+    public void shareURL() {
+        try {
+//            if(getArguments().getString("feedURL") != null) {
+                String url = getArguments().getString("feedURL");
+                String imageURL = getArguments().getString("imageURL");
+
+            Log.d("TEST","SHARING...");
+                ShareLinkContent shareLinkContent = new ShareLinkContent.Builder()
+                        .setContentTitle("Your Title")
+                        .setContentDescription("Your Description")
+                        .setContentUrl(Uri.parse(getArguments().getString("feedURL")))
+                        .setImageUrl(Uri.parse(imageURL))
+                        .build();
+                ShareDialog.show(getActivity(),shareLinkContent);
+        } catch(Exception e ) {
+
+        }
+
+    }
+
 
     private void updateAdapter(ArrayList<ParcebleItem> items) {
         mAdapter = new RSSContentsAdapter(items, getContext());

@@ -66,9 +66,15 @@ public class MainFragment extends Fragment {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
-        if(mAdapter == null) {
+//        if(mAdapter == null) {
             updateAdapter();
-        }
+//        }
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        updateAdapter();
     }
 
     public void showProgressBar(Boolean show) {
@@ -100,7 +106,7 @@ public class MainFragment extends Fragment {
                         @Override
                         public void call(Object event) {
 
-                            /** Ignorant way of differentiating between short and long clicks... **/
+                            /** Stupid way of differentiating between short and long clicks... **/
                             if(event instanceof RSSList) {
                                 RSSList rssList = (RSSList) event;
                                 Log.d("TEST -- FRAGMAIN","callback to showRSS");
