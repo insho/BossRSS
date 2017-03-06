@@ -183,7 +183,6 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 
         rssObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-//                .timeout(12, TimeUnit.SECONDS)
                 .subscribe(new Subscriber<RSS>() {
 
                     ArrayList<Channel.Item> items =  new ArrayList<>();
@@ -243,8 +242,9 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
                             }
 
                             /** Assign the imageURL for the feed to the RSSList object */
-                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && !rssList.hasImageURL()) {
-                                rssList.setImageURL(rss.getChannel().getImageURL());
+                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && rss.getChannel().getImage() != null && !rssList.hasImageURL()) {
+
+                                rssList.setImageURL(rss.getChannel().getImage().getUrl());
                             }
 
                             /**** Assign items list to "items" to be passed through to fragment in OnComplete somewhat redundant ***/
@@ -283,7 +283,7 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 
     private void getFeedIcon(Context context, RSSList rssList) {
         int rowID = InternalDB.getInstance(getBaseContext()).getRowIDforURL(rssList.getURL());
-        Log.d("TEST", "In feedicon -- " + rowID);
+//        Log.d("TEST", "In feedicon -- " + rowID);
 
         Picasso.with(context).load(rssList.getImageURL()).into(new TargetPhoneGallery(getContentResolver(), rowID, rssList.getTitle(), getBaseContext()));
 
@@ -334,7 +334,7 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
         super.onBackPressed();
 
         int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
-        Log.d(TAG,"Backstack entry: " + backStackEntryCount);
+//        Log.d(TAG,"Backstack entry: " + backStackEntryCount);
         if (backStackEntryCount == 1) {
             showToolBarBackButton(false, "BossRSS");
                 mainFragment = new MainFragment();

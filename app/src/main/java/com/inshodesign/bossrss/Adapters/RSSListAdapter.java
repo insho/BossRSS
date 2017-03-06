@@ -54,8 +54,8 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
-        Log.d("TEST","hasbitmap: " + mDataset.get(position).hasBitmap()) ;
-        Log.d("TEST","hasbitmap: " + mDataset.get(position).getImageURI()) ;
+//        Log.d("TEST","hasbitmap: " + mDataset.get(position).hasBitmap()) ;
+//        Log.d("TEST","hasbitmap: " + mDataset.get(position).getImageURI()) ;
 
         /** If there is an image icon, show it**/
         if(mDataset.get(position).hasBitmap()) {
@@ -71,7 +71,7 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
 
         }
 
-        Log.d("InternalDB","Holdertest: " + mDataset.get(position).getTitle());
+//        Log.d("InternalDB","Holdertest: " + mDataset.get(position).getTitle());
 
 
         /** If there is no icon or title, show url and grey out the row, because it is considered incomplete **/

@@ -64,7 +64,29 @@ public class Channel {
     @Element(name = "pubDate", required = false)
     String pubDate;
 
+    @Element
+    Image image;
 
+    public Image getImage() {
+        return image;
+    }
+
+    @Root(name = "image", strict = false)
+    public static class Image {
+
+        @Element(name = "title", required = false)
+        String title;
+        @Element(name = "link", required = false)
+        String link;
+        @Element(name = "url", required = true)
+        String url;
+
+        public String getUrl() {
+            return url;
+        }
+
+
+    }
 
     @Override
     public String toString() {
