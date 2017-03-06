@@ -6,31 +6,15 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-
-/**
- * Created by JClassic on 3/3/2017.
- */
 
 
 public class RemoveFeedDialog extends DialogFragment {
 
     public RemoveRSSDialogListener mRemoveRSSDialogListener;
-    String TAG = "TEST";
 
     public interface RemoveRSSDialogListener {
         void onRemoveRSSDialogPositiveClick(int removeid);
@@ -48,27 +32,14 @@ public class RemoveFeedDialog extends DialogFragment {
         }
     }
 
-//    private static RemoveFeedDialog instance;
-
     public static RemoveFeedDialog newInstance(int removeid) {
-//        if(RemoveFeedDialog.instance == null) {
-//
-//        }
-//
+
         RemoveFeedDialog frag = new RemoveFeedDialog();
         Bundle args = new Bundle();
         args.putInt("removeid", removeid);
         frag.setArguments(args);
         return frag;
     }
-
-//    public static MyDialogController getInstance() {
-//        if ( MyDialogController.instance == null ) {
-//            MyDialogController.instance = new MyDialogController();
-//        }
-//
-//        return MyDialogController.instance;
-//    }
 
 
     @Override
@@ -102,10 +73,7 @@ public class RemoveFeedDialog extends DialogFragment {
                 dialog.cancel();
             }
         });
-
-//        builder.setCustomTitle(customTitle);
         builder.setCancelable(true);
-
 
         return builder.create();
     }

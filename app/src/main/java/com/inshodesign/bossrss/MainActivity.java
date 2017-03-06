@@ -1,40 +1,26 @@
 package com.inshodesign.bossrss;
 
-//import android.app.Fragment;
-//import android.app.FragmentManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.widget.Toast;
-
-import com.facebook.FacebookSdk;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
 import com.inshodesign.bossrss.DB.InternalDB;
 import com.inshodesign.bossrss.XMLModel.Channel;
-//import com.inshodesign.bossrss.XMLModel.ItemParceble;
 import com.inshodesign.bossrss.XMLModel.ParcebleItem;
 import com.inshodesign.bossrss.XMLModel.RSS;
 import com.inshodesign.bossrss.XMLModel.RSSList;
 import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -66,13 +52,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, mainFragment, "mainfragment")
                     .commit();
-        } else {
-
-            if(getSupportFragmentManager().getBackStackEntryCount() >0 &&
-                    savedInstanceState.getString("title") != null) {
-                showToolBarBackButton(true, savedInstanceState.getString("title"));
-            }
         }
+
 
 
         /** Handle a URL intent from web, if user is on RSS feed there */
@@ -114,13 +95,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu,menu);
         return true;
-//
-//        Drawable addRSS = ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp);
-//
-//        menu.add(0, 1, 0, "Add Feed").setIcon(addRSS)
-//                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-//        mOptionsMenu = menu;
-//        return true;
+
     }
 
     private void hideOption(int id)
@@ -135,12 +110,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         item.setVisible(true);
     }
 
-//
-//    private void updateOptionsMenu(Menu menu) {
-//        if (menu != null) {
-//            onPrepareOptionsMenu(menu);
-//        }
-//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -161,14 +130,6 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
                 if(!this.openFacebookDialog()) {
                     Toast.makeText(this, "Unable to access facebook", Toast.LENGTH_SHORT).show();
                 }
-
-//                FacebookSdk.setApplicationId("1842775815961608");
-//                FacebookSdk.sdkInitialize(this);
-
-//                ShareDialog shareDialog = new ShareDialog(this);
-
-
-
 
                 return true;
             default:
@@ -240,6 +201,7 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 
                         /**Put the RSS List thumbnail URL and Title into the db */
                         if(!rssListValuesAlreadyExist) {
+                            Log.d("TEST",rssList.getImageURL());
                             InternalDB.getInstance(getBaseContext()).addTitleandImageURLtoDB(rssList.getURL(),rssList.getTitle(),rssList.getImageURL());
                         }
 
@@ -248,7 +210,7 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
                         showRSSListFragment(rssList,items);
 
                         /** Ty to download the image icon **/
-                        if (!rssListValuesAlreadyExist && rssList.getImageURL() != null) {
+                        if (rssList.getImageURL() == null) {
                             getFeedIcon(getBaseContext(), rssList);
                         }
 
@@ -305,11 +267,8 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
         /** Convert items that aren't parceble to the parceble class... **/
         ArrayList<ParcebleItem> parcebleItems = new ArrayList<>();
         for (Channel.Item item: items) {
-            // use currInstance
             parcebleItems.add(new ParcebleItem(item));
         }
-
-//        ParcebleItem converteditem = new ParcebleItem(items.get(0));
 
         rssItemsFragment = RSSItemsFragment.newInstance(rssList.getTitle(),rssList.getURL(),rssList.getImageURL(), parcebleItems);
         getSupportFragmentManager().beginTransaction()
@@ -324,8 +283,13 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 
     private void getFeedIcon(Context context, RSSList rssList) {
         int rowID = InternalDB.getInstance(getBaseContext()).getRowIDforURL(rssList.getURL());
+        Log.d("TEST", "In feedicon -- " + rowID);
+
         Picasso.with(context).load(rssList.getImageURL()).into(new TargetPhoneGallery(getContentResolver(), rowID, rssList.getTitle(), getBaseContext()));
-        mainFragment.mAdapter.notifyDataSetChanged();
+
+        if(mainFragment != null && mainFragment.isAdded()) {
+            mainFragment.updateAdapter();
+        }
     }
 
 
@@ -373,7 +337,6 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
         Log.d(TAG,"Backstack entry: " + backStackEntryCount);
         if (backStackEntryCount == 1) {
             showToolBarBackButton(false, "BossRSS");
-//            if(((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")) == null || !((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")).isAdded())
                 mainFragment = new MainFragment();
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, mainFragment, "mainfragment")
@@ -396,20 +359,11 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
 
     public void showToolBarBackButton(Boolean showBack, CharSequence title) {
 
-//        if (toolbar == null) {
-//            toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        }
-//        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showBack);
             getSupportActionBar().setTitle(title);
 
             if(showBack) {
-//                Drawable shareFacebook = ContextCompat.getDrawable(this, R.drawable.ic_facebook);
-//getMenuInflater().
-//
-//                mOptionsMenu.add(0, 1, 0, "Share").setIcon(shareFacebook)
-//                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 hideOption(R.id.addFeed);
                 showOption(R.id.shareFacebook);
             } else {
@@ -417,14 +371,7 @@ Log.d("TEST","ITEM ID: " + item.getItemId());
                 hideOption(R.id.shareFacebook);
                 showOption(R.id.addFeed);
 
-//                if(mOptionsMenu.getItem(1) != null) {
-//                    mOptionsMenu.removeItem(1);
-//                }
-//                Drawable addRSS = ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp);
-//                mOptionsMenu.add(0, 0, 0, "Add Feed").setIcon(addRSS)
-//                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
             }
-//            updateOptionsMenu();
         }
 
     }

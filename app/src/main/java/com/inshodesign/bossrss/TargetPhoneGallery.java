@@ -6,8 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.util.Log;
-
 import com.inshodesign.bossrss.DB.InternalDB;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -20,7 +18,6 @@ import java.lang.ref.WeakReference;
  */
 
 public class TargetPhoneGallery implements Target {
-//    private AddMediaURIListener mCallback;
 
     private final WeakReference<ContentResolver> resolver;
     private String title;
@@ -34,7 +31,6 @@ public class TargetPhoneGallery implements Target {
         this.rowID = rowID;
         this.title = title;
         this.context = context;
-//            this.addMediaURIListener = callback;
     }
 
 
@@ -56,7 +52,6 @@ public class TargetPhoneGallery implements Target {
             String uri = MediaStore.Images.Media.insertImage(r, bitmap, "img-" + rowID, title);
 
             InternalDB.getInstance(context).addMediaURItoDB(uri, rowID);
-//                mCallback.addMediaURItoDB(uri, rowID);
         }
     }
 
@@ -64,6 +59,5 @@ public class TargetPhoneGallery implements Target {
     public void onBitmapFailed (Drawable arg0)
     {
     }
-
 
 }

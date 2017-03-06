@@ -2,36 +2,28 @@
 package com.inshodesign.bossrss.Adapters;
 
         import android.content.Context;
-        import android.graphics.BitmapFactory;
-        import android.graphics.drawable.BitmapDrawable;
-        import android.graphics.drawable.Drawable;
+        import android.content.Intent;
+        import android.net.Uri;
+        import android.support.v4.content.ContextCompat;
         import android.support.v7.widget.RecyclerView;
+        import android.text.SpannableString;
+        import android.text.method.LinkMovementMethod;
+        import android.text.style.ForegroundColorSpan;
+        import android.text.style.URLSpan;
+        import android.text.util.Linkify;
         import android.util.Log;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
         import android.widget.ImageView;
         import android.widget.TextView;
-
         import com.inshodesign.bossrss.R;
-        import com.inshodesign.bossrss.XMLModel.Channel;
         import com.inshodesign.bossrss.XMLModel.ParcebleItem;
-        import com.inshodesign.bossrss.XMLModel.RSS;
-        import com.inshodesign.bossrss.XMLModel.RSSList;
         import com.squareup.picasso.Picasso;
-
-        import org.w3c.dom.Text;
-
         import java.util.ArrayList;
-        import java.util.List;
-
-/**
- * Created by JClassic on 3/4/2017.
- */
 
 public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.ViewHolder> {
 
-//    private RxBus _rxbus;
     private ArrayList<ParcebleItem> mDataset;
     private Context mContext;
 
@@ -55,7 +47,6 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 
     public RSSContentsAdapter(ArrayList<ParcebleItem> myDataset, Context context) {
         mDataset = myDataset;
-//        _rxbus = rxBus;
         mContext = context;
     }
 
@@ -76,56 +67,41 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
         /** If there is an image icon, show it**/
-//        if(mDataset.get(position).hasImage()) {
-//            Drawable image = new BitmapDrawable(mContext.getResources(), mDataset.get(position).getImage());
-//
-//            holder.image.setVisibility(View.VISIBLE);
-//            holder.image.setImageDrawable(image);
-//            holder.image.setAdjustViewBounds(true);
-//
-//        }  else {
-//            holder.image.setVisibility(View.GONE);
-//
-//        }
 
 
-//        Log.d("InternalDB","Holdertest: " + mDataset.get(position).;
-        holder.txtTitle.setText(mDataset.get(position).getTitle());
+        String url =  mDataset.get(holder.getAdapterPosition()).getLink();
+        String title = mDataset.get(position).getTitle();
+        if(url != null) {
+//            Linkify.addLinks(holder.txtTitle, Linkify.ALL);
+
+            SpannableString text = new SpannableString(title);
+            text.setSpan(new URLSpan(url), 0, title.length(), 0);
+            holder.txtTitle.setMovementMethod(LinkMovementMethod.getInstance());
+
+            holder.txtTitle.setText(text, TextView.BufferType.SPANNABLE);
+        } else {
+            holder.txtTitle.setText(title);
+        }
+
 
         if(mDataset.get(position).getPubDate() != null) {
-
             holder.txtDate.setText(mDataset.get(position).getPubDate());
+
         }
 
         Log.d("TEST","thumb url: " + mDataset.get(position).getThumbnailURL());
         if(mDataset.get(position).getThumbnailURL() != null) {
             Picasso.with(mContext).load(mDataset.get(position).getThumbnailURL())
-//                    .error(R.drawable.placeholder)
-//                    .placeholder(R.drawable.placeholder)
                     .into(holder.image);
 
         }
-//        holder.itemView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                //If it's a short click, send the object (with title, image etc)
-//                _rxbus.send(mDataset.get(holder.getAdapterPosition()));
-//            }
-//        });
+
     }
 
     @Override
     public int getItemCount() {
         return mDataset.size();
     }
-
-
-//    public RSS getRSSItem(int position) {
-//
-//        return mDataset.get(position);
-//
-//    }
-
 
 
 }

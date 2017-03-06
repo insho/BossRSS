@@ -1,45 +1,27 @@
 package com.inshodesign.bossrss.XMLModel;
 
-/**
- * Created by JClassic on 3/5/2017.
- */
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
-//import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Namespace;
-import org.simpleframework.xml.NamespaceList;
-import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Text;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Locale;
+/**
+ * This class exists because I wasn't able to parcel this xml template when passing it from the mainactivity
+ * to the fragment, so I transfer the data to this thing and pass this.... hmm....
+ * */
 
 public class ParcebleItem implements Parcelable {
 
-
-//        public ArrayList<MediaContent> mediaContentList = new ArrayList<MediaContent>();
-//        public ArrayList<MediaThumbnail> mediaThumbnailList = new ArrayList<MediaThumbnail>();
-
-        private String title;//The title of the item.	Venice Film Festival Tries to Quit Sinking
+    private String title;//The title of the item.	Venice Film Festival Tries to Quit Sinking
     private String link;//The URL of the item.	http://www.nytimes.com/2002/09/07/movies/07FEST.html
     private String description;//The item synopsis.	Some of the most heated chatter at the Venice Film Festival this week was about the way that the arrival of the stars at the Palazzo del Cinema was being staged.
     private String author;//Email address of the author of the item. More.	oprah@oxygen.net
     private String category;//Includes the item in one or more categories. More.	Simpsons Characters
     private String comments;//URL of a page for comments relating to the item. More.	http://www.myblog.org/cgi-local/mt/mt-comments.cgi?entry_id=290
     private  String enclosure;//	Describes a media object that is attached to the item. More.	<enclosure url="http://live.curry.com/mp3/celebritySCms.mp3" length="1069871" type="audio/mpeg"/>
-
     private String thumbnailURL;
-//        MediaContent mediaContent;
-//        MediaThumbnail mediaThumbnail;
-
     private String guid;//A string that uniquely identifies the item. More.	<guid isPermaLink="true">http://inessential.com/2002/09/01.php#a2</guid>
     private  String pubDate;//	Indicates when the item was published. More.	Sun, 19 May 2002 15:21:36 GMT
     private  String source;//	The RSS channel that the item came from. More.
+
 
 
         public ParcebleItem(Channel.Item item) {

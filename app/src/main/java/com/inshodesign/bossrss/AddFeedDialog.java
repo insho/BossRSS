@@ -6,25 +6,13 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
-
-/**
- * Created by JClassic on 3/3/2017.
- */
-
 
 public class AddFeedDialog extends DialogFragment {
 
@@ -69,13 +57,7 @@ public class AddFeedDialog extends DialogFragment {
         title.setTextColor(ContextCompat.getColor(getActivity(),android.R.color.white));
         title.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary));
         builder.setCustomTitle(title);
-
-
-//        View customtitleview = inflater.inflate(R.layout.customtitleview, null);
-
         builder.setView(dialogView);
-
-//        TextView customTitle = (TextView) customtitleview.findViewById(R.id.customtitle);
 
         final EditText editText = (EditText) dialogView.findViewById(R.id.input);
         editText.setText(R.string.testurl);
@@ -95,7 +77,6 @@ public class AddFeedDialog extends DialogFragment {
             }
         });
 
-//        builder.setCustomTitle(customTitle);
         builder.setCancelable(true);
 
 

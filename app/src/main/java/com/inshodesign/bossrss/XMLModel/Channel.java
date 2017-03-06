@@ -92,9 +92,6 @@ public class Channel {
         public String link;
     }
 
-
-
-
     @Root(name = "item", strict = false)
     @Convert(ItemConverter.class) // Specify the Converter
     public static class Item {
@@ -135,10 +132,6 @@ public class Channel {
         @Element(name = "source", required = false)
         String source;//	The RSS channel that the item came from. More.
 
-//        @Namespace(prefix = "",reference = "")
-//        @Element(name = "content", required = false)
-//        String url;
-
         @Override
         public String toString() {
             return "Item{" +
@@ -173,6 +166,8 @@ public class Channel {
     }
 
 
+
+    /*** Could never get the custom converter factory to work :( **/
     public static class ChannelConverter implements Converter<Channel>
     {
 
@@ -196,15 +191,6 @@ public class Channel {
                             channel.setTitle(child.getValue());
                         }
                         break;
-
-
-
-//                    case "image":
-//                        if(child.getParent() != null && child.getParent().getName().equals("image")) {
-//                            channel.setImageURL(child.getValue());
-//                        }
-//
-//                        break;
 
                     default:
                         throw new RuntimeException("Unknown Element found: " + child);
@@ -257,11 +243,6 @@ public class Channel {
                         }
                         break;
 
-//                    case "description":
-//                        item.setDescription(child.getValue());
-//                        break;
-
-
                     case "thumbnail":
                         /*
                          * "link" can be either a <link>...</link> or
@@ -275,13 +256,6 @@ public class Channel {
                                 item.setMediaThumbnailURL(child.getAttribute("url").getValue());
                             }
 
-//                            Item.AtomLink atom = new Item.AtomLink();
-//                            atom.setHref(child.getAttribute("href").getValue());
-//                            atom.setRel(child.getAttribute("rel").getValue());
-//                            atom.setType(child.getAttribute("type").getValue());
-//                            channel.setAtomLink(atom);
-                        } else {
-//                            channel.setLink(child.getValue());
                         }
                         break;
                     default:

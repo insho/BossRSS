@@ -11,15 +11,10 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
-import com.inshodesign.bossrss.TargetPhoneGallery;
 import com.inshodesign.bossrss.XMLModel.RSSList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.Pack200;
-
-//import com.jukuproject.juku.CharacterLists;
 
 
 public class InternalDB extends SQLiteOpenHelper {
@@ -125,7 +120,7 @@ public class InternalDB extends SQLiteOpenHelper {
         values.put(COL2, imageURL);
         db.update(TABLE_MAIN, values, COL0 + "= ?", new String[] {URL});
         db.close();
-        Log.d(TAG,"SUCESSFUL INSERT TITLE AND IMAGE URL FOR: " + title);
+        Log.d(TAG,"SUCESSFUL INSERT TITLE AND IMAGE URL FOR: " + title + ", " + imageURL);
 
     }
 
@@ -179,40 +174,6 @@ public class InternalDB extends SQLiteOpenHelper {
 
     }
 
-
-//
-//    public int  saveEndPointURL(RSSList rssList) {
-//
-//            SQLiteDatabase db = this.getWritableDatabase();
-//            ContentValues values = new ContentValues();
-//
-//        /** Before inserting record, check to see if feed already exists */
-//        String queryRecordExists = "Select _id From " + TABLE_MAIN + " where url = ?" ;
-//        Cursor c = db.rawQuery(queryRecordExists, new String[]{rssList.getURL().trim()});
-//            if (c.moveToFirst()) {
-//                //A record already exists, so return -2
-//                return -2;
-//            }
-//
-//            c.close();
-//
-//
-//
-//        Log.d(TAG,"putting url: " + rssList.getURL() );
-//        Log.d(TAG,"putting title: " +rssList.getTitle() );
-//
-//            values.put(COL0, rssList.getURL());
-//
-////        /** If the device is offline, or otherwise fails to pull data, just save the URL only */
-//            values.put(COL1, rssList.getTitle());
-//
-//        long x=db.insert(TABLE_MAIN, null, values);
-//            db.close();
-//            Log.d(TAG,"insert x value:" + x);
-//            return (int)x;
-//    }
-
-
     /** This pulls the RSSList dataset for the mainfragment recycler **/
     /** IT is also chained to the attachImagestoRSSLists which matches downloaded thumbnails to the RSSList rows **/
     public List<RSSList> getRSSLists(Context context) {
@@ -262,6 +223,7 @@ public class InternalDB extends SQLiteOpenHelper {
                 rssList.setBitmap(bm);
             }
         }
+
         return rssLists;
     }
 
@@ -269,7 +231,7 @@ public class InternalDB extends SQLiteOpenHelper {
     public boolean deletedRSSFeed(int removeid) {
         if(removeid >= 0) {
             SQLiteDatabase db = this.getWritableDatabase();
-            db.delete(TABLE_MAIN, removeid + "=" + COL_ID, null);
+            db.delete(TABLE_MAIN, COL_ID + "= ?", new String[]{String.valueOf(removeid)});
             db.close();
             return true;
         }

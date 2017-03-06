@@ -1,18 +1,7 @@
 package com.inshodesign.bossrss.XMLModel;
 
 
-        import android.graphics.Bitmap;
-        import android.os.Parcel;
-        import android.os.Parcelable;
-        import android.support.annotation.NonNull;
-        import android.support.annotation.Nullable;
-
-        import java.sql.Blob;
-
-/**
- * Created by JClassic on 3/3/2017.
- */
-
+import android.graphics.Bitmap;
 
 public class RSSList {
 

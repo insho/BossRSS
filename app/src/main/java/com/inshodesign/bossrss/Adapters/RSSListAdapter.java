@@ -1,9 +1,6 @@
 package com.inshodesign.bossrss.Adapters;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,17 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.inshodesign.bossrss.R;
-import com.inshodesign.bossrss.XMLModel.RSS;
 import com.inshodesign.bossrss.XMLModel.RSSList;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-
-/**
- * Created by JClassic on 3/4/2017.
- */
 
 public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHolder> {
 
@@ -33,7 +24,6 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
 
         public TextView txtTitle;
         public ImageView image;
-//        public TextView txtDescription;
 
         public ViewHolder(View v) {
             super(v);
@@ -64,17 +54,16 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
+        Log.d("TEST","hasbitmap: " + mDataset.get(position).hasBitmap()) ;
+        Log.d("TEST","hasbitmap: " + mDataset.get(position).getImageURI()) ;
+
         /** If there is an image icon, show it**/
         if(mDataset.get(position).hasBitmap()) {
-//            Drawable image = new BitmapDrawable(mContext.getResources(), mDataset.get(position).getBitmap());
 
                 Picasso.with(mContext).load(mDataset.get(position).getImageURI())
-//                    .error(R.drawable.placeholder)
-//                    .placeholder(R.drawable.placeholder)
                         .into(holder.image);
 
             holder.image.setVisibility(View.VISIBLE);
-//            holder.image.setImageDrawable(image);
             holder.image.setAdjustViewBounds(true);
 
         }  else {
@@ -121,11 +110,7 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
 
 
     public RSSList getList(int position) {
-
         return mDataset.get(position);
-
     }
-
-
 
 }

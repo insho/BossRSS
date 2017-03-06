@@ -4,33 +4,21 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.inshodesign.bossrss.Adapters.RSSListAdapter;
 import com.inshodesign.bossrss.Adapters.RxBus;
 import com.inshodesign.bossrss.DB.InternalDB;
-import com.inshodesign.bossrss.XMLModel.Channel;
-import com.inshodesign.bossrss.XMLModel.RSS;
 import com.inshodesign.bossrss.XMLModel.RSSList;
-
-import java.util.ArrayList;
 import java.util.List;
-
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
-import fr.castorflex.android.smoothprogressbar.SmoothProgressDrawable;
 import rx.functions.Action1;
 
-import static android.view.View.GONE;
 
 /**
  * Created by JClassic on 2/21/2017.
@@ -66,9 +54,7 @@ public class MainFragment extends Fragment {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
-//        if(mAdapter == null) {
             updateAdapter();
-//        }
     }
 
     @Override
@@ -92,7 +78,7 @@ public class MainFragment extends Fragment {
         List<RSSList> rssLists = InternalDB.getInstance(getContext()).getRSSLists(getContext());
 
         if(rssLists != null && rssLists.size()>0) {
-            Log.d("InternalDB","Filladapterlist TITLE: " + rssLists.get(0).getTitle());
+            Log.d("InternalDB","Filladapterlist TITLE: " + rssLists.get(0).getImageURI());
         }
 
         if(rssLists != null && rssLists.size() > 0) {
@@ -119,8 +105,6 @@ public class MainFragment extends Fragment {
                         }
 
                     });
-
-
 
             mRecyclerView.setAdapter(mAdapter);
 
@@ -153,11 +137,6 @@ public class MainFragment extends Fragment {
                     + " must implement OnHeadlineSelectedListener");
         }
     }
-
-//    @Override
-//    public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
-//
-//    }
 
 }
 
