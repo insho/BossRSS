@@ -42,10 +42,10 @@ public class ParcebleItem implements Parcelable {
 
         public ParcebleItem(Channel.Item item) {
             this.title = item.title;
-            Log.d("TEST", "HAS THUMBNAIL? -- " + item.hasThumbnail());
-            if(item.hasThumbnail()) {
+//            Log.d("TEST", "HAS THUMBNAIL? -- " + item.getMediaThumbnail() != null);
+            if(item.getMediaThumbnailURL() != null) {
 //                Log.d("TEST","item thumnbail: " + item.getMediaContent().getThumbnail().getUrl());
-                this.thumbnailURL = item.getThumbnail().getUrl();
+                this.thumbnailURL = item.getMediaThumbnailURL();
             }
 
             this.link = item.link;

@@ -10,4 +10,8 @@
     <string name="testurl">http://www.thestar.com/feeds.topstories.rss</string>
     <string name="nolists">no saved feeds</string>
 
+    <string name="menubuttonadd">Add RSS</string>
+    <string name="menubuttonfacebook">Share RSS</string>
+
+
 </resources>

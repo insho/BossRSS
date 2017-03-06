@@ -87,7 +87,7 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 
 
 
-
+        Log.d("TEST","thumb url: " + mDataset.get(position).getThumbnailURL());
         if(mDataset.get(position).getThumbnailURL() != null) {
             Picasso.with(mContext).load(mDataset.get(position).getThumbnailURL())
 //                    .error(R.drawable.placeholder)

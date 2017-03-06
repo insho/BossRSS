@@ -2,16 +2,22 @@ package com.inshodesign.bossrss;
 
 //import android.app.Fragment;
 //import android.app.FragmentManager;
+import android.content.ComponentName;
 import android.content.Context;
-        import android.graphics.drawable.Drawable;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
         import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-        import android.util.Log;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.widget.Toast;
 
 import com.inshodesign.bossrss.DB.InternalDB;
@@ -39,7 +45,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     RSSItemsFragment rssItemsFragment;
     private static boolean debug = true;
     private static final String TAG = "TEST -- MAIN";
-    private Menu mOptionsMenu;
+    private Menu menu;
+//    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,24 +72,40 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     public boolean onCreateOptionsMenu(Menu menu) {
 
-
-
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("BossRSS");
         }
-
-        Drawable addRSS = ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp);
-        menu.add(0, 1, 0, "Add Feed").setIcon(addRSS)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        mOptionsMenu = menu;
+        this.menu = menu;
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu,menu);
         return true;
+//
+//        Drawable addRSS = ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp);
+//
+//        menu.add(0, 1, 0, "Add Feed").setIcon(addRSS)
+//                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+//        mOptionsMenu = menu;
+//        return true;
     }
 
-    private void updateOptionsMenu() {
-        if (mOptionsMenu != null) {
-            onPrepareOptionsMenu(mOptionsMenu);
-        }
+    private void hideOption(int id)
+    {
+        MenuItem item = menu.findItem(id);
+        item.setVisible(false);
     }
+
+    private void showOption(int id)
+    {
+        MenuItem item = menu.findItem(id);
+        item.setVisible(true);
+    }
+
+//
+//    private void updateOptionsMenu(Menu menu) {
+//        if (menu != null) {
+//            onPrepareOptionsMenu(menu);
+//        }
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -91,11 +114,16 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
             case android.R.id.home:
                 onBackPressed();
                 return true;
-            case 1: // addRSS
+            case 0: // addRSS
                 if (addFeedDialogFragment == null || !addFeedDialogFragment.isAdded()) {
                     addFeedDialogFragment = AddFeedDialog.newInstance(false);
                     addFeedDialogFragment.show(getFragmentManager(), "dialogAdd");
                 }
+
+
+                return true;
+            case 1: // addRSS
+                Toast.makeText(this, "SHARE ON FACEBOOK", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return false;
@@ -148,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
         rssObservable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .timeout(12, TimeUnit.SECONDS)
+//                .timeout(12, TimeUnit.SECONDS)
                 .subscribe(new Subscriber<RSS>() {
 
                     ArrayList<Channel.Item> items =  new ArrayList<>();
@@ -209,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
                             /** Assign the imageURL for the feed to the RSSList object */
                             if (!rssListValuesAlreadyExist && rss.getChannel() != null && !rssList.hasImageURL()) {
-                                rssList.setImageURL(rss.getChannel().getImage().getUrl());
+                                rssList.setImageURL(rss.getChannel().getImageURL());
                             }
 
                             /**** Assign items list to "items" to be passed through to fragment in OnComplete somewhat redundant ***/
@@ -289,10 +317,15 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     }
 
 
-//    @Override
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//    }
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+        if (backStackEntryCount == 0) {
+            showToolBarBackButton(false, "BossRSS");
+        }
+    }
 
 
 
@@ -308,27 +341,36 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
 
     public void showToolBarBackButton(Boolean showBack, CharSequence title) {
+
+//        if (toolbar == null) {
+//            toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        }
+//        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showBack);
             getSupportActionBar().setTitle(title);
 
             if(showBack) {
-                Drawable shareFacebook = ContextCompat.getDrawable(this, R.drawable.ic_facebook);
-                if(mOptionsMenu.hasVisibleItems()) {
-                    mOptionsMenu.removeItem(0);
-                }
-                mOptionsMenu.add(0, 1, 0, "Share").setIcon(shareFacebook)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
+//                Drawable shareFacebook = ContextCompat.getDrawable(this, R.drawable.ic_facebook);
+//getMenuInflater().
+//
+//                mOptionsMenu.add(0, 1, 0, "Share").setIcon(shareFacebook)
+//                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                hideOption(R.id.addFeed);
+                showOption(R.id.shareFacebook);
             } else {
-                if(mOptionsMenu.hasVisibleItems()) {
-                    mOptionsMenu.removeItem(0);
-                }
-                Drawable addRSS = ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp);
-                mOptionsMenu.add(0, 1, 0, "Add Feed").setIcon(addRSS)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+                hideOption(R.id.shareFacebook);
+                showOption(R.id.addFeed);
+
+//                if(mOptionsMenu.getItem(1) != null) {
+//                    mOptionsMenu.removeItem(1);
+//                }
+//                Drawable addRSS = ContextCompat.getDrawable(this, R.drawable.ic_add_white_24dp);
+//                mOptionsMenu.add(0, 0, 0, "Add Feed").setIcon(addRSS)
+//                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
             }
-            updateOptionsMenu();
+//            updateOptionsMenu();
         }
 
     }
