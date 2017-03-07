@@ -89,9 +89,15 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 
         }
 
-        if(mDataset.get(position).getThumbnailURL() != null) {
-            Picasso.with(mContext).load(mDataset.get(position).getThumbnailURL())
+        Log.d("TEST","thumb: " + mDataset.get(position).getMediaURL() );
+        if(mDataset.get(position).getMediaURL() != null) {
+            Picasso.with(mContext).load(mDataset.get(position).getMediaURL())
                     .into(holder.image);
+
+        }
+
+        if(mDataset.get(position).getMediaDescription() != null) {
+            holder.txtDescription.setText(mDataset.get(position).getMediaDescription());
 
         }
 

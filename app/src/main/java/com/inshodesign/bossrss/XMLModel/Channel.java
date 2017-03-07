@@ -1,8 +1,5 @@
 package com.inshodesign.bossrss.XMLModel;
 
-
-import android.util.Log;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
@@ -10,50 +7,33 @@ import org.simpleframework.xml.Namespace;
 import org.simpleframework.xml.NamespaceList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Text;
-import org.simpleframework.xml.convert.Convert;
-import org.simpleframework.xml.convert.Converter;
-import org.simpleframework.xml.stream.InputNode;
-import org.simpleframework.xml.stream.OutputNode;
 
 import java.util.List;
 
 @NamespaceList({
-        @Namespace(reference = "http://www.w3.org/2005/Atom", prefix = "atom")
+        @Namespace(reference = "http://www.w3.org/2005/Atom", prefix = "atom"),
+        @Namespace(reference = "http://search.yahoo.com/mrss/", prefix = "media")
+
 })
 @Root(strict = false)
-@Convert(Channel.ChannelConverter.class) // Specify the Converter
 public class Channel {
-
-    String imageURL;
-
-    public String getImageURL() {
-        return imageURL;
-    }
-
-    public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
-    }
 
     // Tricky part in Simple XML because the link is named twice
     @ElementList(entry = "link", inline = true, required = false)
     public List<Link> links;
 
-    @ElementList(name = "item", required = true, inline = true)
+    @ElementList(name = "item", inline = true)
     public List<Item> itemList;
 
 
     @Element
     String title;
-
     public String getTitle() {
         return title;
     }
-
     public void setTitle(String title) {
         this.title = title;
     }
-
-
 
     @Element
     String language;
@@ -64,18 +44,15 @@ public class Channel {
     @Element(name = "pubDate", required = false)
     String pubDate;
 
-    @ElementList(entry="image", inline=true)
-    private List<Image> images;
+    @ElementList(entry="image", inline=true, required = false)
+    private List<Image> imageList;
 
-    public List<Image> getImagesone() {
-        return images;
+    public List<Image> getImageList() {
+        return imageList;
     }
 
-//    public Image getImage() {
-//        return imagex;
-//    }
-
     @Root(name = "image", strict = false)
+
     public static class Image {
 
         @Element(name = "title", required = false)
@@ -118,24 +95,20 @@ public class Channel {
         public String link;
     }
 
+
+
     @Root(name = "item", strict = false)
-    @Convert(ItemConverter.class) // Specify the Converter
     public static class Item {
 
-        String mediaThumbnailURL;
+//        String mediaThumbnailURL;
 
-        public String getMediaThumbnailURL() {
-            return mediaThumbnailURL;
-        }
-
-        public void setMediaThumbnailURL(String mediaThumbnailURL) {
-            this.mediaThumbnailURL = mediaThumbnailURL;
-        }
+//        public String getMediaThumbnailURL() {
+//            return mediaThumbnailURL;
+//        }
 
         public String getPubDate() {
             return pubDate;
         }
-
 
         @Element(name = "title", required = true)
         String title;//The title of the item.	Venice Film Festival Tries to Quit Sinking
@@ -189,123 +162,63 @@ public class Channel {
         public String getDescription() {
             return description;
         }
-    }
 
+        @Element(name = "content", required = false)
+        MediaContentTEST content;
 
+        @Root(name = "content", strict = false)
+        public static class MediaContentTEST {
+            @Attribute(required = false)
+            public String url;
 
-    /*** Could never get the custom converter factory to work :( **/
-    public static class ChannelConverter implements Converter<Channel>
-    {
+            public String getUrl() {
+                return url;
+            }
 
+            @Attribute(required = false)
+            public String medium;
 
-        @Override
-        public Channel read(InputNode node) throws Exception
-        {
-            Channel channel = new Channel();
+            @Element(name = "thumbnail", required = false)
+            MediaContentThumbnail thumbnail;
 
-            InputNode child;
+            @Root(name = "thumbnail", strict = false)
+            public static class MediaContentThumbnail {
+                @Attribute(required = false)
+                public String url;
 
-            // Iterate over all childs an get their values
-            while( ( child = node.getNext() ) != null )
-            {
-                switch(child.getName())
-                {
-                    case "title":
-                        if(child.getParent() != null && child.getParent().getName().equals("image")) {
-                            channel.setImageURL(child.getValue());
-                        } else {
-                            channel.setTitle(child.getValue());
-                        }
-                        break;
+                @Attribute(required = false)
+                public String medium;
 
-                    default:
-                        throw new RuntimeException("Unknown Element found: " + child);
+                public String getUrl() {
+                    return url;
                 }
             }
 
-            return channel;
-        }
-
-
-        @Override
-        public void write(OutputNode node, Channel value) throws Exception
-        {
-            /*
-             * TODO: Implement if necessary
-             */
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-    }
-
-
-
-
-    static class ItemConverter implements Converter<Item>
-    {
-        @Override
-        public Item read(InputNode node) throws Exception
-        {
-            Item item = new Item();
-
-            InputNode child;
-
-            // Iterate over all childs an get their values
-            while( ( child = node.getNext() ) != null )
-            {
-                switch(child.getName())
-                {
-                    case "title":
-                        Log.d("TEST","TITLEEEEEE: " + child.getValue());
-                        item.setTitle("COCK");
-                        break;
-
-                    case "description":
-                        Log.d("TEST","desc: " + child.getValue());
-                        if(child.getAttribute("src") != null) {
-                            item.setMediaThumbnailURL(child.getValue());
-                        } else {
-                            item.setDescription(child.getValue());
-                        }
-                        break;
-
-                    case "thumbnail":
-                        /*
-                         * "link" can be either a <link>...</link> or
-                         * a <atom:link>...</atom:link>
-                         */
-                        Log.d("TEST","found thumbnail");
-                        if( child.getPrefix().equals("media"))
-                        {
-                            Log.d("TEST","found media -- " + child.getAttributes());
-                            if(child.getAttribute("url") != null) {
-                                item.setMediaThumbnailURL(child.getAttribute("url").getValue());
-                            }
-
-                        }
-                        break;
-                    default:
-                        throw new RuntimeException("Unknown Element found: " + child);
-                }
+            public MediaContentThumbnail getThumbnail() {
+                return thumbnail;
             }
 
-            return item;
+
+            @Element(name = "description", required = false)
+            String description;
+
+
+            public String getDescription() {
+                return description;
+            }
         }
 
-
-        @Override
-        public void write(OutputNode node, Item value) throws Exception
-        {
-            /*
-             * TODO: Implement if necessary
-             */
-            throw new UnsupportedOperationException("Not supported yet.");
+        public MediaContentTEST getContent() {
+            return content;
         }
-
     }
+
+
 
     public List<Item> getItemList() {
         return itemList;
     }
+
+
 
 }

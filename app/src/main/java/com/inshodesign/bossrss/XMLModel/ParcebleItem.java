@@ -2,6 +2,7 @@ package com.inshodesign.bossrss.XMLModel;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 /**
  * This class exists because I wasn't able to parcel this xml template when passing it from the mainactivity
@@ -17,19 +18,16 @@ public class ParcebleItem implements Parcelable {
     private String category;//Includes the item in one or more categories. More.	Simpsons Characters
     private String comments;//URL of a page for comments relating to the item. More.	http://www.myblog.org/cgi-local/mt/mt-comments.cgi?entry_id=290
     private  String enclosure;//	Describes a media object that is attached to the item. More.	<enclosure url="http://live.curry.com/mp3/celebritySCms.mp3" length="1069871" type="audio/mpeg"/>
-    private String thumbnailURL;
     private String guid;//A string that uniquely identifies the item. More.	<guid isPermaLink="true">http://inessential.com/2002/09/01.php#a2</guid>
     private  String pubDate;//	Indicates when the item was published. More.	Sun, 19 May 2002 15:21:36 GMT
     private  String source;//	The RSS channel that the item came from. More.
 
+    private String mediaURL;
+    private String mediaThumbnail;
+    private String mediaDescription;
 
         public ParcebleItem(Channel.Item item) {
             this.title = item.title;
-//            Log.d("TEST", "HAS THUMBNAIL? -- " + item.getMediaThumbnail() != null);
-            if(item.getMediaThumbnailURL() != null) {
-//                Log.d("TEST","item thumnbail: " + item.getMediaContent().getThumbnail().getUrl());
-                this.thumbnailURL = item.getMediaThumbnailURL();
-            }
 
             this.description = item.description;
 
@@ -37,13 +35,26 @@ public class ParcebleItem implements Parcelable {
             this.author = item.author;
             if(item.pubDate != null) {
                 this.pubDate = item.pubDate;
-//                this.pubDate = sdf.format(item.pubDate).toString();
             }
 
-//            item.mediaThumbnail.url = this.mediaThumbnail.url;
+            if(item.getContent() != null) {
+
+                if(item.getContent().getUrl() != null) {
+                    this.mediaURL = item.getContent().getUrl();
+                }
+
+                if(item.getContent().getThumbnail() != null) {
+                    this.mediaThumbnail = item.getContent().getThumbnail().getUrl();
+                }
+                if(item.getContent().getDescription() != null) {
+                    this.mediaDescription = item.getContent().getDescription();
+                }
+
+            }
+
         }
 
-        public String getTitle() {
+    public String getTitle() {
             return title;
         }
 
@@ -55,26 +66,14 @@ public class ParcebleItem implements Parcelable {
             return author;
         }
 
-        public String getCategory() {
+    public String getCategory() {
             return category;
         }
 
-//        public MediaThumbnail getMediaThumbnail() {
-//            return mediaThumbnail;
-//        }
 
-
-//    public void setPubDate(String pubDate) {
-//        SimpleDateFormat sdf = new SimpleDateFormat("MMM MM dd, yyyy h:mm a", Locale.getDefault());
-//        this.pubDate = sdf.format(pubDate);
-//    }
 
     public String getPubDate() {
         return pubDate;
-    }
-
-    public String getThumbnailURL() {
-        return thumbnailURL;
     }
 
     // Parcelling part
@@ -92,15 +91,21 @@ public class ParcebleItem implements Parcelable {
 
             this.guid = datafirst[0];
             this.pubDate = datafirst[1];
-            this.source = datafirst[2];
-
-//            in.readTypedList(mediaContentList,MediaContent.CREATOR);
-//            in.readTypedList(mediaThumbnailList,MediaThumbnail.CREATOR);
-
-
         }
 
-        public int describeContents(){
+    public String getMediaURL() {
+        return mediaURL;
+    }
+
+    public String getMediaThumbnail() {
+        return mediaThumbnail;
+    }
+
+    public String getMediaDescription() {
+        return mediaDescription;
+    }
+
+    public int describeContents(){
             return 0;
         }
 
@@ -117,11 +122,7 @@ public class ParcebleItem implements Parcelable {
                     this.guid,
                     this.pubDate,
                     this.source});
-
-//            dest.writeTypedList(mediaContentList);
-//            dest.writeTypedList(mediaThumbnailList);
-
-            };
+            }
 
     public static final Parcelable.Creator<ParcebleItem> CREATOR
             = new Parcelable.Creator<ParcebleItem>() {
@@ -133,139 +134,7 @@ public class ParcebleItem implements Parcelable {
             return new ParcebleItem[size];
         }
     };
-//        public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-//            public Item createFromParcel(Parcel in) {
-//                return new Item(in);
-//            }
-//
-//            public Item[] newArray(int size) {
-//                return new Item[size];
-//            }
-//        };
+
 
 }
 
-//
-//    public static class Image {
-//
-//        String title;
-//        String link;
-//        String url;
-//
-//        public void setTitle(String title) {
-//            this.title = title;
-//        }
-//
-//        public void setLink(String link) {
-//            this.link = link;
-//        }
-//
-//
-//
-//        public String getUrl() {
-//            return url;
-//        }
-//
-//
-//    }
-
-//    public static class MediaContent implements Parcelable {
-//
-//        private String url;
-//        private String medium;
-//
-//        public String getUrl() {
-//            return url;
-//        }
-//
-//        public String getMedium() {
-//            return medium;
-//        }
-//
-//
-//        // Parcelling part
-//        private MediaContent(Parcel in){
-//            String[] data = new String[12];
-//
-//            in.readStringArray(data);
-//            this.url = data[0];
-//            this.medium = data[1];
-//
-//
-//        }
-//
-//        public int describeContents(){
-//            return 0;
-//        }
-//
-//        @Override
-//        public void writeToParcel(Parcel dest, int flags) {
-//            dest.writeStringArray(new String[] {this.url,
-//                    this.medium
-//            });
-//        }
-//        public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-//            public MediaContent createFromParcel(Parcel in) {
-//                return new MediaContent(in);
-//            }
-//
-//            public MediaContent[] newArray(int size) {
-//                return new MediaContent[size];
-//            }
-//        };
-//
-//    }
-//
-//    public static class MediaThumbnail implements Parcelable {
-//        String url;
-//
-//        public String getUrl() {
-//            return url;
-//        }
-//
-//        // Parcelling part
-//        public MediaThumbnail(Parcel in){
-//            String[] data = new String[12];
-//
-//            in.readStringArray(data);
-//            this.url = data[0];
-//
-//        }
-//
-//        public int describeContents(){
-//            return 0;
-//        }
-//
-//        @Override
-//        public void writeToParcel(Parcel dest, int flags) {
-//            dest.writeStringArray(new String[] {this.url
-//            });
-//        }
-//        public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-//            public MediaThumbnail createFromParcel(Parcel in) {
-//                return new MediaThumbnail(in);
-//            }
-//
-//            public MediaThumbnail[] newArray(int size) {
-//                return new MediaThumbnail[size];
-//            }
-//        };
-//    }
-//
-//    public List<Link> getLinks() {
-//        return links;
-//    }
-//
-//    public List<Item> getItemList() {
-//        return itemList;
-//    }
-//
-//    public Image getImage() {
-//        return image;
-//    }
-//
-//    public String getTitle() {
-//        return title;
-//    }
-
-//}

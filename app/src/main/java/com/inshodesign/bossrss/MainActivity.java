@@ -247,11 +247,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 //
 //                                rssList.setImageURL(rss.getChannel().getImage().getUrl());
 //                            }
-                            /** Get imageURL*/
-                            if (rss.getChannel() != null && rss.getChannel().getImagesone().get(0) != null && rss.getChannel().getImagesone().get(0).getUrl() != null) {
-                                rssList.setImageURL(rss.getChannel().getImagesone().get(0).getUrl());
+                            /** Get Main Feed imageURL*/
+                            if (rss.getChannel() != null && rss.getChannel().getImageList().get(0) != null && rss.getChannel().getImageList().get(0).getUrl() != null) {
+                                rssList.setImageURL(rss.getChannel().getImageList().get(0).getUrl());
                             }
-
 
 
                             /**** Assign items list to "items" to be passed through to fragment in OnComplete somewhat redundant ***/

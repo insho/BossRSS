@@ -32,7 +32,7 @@ public class TargetPhoneGallery implements Target {
         this.title = title;
         this.context = context;
     }
-    
+
 
     @Override
     public void onPrepareLoad (Drawable arg0)
