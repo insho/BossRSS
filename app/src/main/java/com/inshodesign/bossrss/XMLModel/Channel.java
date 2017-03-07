@@ -12,7 +12,8 @@ import java.util.List;
 
 @NamespaceList({
         @Namespace(reference = "http://www.w3.org/2005/Atom", prefix = "atom"),
-        @Namespace(reference = "http://search.yahoo.com/mrss/", prefix = "media")
+        @Namespace(reference = "http://search.yahoo.com/mrss/", prefix = "media"),
+        @Namespace(reference = "http://www.itunes.com/dtds/podcast-1.0.dtd", prefix = "itunes")
 
 })
 @Root(strict = false)
@@ -112,8 +113,14 @@ public class Channel {
 
         @Element(name = "title", required = true)
         String title;//The title of the item.	Venice Film Festival Tries to Quit Sinking
+
+        @Element(name = "link", required = false, data = true)
+        String datalink;
         @Element(name = "link", required = true)
         String link;//The URL of the item.	http://www.nytimes.com/2002/09/07/movies/07FEST.html
+
+
+
         @Element(name = "description", required = true)
         String description;//The item synopsis.	Some of the most heated chatter at the Venice Film Festival this week was about the way that the arrival of the stars at the Palazzo del Cinema was being staged.
         @Element(name = "author", required = false)

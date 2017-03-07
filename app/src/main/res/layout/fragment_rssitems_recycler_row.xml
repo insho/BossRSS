@@ -56,6 +56,16 @@
             android:layout_marginTop="4dp"
             />
 
+    <TextView
+        android:id="@+id/datalink"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:layout_marginTop="4dp"
+        android:ellipsize="marquee"
+        android:visibility="gone"
+        android:textSize="16sp" />
+
 
             <TextView
                 android:id="@+id/description"

@@ -21,7 +21,7 @@ public class ParcebleItem implements Parcelable {
     private String guid;//A string that uniquely identifies the item. More.	<guid isPermaLink="true">http://inessential.com/2002/09/01.php#a2</guid>
     private  String pubDate;//	Indicates when the item was published. More.	Sun, 19 May 2002 15:21:36 GMT
     private  String source;//	The RSS channel that the item came from. More.
-
+    private  String datalink;
     private String mediaURL;
     private String mediaThumbnail;
     private String mediaDescription;
@@ -52,6 +52,8 @@ public class ParcebleItem implements Parcelable {
 
             }
 
+            this.datalink = item.datalink;
+
         }
 
     public String getTitle() {
@@ -70,7 +72,9 @@ public class ParcebleItem implements Parcelable {
             return category;
         }
 
-
+    public String getDatalink() {
+        return datalink;
+    }
 
     public String getPubDate() {
         return pubDate;

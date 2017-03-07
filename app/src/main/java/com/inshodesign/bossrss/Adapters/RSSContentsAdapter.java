@@ -34,6 +34,7 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
         private TextView txtDescription;
         private TextView txtAuthor;
         private TextView txtDate;
+        private TextView txtDataLink;
 
         public ViewHolder(View v) {
             super(v);
@@ -42,6 +43,7 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
             txtAuthor = (TextView) v.findViewById(R.id.author);
             txtDate = (TextView) v.findViewById(R.id.date);
             image = (ImageView) v.findViewById(R.id.image);
+            txtDataLink = (TextView) v.findViewById(R.id.datalink);
         }
     }
 
@@ -70,7 +72,7 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 
 
         String url =  mDataset.get(holder.getAdapterPosition()).getLink();
-        String title = mDataset.get(position).getTitle();
+        String title = mDataset.get(holder.getAdapterPosition()).getTitle();
         if(url != null) {
 //            Linkify.addLinks(holder.txtTitle, Linkify.ALL);
 
@@ -83,6 +85,10 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
             holder.txtTitle.setText(title);
         }
 
+        if(mDataset.get(holder.getAdapterPosition()).getDatalink() != null) {
+            holder.txtDataLink.setVisibility(View.VISIBLE);
+            holder.txtDataLink.setText(mDataset.get(holder.getAdapterPosition()).getDatalink());
+        }
 
         if(mDataset.get(position).getPubDate() != null) {
             holder.txtDate.setText(mDataset.get(position).getPubDate());
@@ -97,7 +103,6 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 
         if(mDataset.get(position).getMediaDescription() != null) {
             holder.txtDescription.setText(mDataset.get(position).getMediaDescription());
-
         }
 
     }
