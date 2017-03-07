@@ -93,7 +93,6 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
         if(mDataset.get(position).getMediaURL() != null) {
             Picasso.with(mContext).load(mDataset.get(position).getMediaURL())
                     .into(holder.image);
-
         }
 
         if(mDataset.get(position).getMediaDescription() != null) {
