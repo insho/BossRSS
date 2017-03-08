@@ -1,5 +1,8 @@
 package com.inshodesign.bossrss;
 
+import org.simpleframework.xml.convert.AnnotationStrategy;
+import org.simpleframework.xml.core.Persister;
+
 import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -30,6 +33,7 @@ public class APIService {
                 .baseUrl("http://www.google.com/")
                 .client(okHttpClient) // Use OkHttp3 client
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) // RxJava adapter
+//                .addConverterFactory(SimpleXmlConverterFactory.create(new Persister(new AnnotationStrategy()))) // Simple XML converter
                 .addConverterFactory(SimpleXmlConverterFactory.create()) // Simple XML converter
 
                 .build();

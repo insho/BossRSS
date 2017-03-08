@@ -62,6 +62,7 @@
         android:layout_height="wrap_content"
         android:clickable="false"
         android:layout_marginTop="4dp"
+        android:autoLink="web"
         android:ellipsize="marquee"
         android:visibility="gone"
         android:textSize="16sp" />

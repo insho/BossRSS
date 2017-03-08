@@ -85,23 +85,22 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
             holder.txtTitle.setText(title);
         }
 
-        if(mDataset.get(holder.getAdapterPosition()).getDatalink() != null) {
+        if(mDataset.get(holder.getAdapterPosition()).getEnclosureLink() != null) {
             holder.txtDataLink.setVisibility(View.VISIBLE);
-            holder.txtDataLink.setText(mDataset.get(holder.getAdapterPosition()).getDatalink());
+            holder.txtDataLink.setText(mDataset.get(holder.getAdapterPosition()).getEnclosureLink());
         }
 
-        if(mDataset.get(position).getPubDate() != null) {
-            holder.txtDate.setText(mDataset.get(position).getPubDate());
+        if(mDataset.get(holder.getAdapterPosition()).getPubDate() != null) {
+            holder.txtDate.setText(mDataset.get(holder.getAdapterPosition()).getPubDate());
 
         }
 
-        Log.d("TEST","thumb: " + mDataset.get(position).getMediaURL() );
-        if(mDataset.get(position).getMediaURL() != null) {
-            Picasso.with(mContext).load(mDataset.get(position).getMediaURL())
+        if(mDataset.get(holder.getAdapterPosition()).getContentURL() != null) {
+            Picasso.with(mContext).load(mDataset.get(position).getContentURL())
                     .into(holder.image);
         }
 
-        if(mDataset.get(position).getMediaDescription() != null) {
+        if(mDataset.get(holder.getAdapterPosition()).getMediaDescription() != null) {
             holder.txtDescription.setText(mDataset.get(position).getMediaDescription());
         }
 

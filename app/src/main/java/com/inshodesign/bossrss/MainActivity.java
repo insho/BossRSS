@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     /** Try to pull the feed.  */
     public void getRSSFeed(final String feedURL) {
+        Log.d("TEST","GET RSS FEED CALLED");
 //        final MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment");
         if (mainFragment != null && mainFragment.isAdded()) {
             mainFragment.showProgressBar(true);
@@ -179,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         /** If data for this feed already exists in the database, don't try to pull it again**/
             final boolean rssListValuesAlreadyExist = InternalDB.getInstance(getBaseContext()).existingRSSListValues();
 
+        Log.d("TEST", "EXISTING VALUE " + rssListValuesAlreadyExist);
         RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "");
         Observable<RSS> rssObservable = xmlAdapterFor.getFeed(feedURL);
 
@@ -203,12 +205,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                         if(!rssListValuesAlreadyExist) {
                             Log.d("TEST",rssList.getImageURL());
                             InternalDB.getInstance(getBaseContext()).addTitleandImageURLtoDB(rssList.getURL(),rssList.getTitle(),rssList.getImageURL());
-                        }
-
-                        /** Ty to download the image icon **/
-                        if (rssList.getImageURL() == null) {
+                            /** Ty to download the image icon and save it **/
                             getFeedIcon(getBaseContext(), rssList);
                         }
+
                         /** Instantiate RSSItemsFragment **/
                         showRSSListFragment(rssList,items);
 
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 //                                rssList.setImageURL(rss.getChannel().getImage().getUrl());
 //                            }
                             /** Get Main Feed imageURL*/
-                            if (rss.getChannel() != null && rss.getChannel().getImageList().get(0) != null && rss.getChannel().getImageList().get(0).getUrl() != null) {
+                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && rss.getChannel().getImageList().get(0) != null && rss.getChannel().getImageList().get(0).getUrl() != null) {
                                 rssList.setImageURL(rss.getChannel().getImageList().get(0).getUrl());
                             }
 
@@ -289,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
     private void getFeedIcon(Context context, RSSList rssList) {
         int rowID = InternalDB.getInstance(getBaseContext()).getRowIDforURL(rssList.getURL());
-//        Log.d("TEST", "In feedicon -- " + rowID);
+        Log.d("TEST", "In feedicon add icon -- " + rowID);
 
         Picasso.with(context).load(rssList.getImageURL()).into(new TargetPhoneGallery(getContentResolver(), rowID, rssList.getTitle(), getBaseContext()));
 
@@ -340,15 +340,15 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         super.onBackPressed();
 
         int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
-//        Log.d(TAG,"Backstack entry: " + backStackEntryCount);
-        if (backStackEntryCount >= 1) {
-            showToolBarBackButton(false, "BossRSS");
+        Log.d(TAG,"Backstack entry: " + backStackEntryCount);
+        if (backStackEntryCount >= 0) {
+
                 mainFragment = new MainFragment();
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, mainFragment, "mainfragment")
                         .commit();
-
-            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            showToolBarBackButton(false, "BossRSS");
+//            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
 
@@ -414,5 +414,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(mainFragment != null && mainFragment.isAdded()) {
+            mainFragment.updateAdapter();
+        }
+    }
 }
 

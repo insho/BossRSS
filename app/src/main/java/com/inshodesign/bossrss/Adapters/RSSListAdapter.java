@@ -54,12 +54,12 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
-//        Log.d("TEST","hasbitmap: " + mDataset.get(position).hasBitmap()) ;
-//        Log.d("TEST","hasbitmap: " + mDataset.get(position).getImageURI()) ;
+
+
 
         /** If there is an image icon, show it**/
-        if(mDataset.get(position).hasBitmap()) {
-
+        if(mDataset.get(position).getImageURI() !=null) {
+        Log.d("TEST","hasbitmap URI: " + mDataset.get(position).hasBitmap()) ;
                 Picasso.with(mContext).load(mDataset.get(position).getImageURI())
                         .into(holder.image);
 
@@ -67,8 +67,10 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
             holder.image.setAdjustViewBounds(true);
 
         } else if(mDataset.get(position).getImageURL() != null) {
-            Picasso.with(mContext).load(mDataset.get(position).getImageURL()).fit()
-                    .into(holder.image);
+                    Log.d("TEST","hasbitmap URL: " + mDataset.get(position).getImageURL()) ;
+            holder.image.setVisibility(View.VISIBLE);
+            Picasso.with(mContext).load(mDataset.get(position).getImageURL()).into(holder.image);
+//            holder.image.setAdjustViewBounds(true);
         } else {
             holder.image.setVisibility(View.GONE);
         }

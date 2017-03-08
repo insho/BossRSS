@@ -118,16 +118,18 @@ public class InternalDB extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COL1, title);
         values.put(COL2, imageURL);
-        db.update(TABLE_MAIN, values, COL0 + "= ?", new String[] {URL});
+        db.update(TABLE_MAIN, values, COL_ID + "= ?", new String[] {String.valueOf(getRowIDforURL(URL))});
+
         db.close();
-//        Log.d(TAG,"SUCESSFUL INSERT TITLE AND IMAGE URL FOR: " + title + ", " + imageURL);
+
+        Log.d(TAG,"SUCESSFUL INSERT TITLE AND IMAGE URL FOR: " + title + ", " + imageURL);
 
     }
 
 
     public Boolean existingRSSListValues() {
 
-        String querySelectAll = "Select _id, URL, Title, ImageURL, ImageURI From " + TABLE_MAIN  + " WHERE URL not NULL and Title not NULL and ImageURL not null";
+        String querySelectAll = "Select _id, URL, Title, ImageURL, ImageURI From " + TABLE_MAIN  + " WHERE URL not NULL and Title not NULL and ImageURL not null and ImageURI not null";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(querySelectAll, null);
 
@@ -187,10 +189,11 @@ public class InternalDB extends SQLiteOpenHelper {
                 do {
                     RSSList itemData = new RSSList();
                     if(debug) {
-                        Log.d(TAG, "putting url: " + c.getInt(0));
-                        Log.d(TAG, "putting title: " + c.getString(1));
-                        Log.d(TAG, "putting imageURL: " + c.getString(2));
-                        Log.d(TAG, "putting imageURI: " + c.getString(3));
+                        Log.d(TAG, "putting id: " + c.getInt(0));
+                        Log.d(TAG, "putting url: " + c.getString(1));
+                        Log.d(TAG, "putting title: " + c.getString(2));
+                        Log.d(TAG, "putting imageURL: " + c.getString(3));
+                        Log.d(TAG, "putting imageURI: " + c.getString(4));
                     }
                     itemData.setId(c.getInt(0));
                     itemData.setURL(c.getString(1));

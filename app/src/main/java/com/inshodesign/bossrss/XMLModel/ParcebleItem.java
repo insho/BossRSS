@@ -21,8 +21,11 @@ public class ParcebleItem implements Parcelable {
     private String guid;//A string that uniquely identifies the item. More.	<guid isPermaLink="true">http://inessential.com/2002/09/01.php#a2</guid>
     private  String pubDate;//	Indicates when the item was published. More.	Sun, 19 May 2002 15:21:36 GMT
     private  String source;//	The RSS channel that the item came from. More.
-    private  String datalink;
-    private String mediaURL;
+    private  String enclosureLink;
+    private  String enclosureLength;
+    private  String enclosureType;
+
+    private String contentURL;
     private String mediaThumbnail;
     private String mediaDescription;
 
@@ -39,20 +42,35 @@ public class ParcebleItem implements Parcelable {
 
             if(item.getContent() != null) {
 
-                if(item.getContent().getUrl() != null) {
-                    this.mediaURL = item.getContent().getUrl();
+                /** Only showing the first pic (if there are multiples) **/
+                if(item.getContent().get(0).getUrl() != null) {
+                    this.contentURL = item.getContent().get(0).getUrl();
                 }
 
-                if(item.getContent().getThumbnail() != null) {
-                    this.mediaThumbnail = item.getContent().getThumbnail().getUrl();
+                if(item.getContent().get(0).getThumbnail() != null) {
+                    this.mediaThumbnail = item.getContent().get(0).getThumbnail().getUrl();
                 }
-                if(item.getContent().getDescription() != null) {
-                    this.mediaDescription = item.getContent().getDescription();
+                if(item.getContent().get(0).getDescription() != null) {
+                    this.mediaDescription = item.getContent().get(0).getDescription();
                 }
 
             }
 
-            this.datalink = item.datalink;
+            if(item.getEnclosure() != null) {
+
+                if(item.getEnclosure().getUrl() != null) {
+                    this.enclosureLink = item.getEnclosure().getUrl();
+                }
+
+                if(item.getEnclosure().getLength() != null) {
+                    this.enclosureLength = item.getEnclosure().getLength();
+                }
+                if(item.getEnclosure().getType() != null) {
+                    this.enclosureType = item.getEnclosure().getType();
+                }
+
+            }
+
 
         }
 
@@ -72,8 +90,8 @@ public class ParcebleItem implements Parcelable {
             return category;
         }
 
-    public String getDatalink() {
-        return datalink;
+    public String getEnclosureLink() {
+        return enclosureLink;
     }
 
     public String getPubDate() {
@@ -97,8 +115,8 @@ public class ParcebleItem implements Parcelable {
             this.pubDate = datafirst[1];
         }
 
-    public String getMediaURL() {
-        return mediaURL;
+    public String getContentURL() {
+        return contentURL;
     }
 
     public String getMediaThumbnail() {

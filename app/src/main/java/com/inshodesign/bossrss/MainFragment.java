@@ -2,6 +2,7 @@ package com.inshodesign.bossrss;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,7 +27,7 @@ import rx.functions.Action1;
 
 public class MainFragment extends Fragment {
     OnMainOptionSelectedListener mCallback;
-
+    private long mLastClickTime = 0;
     public interface OnMainOptionSelectedListener {
         void getRSSFeed(final String feedURL);
         void showRemoveDialog(Integer removeRowID);
@@ -67,7 +68,7 @@ public class MainFragment extends Fragment {
         if(show) {
             progressbar.setVisibility(View.VISIBLE);
         } else {
-            progressbar.setVisibility(View.GONE);
+            progressbar.setVisibility(View.INVISIBLE);
 
         }
     }
@@ -91,6 +92,11 @@ public class MainFragment extends Fragment {
                     .subscribe(new Action1<Object>() {
                         @Override
                         public void call(Object event) {
+
+                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){
+                                return;
+                            }
+                            mLastClickTime = SystemClock.elapsedRealtime();
 
                             /** Stupid way of differentiating between short and long clicks... **/
                             if(event instanceof RSSList) {

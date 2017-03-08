@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        android:visibility="gone"
+        android:visibility="invisible"
         app:spb_sections_count="4"
         app:spb_color="#FF0000"
         app:spb_speed="2.0"
