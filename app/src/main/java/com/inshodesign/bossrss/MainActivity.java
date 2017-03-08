@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                     public void onNext(final RSS rss) {
                         Log.d(TAG, "onNext() called with: rss = [" + rss + "]");
                         if (rss.getChannel() != null) {
-                            
+
                             /** Assign a title for the feed to the RSSList object */
                             if (!rssListValuesAlreadyExist && rss.getChannel() != null && !rssList.hasTitle()) {
                                 rssList.setTitle(rss.getChannel().getTitle());
