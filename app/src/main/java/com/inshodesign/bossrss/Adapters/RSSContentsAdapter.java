@@ -2,10 +2,15 @@
 package com.inshodesign.bossrss.Adapters;
 
         import android.content.Context;
+        import android.database.Cursor;
+        import android.net.Uri;
+        import android.provider.OpenableColumns;
+        import android.support.annotation.Nullable;
         import android.support.v7.widget.RecyclerView;
         import android.text.SpannableString;
         import android.text.method.LinkMovementMethod;
         import android.text.style.URLSpan;
+        import android.util.Log;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
@@ -18,6 +23,7 @@ package com.inshodesign.bossrss.Adapters;
         import com.inshodesign.bossrss.XMLModel.ParcebleItem;
         import com.squareup.picasso.Picasso;
         import java.util.ArrayList;
+        import java.util.Locale;
 
 public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.ViewHolder> {
 
@@ -33,10 +39,16 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
         private TextView txtAuthor;
         private TextView txtDate;
         private TextView txtDataLink;
+        private TextView txtMediaFileName;
+        private TextView txtMediaFileSize;
+        private TextView txtMediaFileType;
+
+
 
         private ImageButton btnPlay;
-        private ImageButton btnStop;
-        private SeekBar seekBar;
+//        private ImageButton btnStop;
+//        private SeekBar seekBar;
+
 
 
         public ViewHolder(View v) {
@@ -48,8 +60,14 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
             image = (ImageView) v.findViewById(R.id.image);
             txtDataLink = (TextView) v.findViewById(R.id.datalink);
             btnPlay = (ImageButton) v.findViewById(R.id.playbutton);
-            btnStop = (ImageButton) v.findViewById(R.id.cancel_button);
-            seekBar = (SeekBar) v.findViewById(R.id.seekbar);
+//            btnStop = (ImageButton) v.findViewById(R.id.cancel_button);
+            txtMediaFileName = (TextView) v.findViewById(R.id.mediafilename);
+            txtMediaFileType = (TextView) v.findViewById(R.id.mediafiletype);
+            txtMediaFileSize = (TextView) v.findViewById(R.id.mediafilesize);
+
+//            seekBar = (SeekBar) v.findViewById(R.id.seekbar);
+
+
         }
     }
 
@@ -106,22 +124,47 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
             && mDataset.get(holder.getAdapterPosition()).getEnclosureType().contains("audio")) {
                 holder.btnPlay.setVisibility(View.VISIBLE);
 
-                holder.btnPlay.setOnLongClickListener(new View.OnLongClickListener() {
+                /** Click play to activate media controller in main activity */
+                holder.btnPlay.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public boolean onLongClick(View v) {
-                        //If it's a long click, send the row id only, for deletion
+                    public void onClick(View v) {
                         mRxBus.send(new AudioStream(holder.getAdapterPosition(),mDataset.get(holder.getAdapterPosition()).getEnclosureLink(),true,mDataset.get(holder.getAdapterPosition()).getEnclosureLength()));
-                        return false;
                     }
                 });
 
-                if(mDataset.get(holder.getAdapterPosition()).getEnclosureLength() != null) {
-                   holder.seekBar.setVisibility(View.VISIBLE);
-                    holder.seekBar.setAlpha(.5f);
-                    holder.seekBar.setMax(mDataset.get(holder.getAdapterPosition()).getEnclosureLength());
+                /** Get file information */
+                Uri uri =  Uri.parse(mDataset.get(holder.getAdapterPosition()).getEnclosureLink());
+                Cursor c = mContext.getContentResolver().query(uri, null, null, null, null);
 
+                try {
+                    holder.txtMediaFileName.setText(mContext.getFileStreamPath(url).getName());
+
+//                    System.out.println(FilenameUtils.getBaseName(url.getPath())); // -> file
+//                    System.out.println(FilenameUtils.getExtension(url.getPath())); // -> xml
+//                    System.out.println(FilenameUtils.getName(url.getPath())); // -> file.xml
+//
+//                    int nameIndex = c.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+//                    int sizeIndex = c.getColumnIndex(OpenableColumns.SIZE);
+//                    c.moveToFirst();
+//
+//                    holder.txtMediaFileName.setText(c.getString(nameIndex));
+//                    holder.txtMediaFileSize.setText(Long.toString(c.getLong(sizeIndex)));
+
+//                    c.close();
+                } catch(Exception e) {
+                    // Log exception thrown
+                    Log.d("TEST", "Error getting filename and size data: " + e.getMessage());
 
                 }
+
+
+
+//
+//                if(mDataset.get(holder.getAdapterPosition()).getEnclosureLength() != null) {
+//                   holder.seekBar.setVisibility(View.VISIBLE);
+//                    holder.seekBar.setAlpha(.5f);
+//                    holder.seekBar.setMax(mDataset.get(holder.getAdapterPosition()).getEnclosureLength());
+//                }
             }
 
 

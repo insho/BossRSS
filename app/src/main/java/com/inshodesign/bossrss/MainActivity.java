@@ -2,9 +2,11 @@ package com.inshodesign.bossrss;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,15 +14,21 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.Toast;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
 import com.inshodesign.bossrss.DB.InternalDB;
+import com.inshodesign.bossrss.XMLModel.AudioStream;
 import com.inshodesign.bossrss.XMLModel.Channel;
 import com.inshodesign.bossrss.XMLModel.ParcebleItem;
 import com.inshodesign.bossrss.XMLModel.RSS;
 import com.inshodesign.bossrss.XMLModel.RSSList;
 import com.squareup.picasso.Picasso;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 import rx.Observable;
@@ -28,8 +36,9 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity implements MainFragment.OnMainOptionSelectedListener
-        , AddFeedDialog.AddRSSDialogListener, RemoveFeedDialog.RemoveRSSDialogListener {
+public class MainActivity extends AppCompatActivity implements OnFragmentInteractionListener
+        , AddFeedDialog.AddRSSDialogListener, RemoveFeedDialog.RemoveRSSDialogListener
+        , MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl{
 
     private AddFeedDialog addFeedDialogFragment;
     private RemoveFeedDialog removeFeedDialogFragment;
@@ -40,14 +49,18 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
     MainFragment mainFragment;
 //    private Toolbar toolbar;
 
+    /****/
+    private LinearLayout anchorlayout;
+    private MediaPlayer mediaPlayer;
+    private MediaController mediaController;
+    private Handler handler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        anchorlayout = (LinearLayout) findViewById(R.id.container);
         new InternalDB(this);
-
-
         if (savedInstanceState == null) {
             mainFragment = new MainFragment();
             getSupportFragmentManager().beginTransaction()
@@ -412,6 +425,114 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         if(mainFragment != null && mainFragment.isAdded()) {
             mainFragment.updateAdapter();
         }
+    }
+
+
+
+    /** Audio stuff **/
+    public void playAudio(AudioStream audioStream) {
+
+
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setOnPreparedListener(this);
+        mediaController = new MediaController(this);
+        try {
+            mediaPlayer.setDataSource(audioStream.getPath());
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException e) {
+            Log.e("TEST", "Could not open file " + audioStream.getPath() + " for playback.", e);
+        }
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(mediaController != null) {
+            mediaController.hide();
+        }
+        mediaPlayer.stop();
+        mediaPlayer.release();
+    }
+
+    /** Media Player Stuff **/
+
+
+//
+//    @Override
+//    private void onStop() {
+//        super.onStop();
+//        mediaController.hide();
+//        mediaPlayer.stop();
+//        mediaPlayer.release();
+//    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        //the MediaController will hide after 3 seconds - tap the screen to make it appear again
+        mediaController.show();
+        return false;
+    }
+
+    //--MediaPlayerControl methods----------------------------------------------------
+    public void start() {
+        mediaPlayer.start();
+    }
+
+    public void pause() {
+        mediaPlayer.pause();
+    }
+
+    public int getDuration() {
+        return mediaPlayer.getDuration();
+    }
+
+    public int getCurrentPosition() {
+        return mediaPlayer.getCurrentPosition();
+    }
+
+    public void seekTo(int i) {
+        mediaPlayer.seekTo(i);
+    }
+
+    public boolean isPlaying() {
+        return mediaPlayer.isPlaying();
+    }
+
+    public int getBufferPercentage() {
+        return 0;
+    }
+
+    public boolean canPause() {
+        return true;
+    }
+
+    public boolean canSeekBackward() {
+        return true;
+    }
+
+    public boolean canSeekForward() {
+        return true;
+    }
+    //--------------------------------------------------------------------------------
+
+    public void onPrepared(MediaPlayer mediaPlayer) {
+        Log.d("Test", "onPrepared");
+        mediaController.setMediaPlayer(this);
+        mediaController.setAnchorView(anchorlayout);
+
+        handler.post(new Runnable() {
+            public void run() {
+                mediaController.setEnabled(true);
+                mediaController.show();
+            }
+        });
+    }
+
+    @Override
+    public int getAudioSessionId() {
+        return 0;
     }
 }
 

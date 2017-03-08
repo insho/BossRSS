@@ -11,13 +11,23 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.inshodesign.bossrss.DB.InternalDB;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class AddFeedDialog extends DialogFragment {
 
     public AddRSSDialogListener mAddRSSDialogListener;
     String TAG = "TEST";
+
+    /** TEST FEEDS */
+    List<String> testFeeds;
+//    ArrayAdapter<String> adapter;
 
     public interface AddRSSDialogListener {
         void onAddRSSDialogPositiveClick(String rssURI);
@@ -46,6 +56,12 @@ public class AddFeedDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
+        //TODO -- Remove this after testing
+        /** TESTING! Queue up the test feeds**/
+        String[] feeds = getResources().getStringArray(R.array.testfeeds);
+        testFeeds = Arrays.asList(feeds);
+
+
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.fragment_dialog, null);
 
@@ -60,7 +76,15 @@ public class AddFeedDialog extends DialogFragment {
         builder.setView(dialogView);
 
         final EditText editText = (EditText) dialogView.findViewById(R.id.input);
-        editText.setText(R.string.testurl);
+//        editText.setText(R.string.testurl);
+
+        for(int i =0; i<testFeeds.size(); i++) {
+            if(!InternalDB.getInstance(getActivity()).existingRSSListValues(testFeeds.get(i))) {
+                editText.setText(testFeeds.get(i));
+            }
+        }
+
+
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

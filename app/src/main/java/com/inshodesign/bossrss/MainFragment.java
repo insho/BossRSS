@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.inshodesign.bossrss.Adapters.RSSListAdapter;
 import com.inshodesign.bossrss.Adapters.RxBus;
 import com.inshodesign.bossrss.DB.InternalDB;
+import com.inshodesign.bossrss.XMLModel.AudioStream;
 import com.inshodesign.bossrss.XMLModel.RSSList;
 import java.util.List;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
@@ -26,12 +27,9 @@ import rx.functions.Action1;
  */
 
 public class MainFragment extends Fragment {
-    OnMainOptionSelectedListener mCallback;
+    OnFragmentInteractionListener mCallback;
     private long mLastClickTime = 0;
-    public interface OnMainOptionSelectedListener {
-        void getRSSFeed(final String feedURL);
-        void showRemoveDialog(Integer removeRowID);
-    }
+
 
     private RxBus _rxBus = new RxBus();
     private RecyclerView mRecyclerView;
@@ -137,7 +135,7 @@ public class MainFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mCallback = (OnMainOptionSelectedListener) context;
+            mCallback = (OnFragmentInteractionListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + " must implement OnHeadlineSelectedListener");

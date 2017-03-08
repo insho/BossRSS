@@ -52,6 +52,8 @@
             android:minHeight="30dp"
             android:clickable="false"
             android:layout_marginTop="4dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
             />
 
     <TextView
@@ -87,37 +89,64 @@
 
             />
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/stopbutton"
-        android:layout_gravity="center_vertical"
 
-        android:visibility="gone"
-        android:clickable="true"
-        android:background="@drawable/ic_stop_black_24dp"
+        <TextView
+            android:id="@+id/mediafilename"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:layout_marginTop="4dp"
+            android:autoLink="web"
+            android:ellipsize="marquee"
+            android:visibility="gone"
+            android:textSize="18sp" />
 
-        />
+        <TextView
+            android:id="@+id/mediafiletype"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:layout_marginTop="4dp"
+            android:autoLink="web"
+            android:ellipsize="marquee"
+            android:visibility="gone"
+            android:textSize="18sp" />
 
-    <SeekBar
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/seekbar"
-        android:layout_gravity="center_vertical"
-        android:layout_weight="1"
-        android:visibility="gone"
-        />
+        <TextView
+            android:id="@+id/mediafilesize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:layout_marginTop="4dp"
+            android:autoLink="web"
+            android:ellipsize="marquee"
+            android:visibility="gone"
+            android:textSize="18sp" />
+    <!--<ImageButton-->
+        <!--android:layout_width="40dp"-->
+        <!--android:layout_height="40dp"-->
+        <!--android:id="@+id/stopbutton"-->
+        <!--android:layout_gravity="center_vertical"-->
+
+        <!--android:visibility="gone"-->
+        <!--android:clickable="true"-->
+        <!--android:background="@drawable/ic_stop_black_24dp"-->
+
+        <!--/>-->
+
+    <!--<SeekBar-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/seekbar"-->
+        <!--android:layout_gravity="center_vertical"-->
+        <!--android:layout_weight="1"-->
+        <!--android:visibility="gone"-->
+        <!--/>-->
 
 
 
 </LinearLayout>
 
-    <MediaController
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-
-    </MediaController>
 
         <TextView
             android:id="@+id/description"
