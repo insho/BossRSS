@@ -20,6 +20,7 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
     private List<RSSList> mDataset;
     private Context mContext;
 
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         public TextView txtTitle;
@@ -54,7 +55,7 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
 
         /** If there is an image icon, show it**/
         if(mDataset.get(position).getImageURI() !=null) {
-//        Log.d("TEST","hasbitmap URI: " + mDataset.get(position).hasBitmap()) ;
+        Log.d("TEST","hasbitmap URI: " + mDataset.get(position).hasBitmap()) ;
                 Picasso.with(mContext).load(mDataset.get(position).getImageURI())
                         .into(holder.image);
 
@@ -62,7 +63,7 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
             holder.image.setAdjustViewBounds(true);
 
         } else if(mDataset.get(position).getImageURL() != null) {
-//                    Log.d("TEST","hasbitmap URL: " + mDataset.get(position).getImageURL()) ;
+                    Log.d("TEST","hasbitmap URL: " + mDataset.get(position).getImageURL()) ;
             holder.image.setVisibility(View.VISIBLE);
             Picasso.with(mContext).load(mDataset.get(position).getImageURL()).into(holder.image);
         } else {

@@ -60,7 +60,7 @@ public class AddFeedDialog extends DialogFragment {
         builder.setView(dialogView);
 
         final EditText editText = (EditText) dialogView.findViewById(R.id.input);
-//        editText.setText(R.string.testurl);
+        editText.setText(R.string.testurl);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

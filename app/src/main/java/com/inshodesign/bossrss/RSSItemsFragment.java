@@ -1,19 +1,38 @@
 
 package com.inshodesign.bossrss;
 
+        import android.media.AudioManager;
+        import android.media.MediaPlayer;
         import android.os.Bundle;
+        import android.os.SystemClock;
         import android.support.annotation.NonNull;
         import android.support.annotation.Nullable;
         import android.support.v4.app.Fragment;
         import android.support.v7.widget.LinearLayoutManager;
         import android.support.v7.widget.RecyclerView;
+        import android.util.Log;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
+        import android.widget.Toast;
+
+//        import com.github.piasy.rxandroidaudio.StreamAudioPlayer;
         import com.inshodesign.bossrss.Adapters.RSSContentsAdapter;
+        import com.inshodesign.bossrss.Adapters.RxBus;
+        import com.inshodesign.bossrss.XMLModel.AudioStream;
         import com.inshodesign.bossrss.XMLModel.ParcebleItem;
         import com.inshodesign.bossrss.XMLModel.RSSList;
+
+        import java.io.File;
+        import java.io.FileInputStream;
+        import java.io.IOException;
+        import java.nio.Buffer;
         import java.util.ArrayList;
+
+        import rx.Observable;
+        import rx.functions.Action1;
+        import rx.schedulers.Schedulers;
+        import rx.subscriptions.Subscriptions;
 
 
 /**
@@ -25,6 +44,13 @@ public class RSSItemsFragment extends Fragment  {
     private RecyclerView mRecyclerView;
     RSSContentsAdapter mAdapter;
     private ArrayList<ParcebleItem> mDataset;
+    private RxBus _rxBus = new RxBus();
+    private long mLastClickTime = 0;
+
+//    private StreamAudioPlayer mStreamAudioPlayer;
+    private byte[] mBuffer = new byte[1024];
+    private RxMediaPlayer mediaPlayer;
+    private MediaPlayer mp;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -60,7 +86,44 @@ public class RSSItemsFragment extends Fragment  {
 
 
     private void updateAdapter(ArrayList<ParcebleItem> items) {
-        mAdapter = new RSSContentsAdapter(items, getContext());
+        mAdapter = new RSSContentsAdapter(items, _rxBus, getContext());
+
+        _rxBus.toClickObserverable()
+                .subscribe(new Action1<Object>() {
+                    @Override
+                    public void call(Object event) {
+
+                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){
+                            return;
+                        }
+                        mLastClickTime = SystemClock.elapsedRealtime();
+
+                        /** Stupid way of differentiating between short and long clicks... **/
+                        if(event instanceof AudioStream) {
+                            AudioStream audioStream = (AudioStream) event;
+                            Log.d("TEST - ItemsFrag","callback to MediaPlay");
+//                            mCallback.getRSSFeed(rssList.getURL());
+                            //TODO -- play music from here
+                            Toast.makeText(getActivity(), "PLAY PRESSED - "  + audioStream.getPlay(), Toast.LENGTH_SHORT).show();
+
+                            mp = new MediaPlayer();
+                            mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                            try {
+                                mp.setDataSource(audioStream.getPath());
+                            }  catch (Exception e) {
+                            // java.io.IOException: setDataSourceFD failed.: status=0x80000000
+                            e.printStackTrace();
+                            }
+
+
+
+                            RxMediaPlayer.play(RxMediaPlayer.from(audioStream.getPath()));
+
+
+                        }
+                    }
+
+                });
         mRecyclerView.setAdapter(mAdapter);
     }
 

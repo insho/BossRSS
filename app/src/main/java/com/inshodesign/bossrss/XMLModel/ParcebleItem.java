@@ -22,7 +22,7 @@ public class ParcebleItem implements Parcelable {
     private  String pubDate;//	Indicates when the item was published. More.	Sun, 19 May 2002 15:21:36 GMT
     private  String source;//	The RSS channel that the item came from. More.
     private  String enclosureLink;
-    private  String enclosureLength;
+    private  Integer enclosureLength;
     private  String enclosureType;
 
     private String contentURL;
@@ -62,10 +62,11 @@ public class ParcebleItem implements Parcelable {
                     this.enclosureLink = item.getEnclosure().getUrl();
                 }
 
-                if(item.getEnclosure().getLength() != null) {
-                    this.enclosureLength = item.getEnclosure().getLength();
+                if(item.getEnclosure().getLength() != null
+                        && android.text.TextUtils.isDigitsOnly(item.getEnclosure().getLength())) {
+                    this.enclosureLength = Integer.parseInt(item.getEnclosure().getLength());
                 }
-                if(item.getEnclosure().getType() != null) {
+                if(item.getEnclosure().getType() != null ) {
                     this.enclosureType = item.getEnclosure().getType();
                 }
 
@@ -92,6 +93,14 @@ public class ParcebleItem implements Parcelable {
 
     public String getEnclosureLink() {
         return enclosureLink;
+    }
+
+    public Integer getEnclosureLength() {
+        return enclosureLength;
+    }
+
+    public String getEnclosureType() {
+        return enclosureType;
     }
 
     public String getPubDate() {

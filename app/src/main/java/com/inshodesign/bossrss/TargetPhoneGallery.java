@@ -49,7 +49,6 @@ public class TargetPhoneGallery implements Target {
                 title = "BossRSSimage";
             }
             String uri = MediaStore.Images.Media.insertImage(r, bitmap, "img-" + rowID, title);
-
             InternalDB.getInstance(context).addMediaURItoDB(uri, rowID);
         }
     }

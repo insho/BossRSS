@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
         }
 
         /** If data for this feed already exists in the database, don't try to pull it again**/
-            final boolean rssListValuesAlreadyExist = InternalDB.getInstance(getBaseContext()).existingRSSListValues();
+            final boolean rssListValuesAlreadyExist = InternalDB.getInstance(getBaseContext()).existingRSSListValues(feedURL.trim());
 
         Log.d("TEST", "EXISTING VALUE " + rssListValuesAlreadyExist);
         RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "");
@@ -251,9 +251,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                                 items = new ArrayList<Channel.Item>(rss.getChannel().getItemList());
                             }
 
-
                         }
-                        ;
                     }
                 });
 
@@ -360,6 +358,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showBack);
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
             getSupportActionBar().setTitle(title);
 
             if(showBack) {

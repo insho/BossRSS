@@ -127,14 +127,20 @@ public class InternalDB extends SQLiteOpenHelper {
     }
 
 
-    public Boolean existingRSSListValues() {
+    public Boolean existingRSSListValues(String feedURL) {
 
-        String querySelectAll = "Select _id, URL, Title, ImageURL, ImageURI From " + TABLE_MAIN  + " WHERE URL not NULL and Title not NULL and ImageURL not null and ImageURI not null";
+        String querySelectAll = "Select _id, URL, Title, ImageURL, ImageURI From " + TABLE_MAIN  + " WHERE URL = ? and Title not NULL and ImageURL not null and ImageURI not null";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor c = db.rawQuery(querySelectAll, null);
-
+        Cursor c = db.rawQuery(querySelectAll, new String[]{feedURL});
         try {
             if (c.moveToFirst()) {
+                if(debug) {
+                    Log.d("TEST","_id: " + c.getString(0));
+                    Log.d("TEST","URL: " + c.getString(1));
+                    Log.d("TEST","Title: " + c.getString(2));
+                    Log.d("TEST","ImageURL: " + c.getString(3));
+                    Log.d("TEST","ImageURI: " + c.getString(4));
+                }
                 c.close();
                 return true;
             }
@@ -166,6 +172,7 @@ public class InternalDB extends SQLiteOpenHelper {
     }
 
     public void addMediaURItoDB(String URI, int rowID) {
+        Log.d(TAG,"URI VALUE: " + rowID + " - " + URI);
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL3, URI);
