@@ -236,17 +236,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnMa
                         if (rss.getChannel() != null) {
 
 
-
                             /** Assign a title for the feed to the RSSList object */
                             if (!rssListValuesAlreadyExist && rss.getChannel() != null && !rssList.hasTitle()) {
                                 rssList.setTitle(rss.getChannel().getTitle());
                             }
 
-                            /** Assign the imageURL for the feed to the RSSList object */
-//                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && rss.getChannel().getImage() != null && !rssList.hasImageURL()) {
-//
-//                                rssList.setImageURL(rss.getChannel().getImage().getUrl());
-//                            }
                             /** Get Main Feed imageURL*/
                             if (!rssListValuesAlreadyExist && rss.getChannel() != null && rss.getChannel().getImageList().get(0) != null && rss.getChannel().getImageList().get(0).getUrl() != null) {
                                 rssList.setImageURL(rss.getChannel().getImageList().get(0).getUrl());

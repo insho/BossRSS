@@ -1,7 +1,5 @@
 package com.inshodesign.bossrss.XMLModel;
 
-import android.util.Log;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
@@ -9,14 +7,8 @@ import org.simpleframework.xml.Namespace;
 import org.simpleframework.xml.NamespaceList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Text;
-import org.simpleframework.xml.convert.Convert;
-import org.simpleframework.xml.convert.Converter;
-import org.simpleframework.xml.stream.InputNode;
-import org.simpleframework.xml.stream.OutputNode;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @NamespaceList({
         @Namespace(reference = "http://www.w3.org/2005/Atom", prefix = "atom"),
@@ -75,7 +67,6 @@ public class Channel {
             return url;
         }
 
-
     }
 
     @Override
@@ -106,7 +97,6 @@ public class Channel {
 
 
     @Root(name = "item", strict = false)
-//    @Convert(ItemConverter.class)
     public static class Item {
 
         public String getPubDate() {
@@ -115,16 +105,8 @@ public class Channel {
 
         @Element(name = "title", required = true)
         String title;//The title of the item.	Venice Film Festival Tries to Quit Sinking
-
-//        @Element(name = "link", required = false, data = true)
-//        String datalink;
-
-
         @Element(name = "link", required = true)
-//        @Convert(LinkConverter.class)
         public String link;//The URL of the item.	http://www.nytimes.com/2002/09/07/movies/07FEST.html
-
-
 
 
         public void setLink(String link) {
@@ -139,9 +121,6 @@ public class Channel {
         String category;//Includes the item in one or more categories. More.	Simpsons Characters
         @Element(name = "comments", required = false)
         String comments;//URL of a page for comments relating to the item. More.	http://www.myblog.org/cgi-local/mt/mt-comments.cgi?entry_id=290
-//        @Element(name = "enclosure", required = false)
-//        String enclosure;//	Describes a media object that is attached to the item. More.	<enclosure url="http://live.curry.com/mp3/celebritySCms.mp3" length="1069871" type="audio/mpeg"/>
-
         @Element(name = "enclosure", required = false)
         Enclosure enclosure;
 
@@ -214,8 +193,6 @@ public class Channel {
             return description;
         }
 
-//        @Element(name = "content", required = false)
-
         @ElementList(entry = "content", inline = true, required = false)
         public List<MediaContentTEST> content;
 
@@ -266,68 +243,9 @@ public class Channel {
         }
     }
 
-
-
     public List<Item> getItemList() {
         return itemList;
     }
-
-
-
-
-
-
-
-//
-//
-//    static class ItemConverter implements Converter<Item>
-//    {
-//        @Override
-//        public Item read(InputNode node) throws Exception
-//        {
-//            Item item = new Item();
-//
-//            InputNode child;
-//            final String HTML_TAG_REG_EX = "</?[^>]+>";
-//
-//            // Iterate over all childs an get their values
-//            while( ( child = node.getNext() ) != null )
-//            {
-//                switch(child.getName())
-//                {
-//                    case "link":
-//
-//                        if(child.getValue().contains("![CDATA")) {
-//                            String text = child.getValue().replaceAll(HTML_TAG_REG_EX, "");
-//                            Log.d("TEST","NEW TEXT: " + text);
-//                            item.setLink(text);
-//                        }
-//
-//
-//                        break;
-//                    default:
-//                        throw new RuntimeException("Unknown Element found: " + child);
-//                }
-//
-//
-//
-//            }
-//
-//            return item;
-//        }
-//
-//
-//        @Override
-//        public void write(OutputNode node, Item value) throws Exception
-//        {
-//            /*
-//             * TODO: Implement if necessary
-//             */
-//            throw new UnsupportedOperationException("Not supported yet.");
-//        }
-//
-//    }
-
 
 
 }

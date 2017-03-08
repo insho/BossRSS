@@ -7,15 +7,6 @@
     android:layout_height="match_parent"
     tools:context="com.inshodesign.bossrss.MainActivity">
 
-
-    <!--<ProgressBar-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:visibility="gone"-->
-        <!--android:id="@+id/progressbar"-->
-        <!--android:layout_alignParentTop="true"-->
-        <!--style="?android:attr/progressBarStyleSmall" />-->
-
     <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
