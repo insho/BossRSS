@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.Toast;
@@ -31,8 +32,10 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 import rx.Observable;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -47,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     private static final String TAG = "TEST -- MAIN";
     private Menu menu;
     MainFragment mainFragment;
-//    private Toolbar toolbar;
 
     /****/
     private LinearLayout anchorlayout;
@@ -55,11 +57,15 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     private MediaController mediaController;
     private Handler handler = new Handler();
 
+    private SmoothProgressBar progressbar;
+    private Subscription subscription;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         anchorlayout = (LinearLayout) findViewById(R.id.container);
+        progressbar = (SmoothProgressBar) findViewById(R.id.progressbar);
         new InternalDB(this);
         if (savedInstanceState == null) {
             mainFragment = new MainFragment();
@@ -67,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                     .add(R.id.container, mainFragment, "mainfragment")
                     .commit();
         }
-
 
 
         /** Handle a URL intent from web, if user is on RSS feed there */
@@ -90,14 +95,13 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         }
     }
 
+
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         if(getSupportActionBar() != null && getSupportActionBar().getTitle() != null) {
             savedInstanceState.putString("title",getSupportActionBar().getTitle().toString());
         }
     }
-
-
 
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -127,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//Log.d("TEST","ITEM ID: " + item.getItemId());
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
@@ -137,8 +140,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                     addFeedDialogFragment = AddFeedDialog.newInstance(false);
                     addFeedDialogFragment.show(getFragmentManager(), "dialogAdd");
                 }
-
-
                 return true;
             case R.id.shareFacebook:
                 if(!this.openFacebookDialog()) {
@@ -173,11 +174,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
             } else {
                 getRSSFeed(inputText.trim());
             }
-
-
         }
-
-
     }
 
 
@@ -185,10 +182,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     /** Try to pull the feed.  */
     public void getRSSFeed(final String feedURL) {
         Log.d("TEST","GET RSS FEED CALLED");
-//        final MainFragment mainFragment = (MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment");
-        if (mainFragment != null && mainFragment.isAdded()) {
-            mainFragment.showProgressBar(true);
-        }
+        showProgressBar(true);
 
         /** If data for this feed already exists in the database, don't try to pull it again**/
             final boolean rssListValuesAlreadyExist = InternalDB.getInstance(getBaseContext()).existingRSSListValues(feedURL.trim());
@@ -210,9 +204,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                         Log.d(TAG, "onCompleted() called");
 
                         /** Hide progress bar **/
-                        if (mainFragment != null && mainFragment.isAdded()) {
-                            mainFragment.showProgressBar(false);
-                        }
+                        showProgressBar(false);
 
                         /**Put the RSS List thumbnail URL and Title into the db */
                         if(!rssListValuesAlreadyExist) {
@@ -225,8 +217,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                         /** Instantiate RSSItemsFragment **/
                         showRSSListFragment(rssList,items);
 
-
-
                     }
 
 
@@ -234,11 +224,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                     public void onError(final Throwable e) {
 
                         if(debug){Log.d(TAG, "onError() called with: e = [" + e + "]");}
-
-                        if (mainFragment != null && mainFragment.isAdded()) {
-                            mainFragment.showProgressBar(false);
-                        }
-
+                        showProgressBar(false);
                         Toast.makeText(getBaseContext(), "Could not retrieve feed", Toast.LENGTH_SHORT).show();
 
                     }
@@ -422,56 +408,63 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     @Override
     protected void onResume() {
         super.onResume();
+        showProgressBar(false);
         if(mainFragment != null && mainFragment.isAdded()) {
             mainFragment.updateAdapter();
         }
     }
 
+    public void showProgressBar(Boolean show) {
+        if(show) {
+            progressbar.setVisibility(View.VISIBLE);
+        } else {
+            progressbar.setVisibility(View.INVISIBLE);
 
+        }
+    }
 
     /** Audio stuff **/
     public void playAudio(AudioStream audioStream) {
 
+        Log.d("TEST","SHOWING PROGRESS");
+        showProgressBar(true);
 
         mediaPlayer = new MediaPlayer();
+//        mediaPlayer = RxMediaPlayer.from(audioStream.getPath());
         mediaPlayer.setOnPreparedListener(this);
         mediaController = new MediaController(this);
+
         try {
             mediaPlayer.setDataSource(audioStream.getPath());
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-        } catch (IOException e) {
+            subscription =  RxMediaPlayer.play(mediaPlayer)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe();
+        } catch (Exception e) {
             Log.e("TEST", "Could not open file " + audioStream.getPath() + " for playback.", e);
         }
     }
 
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if(mediaController != null) {
-            mediaController.hide();
-        }
-        mediaPlayer.stop();
-        mediaPlayer.release();
-    }
-
-    /** Media Player Stuff **/
-
-
-//
 //    @Override
-//    private void onStop() {
+//    public void onStop() {
 //        super.onStop();
-//        mediaController.hide();
-//        mediaPlayer.stop();
-//        mediaPlayer.release();
+//        if(mediaController != null) {
+//            mediaController.hide();
+//        }
+//        if(mediaPlayer != null) {
+//            mediaPlayer.stop();
+//            mediaPlayer.release();
+//        }
 //    }
 
+    /** Media Player Stuff **/
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //the MediaController will hide after 3 seconds - tap the screen to make it appear again
-        mediaController.show();
+        if(mediaController != null) {
+            mediaController.show(5000);
+        }
         return false;
     }
 
@@ -518,6 +511,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     //--------------------------------------------------------------------------------
 
     public void onPrepared(MediaPlayer mediaPlayer) {
+        showProgressBar(false);
         Log.d("Test", "onPrepared");
         mediaController.setMediaPlayer(this);
         mediaController.setAnchorView(anchorlayout);

@@ -10,4 +10,5 @@ public interface OnFragmentInteractionListener {
     void getRSSFeed(final String feedURL);
     void showRemoveDialog(Integer removeRowID);
     void playAudio(AudioStream audioStream);
+    void showProgressBar(Boolean show);
 }

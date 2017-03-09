@@ -21,11 +21,6 @@ import java.util.List;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 import rx.functions.Action1;
 
-
-/**
- * Created by JClassic on 2/21/2017.
- */
-
 public class MainFragment extends Fragment {
     OnFragmentInteractionListener mCallback;
     private long mLastClickTime = 0;
@@ -35,7 +30,6 @@ public class MainFragment extends Fragment {
     private RecyclerView mRecyclerView;
     RSSListAdapter mAdapter;
     private TextView mNoLists;
-    private SmoothProgressBar progressbar;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -43,7 +37,6 @@ public class MainFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerMain);
         mNoLists = (TextView) view.findViewById(R.id.nolists);
-        progressbar = (SmoothProgressBar) view.findViewById(R.id.progressbar);
         return view;
     }
 
@@ -62,14 +55,14 @@ public class MainFragment extends Fragment {
         updateAdapter();
     }
 
-    public void showProgressBar(Boolean show) {
-        if(show) {
-            progressbar.setVisibility(View.VISIBLE);
-        } else {
-            progressbar.setVisibility(View.INVISIBLE);
-
-        }
-    }
+//    public void showProgressBar(Boolean show) {
+//        if(show) {
+//            progressbar.setVisibility(View.VISIBLE);
+//        } else {
+//            progressbar.setVisibility(View.INVISIBLE);
+//
+//        }
+//    }
 
     public void updateAdapter() {
 

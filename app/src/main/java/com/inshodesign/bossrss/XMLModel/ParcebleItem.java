@@ -31,7 +31,6 @@ public class ParcebleItem implements Parcelable {
 
         public ParcebleItem(Channel.Item item) {
             this.title = item.title;
-
             this.description = item.description;
 
             this.link = item.link;
@@ -39,6 +38,7 @@ public class ParcebleItem implements Parcelable {
             if(item.pubDate != null) {
                 this.pubDate = item.pubDate;
             }
+
 
             if(item.getContent() != null) {
 
@@ -74,6 +74,10 @@ public class ParcebleItem implements Parcelable {
 
 
         }
+
+    public String getDescription() {
+        return description;
+    }
 
     public String getTitle() {
             return title;
@@ -165,6 +169,8 @@ public class ParcebleItem implements Parcelable {
             return new ParcebleItem[size];
         }
     };
+
+
 
 
 }

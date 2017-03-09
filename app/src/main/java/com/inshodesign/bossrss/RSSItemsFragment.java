@@ -39,11 +39,6 @@ package com.inshodesign.bossrss;
         import rx.schedulers.Schedulers;
         import rx.subscriptions.Subscriptions;
 
-
-/**
- * Created by JClassic on 3/5/2017.
- */
-
 public class RSSItemsFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
@@ -53,11 +48,6 @@ public class RSSItemsFragment extends Fragment {
     private long mLastClickTime = 0;
 
     OnFragmentInteractionListener mCallback;
-//    private StreamAudioPlayer mStreamAudioPlayer;
-//    private byte[] mBuffer = new byte[1024];
-//    private RxMediaPlayer mediaPlayer;
-//    private MediaPlayer mp;
-
 
 
 
@@ -110,23 +100,7 @@ public class RSSItemsFragment extends Fragment {
                         /** Stupid way of differentiating between short and long clicks... **/
                         if(event instanceof AudioStream) {
                             AudioStream audioStream = (AudioStream) event;
-//                            Log.d("TEST - ItemsFrag","callback to MediaPlay");
-////                            mCallback.getRSSFeed(rssList.getURL());
-//                            //TODO -- play music from here
-//                            Toast.makeText(getActivity(), "PLAY PRESSED - "  + audioStream.getPlay(), Toast.LENGTH_SHORT).show();
-//
-//                            mp = new MediaPlayer();
-//                            mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//                            try {
-//                                mp.setDataSource(audioStream.getPath());
-//                            }  catch (Exception e) {
-//                            // java.io.IOException: setDataSourceFD failed.: status=0x80000000
-//                            e.printStackTrace();
-//                            }
-//
-//                            RxMediaPlayer.play(RxMediaPlayer.from(audioStream.getPath()));
                             mCallback.playAudio(audioStream);
-//                            runMediaPlayer(audioStream);
 
                         }
                     }
@@ -134,19 +108,6 @@ public class RSSItemsFragment extends Fragment {
                 });
         mRecyclerView.setAdapter(mAdapter);
     }
-
-
-
-//    private void determinePattern(){
-        //TODO
-
-        /**
-         * Determine pattern of the adapter? Would that work?
-         *
-         * spit out a the type of container to fill with the stream...
-         * */
-//    }
-
 
     public RSSList getCurrentList() {
         RSSList rssList = new RSSList();

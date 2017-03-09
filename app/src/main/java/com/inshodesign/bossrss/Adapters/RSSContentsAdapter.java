@@ -22,6 +22,11 @@ package com.inshodesign.bossrss.Adapters;
         import com.inshodesign.bossrss.XMLModel.AudioStream;
         import com.inshodesign.bossrss.XMLModel.ParcebleItem;
         import com.squareup.picasso.Picasso;
+
+        import java.io.InputStream;
+        import java.net.HttpURLConnection;
+        import java.net.URL;
+        import java.net.URLConnection;
         import java.util.ArrayList;
         import java.util.Locale;
 
@@ -42,14 +47,7 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
         private TextView txtMediaFileName;
         private TextView txtMediaFileSize;
         private TextView txtMediaFileType;
-
-
-
         private ImageButton btnPlay;
-//        private ImageButton btnStop;
-//        private SeekBar seekBar;
-
-
 
         public ViewHolder(View v) {
             super(v);
@@ -60,14 +58,9 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
             image = (ImageView) v.findViewById(R.id.image);
             txtDataLink = (TextView) v.findViewById(R.id.datalink);
             btnPlay = (ImageButton) v.findViewById(R.id.playbutton);
-//            btnStop = (ImageButton) v.findViewById(R.id.cancel_button);
             txtMediaFileName = (TextView) v.findViewById(R.id.mediafilename);
             txtMediaFileType = (TextView) v.findViewById(R.id.mediafiletype);
             txtMediaFileSize = (TextView) v.findViewById(R.id.mediafilesize);
-
-//            seekBar = (SeekBar) v.findViewById(R.id.seekbar);
-
-
         }
     }
 
@@ -77,14 +70,11 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
         mContext = context;
     }
 
-    // Create new views (invoked by the layout manager)
     @Override
     public RSSContentsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                         int viewType) {
 
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_rssitems_recycler_row, parent, false);
-
-
         return new ViewHolder(v);
     }
 
@@ -94,17 +84,12 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
         /** If there is an image icon, show it**/
-
-
         String url =  mDataset.get(holder.getAdapterPosition()).getLink();
         String title = mDataset.get(holder.getAdapterPosition()).getTitle();
         if(url != null) {
-//            Linkify.addLinks(holder.txtTitle, Linkify.ALL);
-
             SpannableString text = new SpannableString(title);
             text.setSpan(new URLSpan(url), 0, title.length(), 0);
             holder.txtTitle.setMovementMethod(LinkMovementMethod.getInstance());
-
             holder.txtTitle.setText(text, TextView.BufferType.SPANNABLE);
         } else {
             holder.txtTitle.setText(title);
@@ -112,10 +97,6 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 
         /** If the item has music or video, show the link **/
         if(mDataset.get(holder.getAdapterPosition()).getEnclosureLink() != null) {
-//            holder.txtDataLink.setVisibility(View.VISIBLE);
-//            holder.txtDataLink.setText(mDataset.get(holder.getAdapterPosition()).getEnclosureLink());
-
-
             holder.btnPlay.setVisibility(View.GONE);
             holder.btnPlay.setVisibility(View.GONE);
 
@@ -132,39 +113,10 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
                     }
                 });
 
-                /** Get file information */
-                Uri uri =  Uri.parse(mDataset.get(holder.getAdapterPosition()).getEnclosureLink());
-                Cursor c = mContext.getContentResolver().query(uri, null, null, null, null);
+//                /** Get file information */
+//                Uri uri =  Uri.parse(mDataset.get(holder.getAdapterPosition()).getEnclosureLink());
+//                Cursor c = mContext.getContentResolver().query(uri, null, null, null, null);
 
-                try {
-                    holder.txtMediaFileName.setText(mContext.getFileStreamPath(url).getName());
-
-//                    System.out.println(FilenameUtils.getBaseName(url.getPath())); // -> file
-//                    System.out.println(FilenameUtils.getExtension(url.getPath())); // -> xml
-//                    System.out.println(FilenameUtils.getName(url.getPath())); // -> file.xml
-//
-//                    int nameIndex = c.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-//                    int sizeIndex = c.getColumnIndex(OpenableColumns.SIZE);
-//                    c.moveToFirst();
-//
-//                    holder.txtMediaFileName.setText(c.getString(nameIndex));
-//                    holder.txtMediaFileSize.setText(Long.toString(c.getLong(sizeIndex)));
-
-//                    c.close();
-                } catch(Exception e) {
-                    // Log exception thrown
-                    Log.d("TEST", "Error getting filename and size data: " + e.getMessage());
-
-                }
-
-
-
-//
-//                if(mDataset.get(holder.getAdapterPosition()).getEnclosureLength() != null) {
-//                   holder.seekBar.setVisibility(View.VISIBLE);
-//                    holder.seekBar.setAlpha(.5f);
-//                    holder.seekBar.setMax(mDataset.get(holder.getAdapterPosition()).getEnclosureLength());
-//                }
             }
 
 
@@ -185,7 +137,13 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
         }
 
         if(mDataset.get(holder.getAdapterPosition()).getMediaDescription() != null) {
+            holder.txtDescription.setVisibility(View.VISIBLE);
             holder.txtDescription.setText(mDataset.get(position).getMediaDescription());
+        } else if(mDataset.get(holder.getAdapterPosition()).getDescription() != null) {
+            holder.txtDescription.setVisibility(View.VISIBLE);
+            holder.txtDescription.setText(mDataset.get(position).getDescription());
+        } else {
+            holder.txtDescription.setVisibility(View.GONE);
         }
 
 

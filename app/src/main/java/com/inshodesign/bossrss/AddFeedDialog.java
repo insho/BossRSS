@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.inshodesign.bossrss.DB.InternalDB;
 
@@ -79,18 +80,23 @@ public class AddFeedDialog extends DialogFragment {
 //        editText.setText(R.string.testurl);
 
         for(int i =0; i<testFeeds.size(); i++) {
-            if(!InternalDB.getInstance(getActivity()).existingRSSListValues(testFeeds.get(i))) {
+            Log.d("TEST","TESTFEEDS: " + testFeeds.get(i));
+            if(!InternalDB.getInstance(getActivity()).existingRSSListValues(testFeeds.get(i)) && editText.getText().toString().isEmpty()) {
                 editText.setText(testFeeds.get(i));
+                testFeeds.remove(i);
             }
         }
-
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.d(TAG,"mAddRSSDialogListener: " + mAddRSSDialogListener);
-                mAddRSSDialogListener.onAddRSSDialogPositiveClick(editText.getText().toString().trim());
-                dialog.dismiss();
+                if(editText.getText().toString().trim().length() == 0) {
+                    Toast.makeText(getActivity(), "Enter an RSS Feed", Toast.LENGTH_SHORT).show();
+                } else {
+                    mAddRSSDialogListener.onAddRSSDialogPositiveClick(editText.getText().toString().trim());
+                    dialog.dismiss();
+                }
             }
         });
 

@@ -16,8 +16,10 @@
             android:layout_height="40dp"
             android:minHeight="30dp"
             android:maxHeight="50dp"
-            android:clickable="false"
             android:layout_marginTop="4dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
+            android:clickable="false"
             />
 
         <TextView
@@ -28,6 +30,8 @@
             android:clickable="false"
             android:layout_marginTop="4dp"
             android:ellipsize="marquee"
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
             android:textSize="20sp" />
 
     </LinearLayout>
