@@ -30,8 +30,9 @@ public class APIService {
 
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://www.google.com/")
+                .baseUrl("http://www.google.com/") //it's a dummy url
                 .client(okHttpClient) // Use OkHttp3 client
+
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) // RxJava adapter
 //                .addConverterFactory(SimpleXmlConverterFactory.create(new Persister(new AnnotationStrategy()))) // Simple XML converter
                 .addConverterFactory(SimpleXmlConverterFactory.create()) // Simple XML converter

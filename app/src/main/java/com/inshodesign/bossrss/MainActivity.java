@@ -7,7 +7,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,15 +20,22 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
-import com.inshodesign.bossrss.DB.InternalDB;
-import com.inshodesign.bossrss.XMLModel.AudioStream;
-import com.inshodesign.bossrss.XMLModel.Channel;
-import com.inshodesign.bossrss.XMLModel.ParcebleItem;
-import com.inshodesign.bossrss.XMLModel.RSS;
-import com.inshodesign.bossrss.XMLModel.RSSList;
-import com.squareup.picasso.Picasso;
+import com.inshodesign.bossrss.Database.InternalDB;
+import com.inshodesign.bossrss.Dialogs.AddFeedDialog;
+import com.inshodesign.bossrss.Dialogs.RemoveFeedDialog;
+import com.inshodesign.bossrss.Fragments.MainFragment;
+import com.inshodesign.bossrss.Fragments.RSSItemsFragment;
+import com.inshodesign.bossrss.Interfaces.AddRSSDialogListener;
+import com.inshodesign.bossrss.Interfaces.OnFragmentInteractionListener;
+import com.inshodesign.bossrss.Interfaces.RSSService;
+import com.inshodesign.bossrss.Interfaces.RemoveRSSDialogListener;
+import com.inshodesign.bossrss.Models.AudioStream;
+import com.inshodesign.bossrss.XML_Models.Channel;
+//import com.inshodesign.bossrss.Models.ParcebleItem;
+import com.inshodesign.bossrss.XML_Models.RSS;
+import com.inshodesign.bossrss.Models.RSSList;
+//import com.inshodesign.bossrss.XML_Models.Item;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
@@ -40,56 +46,37 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements OnFragmentInteractionListener
-        , AddFeedDialog.AddRSSDialogListener, RemoveFeedDialog.RemoveRSSDialogListener
+        , AddRSSDialogListener, RemoveRSSDialogListener
         , MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl{
 
-    private AddFeedDialog addFeedDialogFragment;
-    private RemoveFeedDialog removeFeedDialogFragment;
-    RSSItemsFragment rssItemsFragment;
-    private static boolean debug = true;
-    private static final String TAG = "TEST -- MAIN";
-    private Menu menu;
-    MainFragment mainFragment;
 
-    /****/
-    private LinearLayout anchorlayout;
+    RSSItemsFragment rssItemsFragment;
+    private static final String TAG = "TEST-MAIN";
+    private Menu menu;
+
     private MediaPlayer mediaPlayer;
     private MediaController mediaController;
     private Handler handler = new Handler();
 
-    private SmoothProgressBar progressbar;
     private Subscription subscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        anchorlayout = (LinearLayout) findViewById(R.id.container);
-        progressbar = (SmoothProgressBar) findViewById(R.id.progressbar);
         new InternalDB(this);
         if (savedInstanceState == null) {
-            mainFragment = new MainFragment();
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, mainFragment, "mainfragment")
+                    .add(R.id.container, new MainFragment(), "mainfragment")
                     .commit();
         }
 
-
-        /** Handle a URL intent from web, if user is on RSS feed there */
+        // Handle a URL intent from web, if user is on RSS feed there
         Intent intent = getIntent();
         if (intent.getAction().equals(Intent.ACTION_SEND)) {
             String url = intent.getStringExtra(Intent.EXTRA_TEXT);
-
             if(url != null) {
-
-                if(InternalDB.getInstance(getBaseContext()).duplicateFeed(url)) {
-                    Toast.makeText(this, "Feed already exists", Toast.LENGTH_SHORT).show();
-                } else {
-                    /** Otherwise enter the URL into the DB */
-                    InternalDB.getInstance(getBaseContext()).saveFeedURL(url);
-                    Toast.makeText(this, "Added feed to BossRSS", Toast.LENGTH_SHORT).show();
-
-                }
+               saveRSSFeed(url.trim(),true);
                finish();
             }
         }
@@ -116,18 +103,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
     }
 
-    private void hideOption(int id)
-    {
-        MenuItem item = menu.findItem(id);
-        item.setVisible(false);
-    }
-
-    private void showOption(int id)
-    {
-        MenuItem item = menu.findItem(id);
-        item.setVisible(true);
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -136,9 +111,8 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                 onBackPressed();
                 return true;
             case R.id.addFeed:
-                if (addFeedDialogFragment == null || !addFeedDialogFragment.isAdded()) {
-                    addFeedDialogFragment = AddFeedDialog.newInstance(false);
-                    addFeedDialogFragment.show(getFragmentManager(), "dialogAdd");
+                if(getSupportFragmentManager().findFragmentByTag("dialogAdd") == null || !getSupportFragmentManager().findFragmentByTag("dialogAdd").isAdded()) {
+                    AddFeedDialog.newInstance().show(getSupportFragmentManager(), "dialogAdd");
                 }
                 return true;
             case R.id.shareFacebook:
@@ -152,42 +126,81 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         }
     }
 
-
-
-    /** The user has entered a new RSS feed into the window and clicked OK */
-    @Override
-    public void onAddRSSDialogPositiveClick(String inputText) {
-        InternalDB internalDBInstance = InternalDB.getInstance(getBaseContext());
-        /** Check to DB to see if the new feed is a duplicate*/
-        if(internalDBInstance.duplicateFeed(inputText.trim())) {
-            Toast.makeText(this, "Feed already exists", Toast.LENGTH_SHORT).show();
-        } else {
-            /** Otherwise enter the URL into the DB and update the adapter */
-            internalDBInstance.saveFeedURL(inputText.trim());
-            if(mainFragment!= null) {
-                mainFragment.updateAdapter();
-            }
-
-            /** Now try to pull the feed. First check for internet connection. **/
-            if (!isOnline()) {
-                Toast.makeText(getBaseContext(), "Device is not online", Toast.LENGTH_SHORT).show();
-            } else {
-                getRSSFeed(inputText.trim());
-            }
+    /**
+     * Displays or hides the actionbar menu button
+     * @param id id of menu bar button item
+     * @param show boolean true to show, false to hide
+     */
+    private void showOption(int id, boolean show)
+    {
+        try {
+            MenuItem item = menu.findItem(id);
+            item.setVisible(show);
+        } catch (NullPointerException e) {
+            Log.e(TAG,"show/hide options failure in Mainactivity");
         }
     }
 
 
+    /**
+     * Checks if a new RSS feed exists in the db already, and if not, saves the feed. Called from AddFeedDialog and
+     * when MainActivity receives an intent to add a new feed.
+     *
+     * @param inputText RSS feed address
+     * @param isIntent bool true if RSS feed is being saved from an outside intent, false if not. If the intent is external,
+     *                 the method displays a toast on success. If the RSS feed is being added from inside the app, there is no
+     *                 need to make the toast.
+     *
+     * @see AddFeedDialog
+     */
+    public void saveRSSFeed(String inputText, boolean isIntent) {
 
-    /** Try to pull the feed.  */
+        InternalDB internalDBInstance = InternalDB.getInstance(getBaseContext());
+
+        // Check to DB to see if the new feed is a duplicate
+        if(internalDBInstance.rssDataExistsInDB(inputText.trim(),true)) {
+            Toast.makeText(this, "Feed already exists", Toast.LENGTH_SHORT).show();
+        } else {
+            // Otherwise enter the URL into the DB and update the adapter
+            boolean saveSuccessful = internalDBInstance.saveFeedURL(inputText.trim());
+
+            /* If the user is saving the feed from outside the app, show success message, and
+             * do not try to add feed icon or content at this time. Otherwise do not show any message
+             * and go straight to the feed. */
+            if(saveSuccessful)  {
+                if(isIntent) {
+                    Toast.makeText(getBaseContext(), "Feed added to BossRSS", Toast.LENGTH_SHORT).show();
+                } else {
+                    updateRSSListFragment();
+
+                    // Now try to go to the feed. First check for internet connection.
+                    if (!isOnline()) {
+                        Toast.makeText(getBaseContext(), "Device is not online", Toast.LENGTH_SHORT).show();
+                    } else {
+                        getRSSFeed(inputText.trim());
+                    }
+                }
+
+            } else {
+                Toast.makeText(getBaseContext(), "Unable to add RSS feed", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+    }
+
+
+    /**
+     * Retrieves RSS feed f
+     * @param feedURL
+     */
     public void getRSSFeed(final String feedURL) {
-        Log.d("TEST","GET RSS FEED CALLED");
+        Log.i(TAG,"GET RSS FEED CALLED");
         showProgressBar(true);
 
-        /** If data for this feed already exists in the database, don't try to pull it again**/
-            final boolean rssListValuesAlreadyExist = InternalDB.getInstance(getBaseContext()).existingRSSListValues(feedURL.trim());
+        // If all of the data for this feed already exists in the database, don't try to save it again
+        final boolean rssListValuesAlreadyExist = InternalDB.getInstance(getBaseContext()).rssDataExistsInDB(feedURL.trim(), false);
+        Log.i(TAG, "EXISTING VALUE " + rssListValuesAlreadyExist);
 
-        Log.d("TEST", "EXISTING VALUE " + rssListValuesAlreadyExist);
         RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "");
         Observable<RSS> rssObservable = xmlAdapterFor.getFeed(feedURL);
 
@@ -203,30 +216,24 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                     public void onCompleted() {
                         Log.d(TAG, "onCompleted() called");
 
-                        /** Hide progress bar **/
                         showProgressBar(false);
-
-                        /**Put the RSS List thumbnail URL and Title into the db */
-                        if(!rssListValuesAlreadyExist) {
-                            Log.d("TEST",rssList.getImageURL());
-                            InternalDB.getInstance(getBaseContext()).addTitleandImageURLtoDB(rssList.getURL(),rssList.getTitle(),rssList.getImageURL());
-                            /** Ty to download the image icon and save it **/
-                            getFeedIcon(getBaseContext(), rssList);
-                        }
-
-                        /** Instantiate RSSItemsFragment **/
                         showRSSListFragment(rssList,items);
 
+                        // Put the RSS List thumbnail URL and Title into the db
+                        if(!rssListValuesAlreadyExist) {
+                            Log.i(TAG,rssList.getImageURL());
+                            InternalDB.getInstance(getBaseContext()).addTitleandImageURLtoDB(rssList.getURL(),rssList.getTitle(),rssList.getImageURL());
+                            // Ty to download the image icon and save it
+                            InternalDB.getInstance(getBaseContext()).downloadRSSListIcon(getBaseContext(),rssList.getImageURL(),rssList.getURL());
+                        }
                     }
 
 
                     @Override
                     public void onError(final Throwable e) {
-
-                        if(debug){Log.d(TAG, "onError() called with: e = [" + e + "]");}
+                        Log.e(TAG, "onError() called with: e = [" + e + "]");
                         showProgressBar(false);
                         Toast.makeText(getBaseContext(), "Could not retrieve feed", Toast.LENGTH_SHORT).show();
-
                     }
 
                     @Override
@@ -261,63 +268,44 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     public void showRSSListFragment(RSSList rssList,ArrayList<Channel.Item> items) {
 
         /** Convert items that aren't parceble to the parceble class... **/
-        ArrayList<ParcebleItem> parcebleItems = new ArrayList<>();
-        for (Channel.Item item: items) {
-            parcebleItems.add(new ParcebleItem(item));
-        }
+//        ArrayList<ParcebleItem> parcebleItems = new ArrayList<>();
+//        ArrayList<Item> parcebleItems = new ArrayList<>();
+//
+//        for (Channel.Item item: items) {
+//            parcebleItems.add(new ParcebleItem(item));
+//        }
 
-        rssItemsFragment = RSSItemsFragment.newInstance(rssList.getTitle(),rssList.getURL(),rssList.getImageURL(), parcebleItems);
+        rssItemsFragment = RSSItemsFragment.newInstance(rssList.getTitle(),rssList.getURL(),rssList.getImageURL(), items);
         getSupportFragmentManager().beginTransaction()
                 .addToBackStack("mainfragment")
                 .replace(R.id.container, rssItemsFragment,"rssItemsFragment")
                 .commit();
-        showToolBarBackButton(true, rssList.getTitle());
+        showActionBarBackButton(true, rssList.getTitle());
 
 
     }
 
-
-    private void getFeedIcon(Context context, RSSList rssList) {
-        int rowID = InternalDB.getInstance(getBaseContext()).getRowIDforURL(rssList.getURL());
-        Log.d("TEST", "In feedicon add icon -- " + rowID);
-
-        Picasso.with(context).load(rssList.getImageURL()).into(new TargetPhoneGallery(getContentResolver(), rowID, rssList.getTitle(), getBaseContext()));
-
-        if(mainFragment != null && mainFragment.isAdded()) {
-            mainFragment.updateAdapter();
+    /**
+     * Shows {@link RemoveFeedDialog} when user long-clicks on a saved RSS feed row
+     * in the {@link MainFragment}
+     * @param rssUrl url for saved RSS feed
+     */
+    public void showRemoveDialog(String rssUrl) {
+        if(getSupportFragmentManager().findFragmentByTag("dialogRemove") == null || !getSupportFragmentManager().findFragmentByTag("dialogRemove").isAdded()) {
+            RemoveFeedDialog.newInstance(rssUrl).show(getSupportFragmentManager(), "dialogRemove");
         }
     }
 
+    /**
+     * Recieves callback from {@link RemoveFeedDialog} when user clicks to OK to remove a saved RSS feed,
+     * and deletes the saved RSS feed from the database
+     * @param rssUrl Url of saved RSS feed
+     */
+    public void onRemoveRSSDialogPositiveClick(String rssUrl) {
 
-
-
-    /** Probably not the best way to get only one popup window showing at a time..**/
-
-    @Override
-    public void onRemoveRSSDialogDismiss() {
-        removeFeedDialogFragment = null;
-    }
-
-    @Override
-    public void onAddRSSDialogDismiss() {
-        addFeedDialogFragment = null;
-    }
-
-
-    public void showRemoveDialog(Integer removeRowID) {
-        if (removeFeedDialogFragment == null) {
-            removeFeedDialogFragment = RemoveFeedDialog.newInstance(removeRowID);
-            removeFeedDialogFragment.show(getFragmentManager(), "dialogRemove");
-        }
-    }
-
-
-    /** User has chosen to remove a feed in the RemoveFeedDialog. Delete feed and update recyclerview in MainFragment **/
-    @Override
-    public void onRemoveRSSDialogPositiveClick(int removeid) {
-
-        if (InternalDB.getInstance(getBaseContext()).deletedRSSFeed(removeid) && mainFragment != null) {
-            mainFragment.updateAdapter();
+        boolean deleteSuccessful = InternalDB.getInstance(getBaseContext()).deletedRSSFeed(rssUrl);
+        if (deleteSuccessful) {
+            updateRSSListFragment();
         } else {
             Toast.makeText(this, "Could not remove item", Toast.LENGTH_SHORT).show();
         }
@@ -330,21 +318,22 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         super.onBackPressed();
 
         int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
-        Log.d(TAG,"Backstack entry: " + backStackEntryCount);
-        if (backStackEntryCount >= 0) {
-
-                mainFragment = new MainFragment();
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, mainFragment, "mainfragment")
-                        .commit();
-            showToolBarBackButton(false, "BossRSS");
-//            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        Log.i(TAG,"Backstack count: " + backStackEntryCount);
+        if (backStackEntryCount > 0) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            finish();
         }
+
     }
 
 
 
 
+    /**
+     * Checks whether device is online. Used when pulling user information & user timeline data
+     * @return bool true if device can access a network
+     */
     private boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -352,8 +341,12 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
-
-    public void showToolBarBackButton(Boolean showBack, CharSequence title) {
+    /**
+     * Shows or hides the actionbar back arrow
+     * @param showBack bool true to show the button
+     * @param title title to show next to button
+     */
+    public void showActionBarBackButton(Boolean showBack, CharSequence title) {
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showBack);
@@ -361,18 +354,22 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
             getSupportActionBar().setTitle(title);
 
             if(showBack) {
-                hideOption(R.id.addFeed);
-                showOption(R.id.shareFacebook);
+                showOption(R.id.addFeed,false);
+                showOption(R.id.shareFacebook,true);
             } else {
-
-                hideOption(R.id.shareFacebook);
-                showOption(R.id.addFeed);
+                showOption(R.id.shareFacebook,false);
+                showOption(R.id.addFeed,true);
 
             }
         }
 
     }
 
+    /**
+     * Opens facebook's {@link ShareLinkContent} window when user
+     * clicks on the facebook icon in the navbar for a given RSS feed
+     * @return bool true if success, false if rsslist or its url was null for some reason (i.e. fail)
+     */
     public boolean openFacebookDialog() {
         if(rssItemsFragment != null) {
             RSSList rssList =  rssItemsFragment.getCurrentList();
@@ -396,7 +393,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                             .build();
                 }
 
-
                 ShareDialog.show(this,linkContent);
                 return true;
             }
@@ -404,17 +400,29 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         return false;
     }
 
+    /**
+     * Searches for MainFragment and updates the adapter for the list of RSS Feeds
+     */
+    private void updateRSSListFragment() {
+        if(getSupportFragmentManager().findFragmentByTag("mainfragment") != null
+                && getSupportFragmentManager().findFragmentByTag("mainfragment").isAdded()) {
+            ((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")).updateAdapter();
+        }
+    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
         showProgressBar(false);
-        if(mainFragment != null && mainFragment.isAdded()) {
-            mainFragment.updateAdapter();
-        }
     }
 
+    /**
+     * Shows progress bar during RSS lookups, hides otherwise
+     * @param show boolean True for show, False for hide
+     */
     public void showProgressBar(Boolean show) {
+        SmoothProgressBar progressbar = (SmoothProgressBar) findViewById(R.id.progressbar);
         if(show) {
             progressbar.setVisibility(View.VISIBLE);
         } else {
@@ -426,11 +434,10 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     /** Audio stuff **/
     public void playAudio(AudioStream audioStream) {
 
-        Log.d("TEST","SHOWING PROGRESS");
+        Log.i("TEST","SHOWING PROGRESS");
         showProgressBar(true);
 
         mediaPlayer = new MediaPlayer();
-//        mediaPlayer = RxMediaPlayer.from(audioStream.getPath());
         mediaPlayer.setOnPreparedListener(this);
         mediaController = new MediaController(this);
 
@@ -446,18 +453,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     }
 
 
-//    @Override
-//    public void onStop() {
-//        super.onStop();
-//        if(mediaController != null) {
-//            mediaController.hide();
-//        }
-//        if(mediaPlayer != null) {
-//            mediaPlayer.stop();
-//            mediaPlayer.release();
-//        }
-//    }
-
     /** Media Player Stuff **/
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -468,7 +463,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
         return false;
     }
 
-    //--MediaPlayerControl methods----------------------------------------------------
     public void start() {
         mediaPlayer.start();
     }
@@ -508,13 +502,14 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     public boolean canSeekForward() {
         return true;
     }
-    //--------------------------------------------------------------------------------
 
     public void onPrepared(MediaPlayer mediaPlayer) {
         showProgressBar(false);
         Log.d("Test", "onPrepared");
         mediaController.setMediaPlayer(this);
-        mediaController.setAnchorView(anchorlayout);
+
+        LinearLayout anchorLayout = (LinearLayout) findViewById(R.id.container);
+        mediaController.setAnchorView(anchorLayout);
 
         handler.post(new Runnable() {
             public void run() {

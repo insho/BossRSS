@@ -1,4 +1,4 @@
-package com.inshodesign.bossrss.XMLModel;
+package com.inshodesign.bossrss.Models;
 
 /**
  * Created by JClassic on 3/8/2017.

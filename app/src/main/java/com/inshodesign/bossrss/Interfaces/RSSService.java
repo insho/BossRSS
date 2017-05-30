@@ -1,6 +1,6 @@
-package com.inshodesign.bossrss;
+package com.inshodesign.bossrss.Interfaces;
 
-import com.inshodesign.bossrss.XMLModel.RSS;
+import com.inshodesign.bossrss.XML_Models.RSS;
 
 import retrofit2.http.GET;
 import retrofit2.http.Url;

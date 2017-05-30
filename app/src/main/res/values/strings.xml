@@ -18,10 +18,12 @@
     <string-array name="testfeeds" >
         <item>http://www.thestar.com/feeds.topstories.rss</item>
         <item>https://www.espn.com/espnradio/feeds/rss/podcast.xml/_/id/2406595</item>
-        <item>http://pitchfork.com/rss/reviews/albums/</item>
+
         <item>http://feeds.bbci.co.uk/news/video_and_audio/news_front_page/rss.xml?edition=uk</item>
         <item>http://timesofindia.indiatimes.com/rssfeedstopstories.cms</item>
-        <item></item>
+
+        <item>http://japanese.engadget.com/rss.xml</item>
+        <item>http://pitchfork.com/rss/reviews/albums/</item>
 
     </string-array>
 

@@ -1,4 +1,4 @@
-package com.inshodesign.bossrss;
+package com.inshodesign.bossrss.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,11 +14,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.inshodesign.bossrss.Adapters.RSSListAdapter;
 import com.inshodesign.bossrss.Adapters.RxBus;
-import com.inshodesign.bossrss.DB.InternalDB;
-import com.inshodesign.bossrss.XMLModel.AudioStream;
-import com.inshodesign.bossrss.XMLModel.RSSList;
+import com.inshodesign.bossrss.Database.InternalDB;
+import com.inshodesign.bossrss.Interfaces.OnFragmentInteractionListener;
+import com.inshodesign.bossrss.Models.RSSList;
+import com.inshodesign.bossrss.R;
+
 import java.util.List;
-import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
+
 import rx.functions.Action1;
 
 public class MainFragment extends Fragment {
@@ -28,8 +30,21 @@ public class MainFragment extends Fragment {
 
     private RxBus _rxBus = new RxBus();
     private RecyclerView mRecyclerView;
-    RSSListAdapter mAdapter;
+    private RSSListAdapter mAdapter;
     private TextView mNoLists;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mCallback = (OnFragmentInteractionListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
+    }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -55,19 +70,10 @@ public class MainFragment extends Fragment {
         updateAdapter();
     }
 
-//    public void showProgressBar(Boolean show) {
-//        if(show) {
-//            progressbar.setVisibility(View.VISIBLE);
-//        } else {
-//            progressbar.setVisibility(View.INVISIBLE);
-//
-//        }
-//    }
-
     public void updateAdapter() {
 
         //Initialize the rsslist;
-        List<RSSList> rssLists = InternalDB.getInstance(getContext()).getRSSLists(getContext());
+        List<RSSList> rssLists = InternalDB.getInstance(getContext()).getRSSLists();
 
         if(rssLists != null && rssLists.size()>0) {
             Log.d("InternalDB","Filladapterlist TITLE: " + rssLists.get(0).getImageURI());
@@ -84,20 +90,29 @@ public class MainFragment extends Fragment {
                         @Override
                         public void call(Object event) {
 
-                            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){
+                            if(!isUniqueClick(750)) {
                                 return;
                             }
-                            mLastClickTime = SystemClock.elapsedRealtime();
-
-                            /** Stupid way of differentiating between short and long clicks... **/
                             if(event instanceof RSSList) {
                                 RSSList rssList = (RSSList) event;
-                                Log.d("TEST -- FRAGMAIN","callback to showRSS");
                                 mCallback.getRSSFeed(rssList.getURL());
+                            }
+                        }
 
-                            } else if (event instanceof Integer){
-                                /** On long click show remove list dialog **/
-                                mCallback.showRemoveDialog((Integer)event);
+                    });
+
+            _rxBus.toLongClickObserverable()
+                    .subscribe(new Action1<Object>() {
+                        @Override
+                        public void call(Object event) {
+                            if(!isUniqueClick(750)) {
+                                return;
+                            }
+
+                            if(event instanceof RSSList) {
+                                RSSList rssList = (RSSList) event;
+                                mCallback.showRemoveDialog(rssList.getURL());
+
                             }
                         }
 
@@ -124,14 +139,20 @@ public class MainFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mCallback = (OnFragmentInteractionListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement OnHeadlineSelectedListener");
+
+    /**
+     * Checks how many milliseconds have elapsed since the last time "mLastClickTime" was updated
+     * If enough time has elapsed, returns True and updates mLastClickTime.
+     * This is to stop unwanted rapid clicks of the same button
+     * @param elapsedMilliSeconds threshold of elapsed milliseconds before a new button click is allowed
+     * @return bool True if enough time has elapsed, false if not
+     */
+    public boolean isUniqueClick(int elapsedMilliSeconds) {
+        if(SystemClock.elapsedRealtime() - mLastClickTime > elapsedMilliSeconds) {
+            mLastClickTime = SystemClock.elapsedRealtime();
+            return true;
+        } else {
+            return false;
         }
     }
 

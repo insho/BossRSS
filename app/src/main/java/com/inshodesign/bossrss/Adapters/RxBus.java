@@ -7,12 +7,19 @@ import rx.subjects.Subject;
 
 public class RxBus {
     private final Subject<Object, Object> _bus = new SerializedSubject<>(PublishSubject.create());
+    private final Subject<Object, Object> _busLongClick = new SerializedSubject<>(PublishSubject.create());
 
     public void send(Object o) {
         _bus.onNext(o);
     }
+    public void sendLongClick(Object o) {
+        _busLongClick.onNext(o);
+    }
 
     public Observable<Object> toClickObserverable() {
         return _bus;
+    }
+    public Observable<Object> toLongClickObserverable() {
+        return _busLongClick;
     }
 }

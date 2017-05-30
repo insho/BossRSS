@@ -1,4 +1,6 @@
-package com.inshodesign.bossrss.XMLModel;
+package com.inshodesign.bossrss.XML_Models;
+
+import com.inshodesign.bossrss.XML_Models.Channel;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;

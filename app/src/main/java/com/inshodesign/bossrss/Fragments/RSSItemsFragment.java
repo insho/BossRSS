@@ -1,49 +1,38 @@
 
-package com.inshodesign.bossrss;
+package com.inshodesign.bossrss.Fragments;
 
         import android.content.Context;
-        import android.media.AudioManager;
-        import android.media.MediaPlayer;
         import android.os.Bundle;
-        import android.os.Handler;
         import android.os.SystemClock;
         import android.support.annotation.NonNull;
         import android.support.annotation.Nullable;
         import android.support.v4.app.Fragment;
         import android.support.v7.widget.LinearLayoutManager;
         import android.support.v7.widget.RecyclerView;
-        import android.util.Log;
         import android.view.LayoutInflater;
-        import android.view.MotionEvent;
         import android.view.View;
         import android.view.ViewGroup;
-        import android.widget.LinearLayout;
-        import android.widget.MediaController;
-        import android.widget.Toast;
 
 //        import com.github.piasy.rxandroidaudio.StreamAudioPlayer;
         import com.inshodesign.bossrss.Adapters.RSSContentsAdapter;
         import com.inshodesign.bossrss.Adapters.RxBus;
-        import com.inshodesign.bossrss.XMLModel.AudioStream;
-        import com.inshodesign.bossrss.XMLModel.ParcebleItem;
-        import com.inshodesign.bossrss.XMLModel.RSSList;
+        import com.inshodesign.bossrss.Interfaces.OnFragmentInteractionListener;
+        import com.inshodesign.bossrss.Models.AudioStream;
+//        import com.inshodesign.bossrss.Models.ParcebleItem;
+        import com.inshodesign.bossrss.Models.RSSList;
+        import com.inshodesign.bossrss.R;
+        import com.inshodesign.bossrss.XML_Models.Channel;
+//        import com.inshodesign.bossrss.XML_Models.Item;
 
-        import java.io.File;
-        import java.io.FileInputStream;
-        import java.io.IOException;
-        import java.nio.Buffer;
         import java.util.ArrayList;
 
-        import rx.Observable;
         import rx.functions.Action1;
-        import rx.schedulers.Schedulers;
-        import rx.subscriptions.Subscriptions;
 
 public class RSSItemsFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     RSSContentsAdapter mAdapter;
-    private ArrayList<ParcebleItem> mDataset;
+    private ArrayList<Channel.Item> mDataset;
     private RxBus _rxBus = new RxBus();
     private long mLastClickTime = 0;
 
@@ -60,7 +49,10 @@ public class RSSItemsFragment extends Fragment {
         return view;
     }
 
-    public static RSSItemsFragment newInstance(@Nullable final String listTitle, @Nullable String feedURL, @Nullable String imageURL,@NonNull final ArrayList<ParcebleItem> items) {
+    public static RSSItemsFragment newInstance(@Nullable final String listTitle
+            , @Nullable String feedURL
+            , @Nullable String imageURL
+            ,@NonNull final ArrayList<Channel.Item> items) {
         final RSSItemsFragment fragment = new RSSItemsFragment();
         final Bundle args = new Bundle();
         args.putString("title",listTitle);
@@ -84,7 +76,7 @@ public class RSSItemsFragment extends Fragment {
 
 
 
-    private void updateAdapter(ArrayList<ParcebleItem> items) {
+    private void updateAdapter(ArrayList<Channel.Item> items) {
         mAdapter = new RSSContentsAdapter(items, _rxBus, getContext());
 
         _rxBus.toClickObserverable()

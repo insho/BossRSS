@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.inshodesign.bossrss.R;
-import com.inshodesign.bossrss.XMLModel.RSSList;
+import com.inshodesign.bossrss.Models.RSSList;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -53,6 +53,7 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
+
         /** If there is an image icon, show it**/
         if(mDataset.get(position).getImageURI() !=null) {
         Log.d("TEST","hasbitmap URI: " + mDataset.get(position).hasBitmap()) ;
@@ -94,7 +95,7 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
             @Override
             public boolean onLongClick(View v) {
                 //If it's a long click, send the row id only, for deletion
-                _rxbus.send(mDataset.get(holder.getAdapterPosition()).getId());
+                _rxbus.sendLongClick(mDataset.get(holder.getAdapterPosition()));
                 return false;
             }
         });

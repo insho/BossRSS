@@ -1,11 +1,11 @@
-package com.inshodesign.bossrss.XMLModel;
+package com.inshodesign.bossrss.Models;
 
 
 import android.graphics.Bitmap;
 
 public class RSSList {
 
-    private Integer id;
+
     private String title;
     private String imageURL;
     private String imageURI;
@@ -15,8 +15,8 @@ public class RSSList {
     public RSSList(String _URL) {
         this.URL = _URL;
      }
-    public RSSList(Integer _id, String title, String _imageURL, String _imageURI, Bitmap _bitmap, String _URL) {
-        this.id = _id;
+    public RSSList(String title, String _imageURL, String _imageURI, Bitmap _bitmap, String _URL) {
+
         this.title = title;
         this.imageURL = _imageURL;
         this.imageURI = _imageURI;
@@ -24,14 +24,6 @@ public class RSSList {
         this.URL = _URL;
     }
     public RSSList() {
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
 

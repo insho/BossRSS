@@ -2,10 +2,6 @@
 package com.inshodesign.bossrss.Adapters;
 
         import android.content.Context;
-        import android.database.Cursor;
-        import android.net.Uri;
-        import android.provider.OpenableColumns;
-        import android.support.annotation.Nullable;
         import android.support.v7.widget.RecyclerView;
         import android.text.SpannableString;
         import android.text.method.LinkMovementMethod;
@@ -16,23 +12,19 @@ package com.inshodesign.bossrss.Adapters;
         import android.view.ViewGroup;
         import android.widget.ImageButton;
         import android.widget.ImageView;
-        import android.widget.SeekBar;
         import android.widget.TextView;
         import com.inshodesign.bossrss.R;
-        import com.inshodesign.bossrss.XMLModel.AudioStream;
-        import com.inshodesign.bossrss.XMLModel.ParcebleItem;
+        import com.inshodesign.bossrss.Models.AudioStream;
+//        import com.inshodesign.bossrss.Models.ParcebleItem;
+//        import com.inshodesign.bossrss.XML_Models.Item;
+        import com.inshodesign.bossrss.XML_Models.Channel;
         import com.squareup.picasso.Picasso;
 
-        import java.io.InputStream;
-        import java.net.HttpURLConnection;
-        import java.net.URL;
-        import java.net.URLConnection;
         import java.util.ArrayList;
-        import java.util.Locale;
 
 public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.ViewHolder> {
 
-    private ArrayList<ParcebleItem> mDataset;
+    private ArrayList<Channel.Item> mDataset;
     private Context mContext;
     private RxBus mRxBus;
 
@@ -64,7 +56,7 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
         }
     }
 
-    public RSSContentsAdapter(ArrayList<ParcebleItem> myDataset, RxBus rxBus, Context context) {
+    public RSSContentsAdapter(ArrayList<Channel.Item> myDataset, RxBus rxBus, Context context) {
         mDataset = myDataset;
         mRxBus = rxBus;
         mContext = context;
@@ -83,68 +75,90 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
+        Log.i("TEST","item null: " + (mDataset == null));
+        Log.i("TEST","item pos null: " + (mDataset.get(holder.getAdapterPosition()) == null));
+        Log.i("TEST","item pos enclosure null: " + (mDataset.get(holder.getAdapterPosition()).getEnclosure() == null));
+        Log.i("TEST","item pos getDescription null: " + (mDataset.get(holder.getAdapterPosition()).getDescription() == null));
+        Log.i("TEST","item pos getContent null: " + (mDataset.get(holder.getAdapterPosition()).getContent() == null));
+        Log.i("TEST","item pos getThumbnailList null: " + (mDataset.get(holder.getAdapterPosition()).getThumbnailList() == null));
+
+
+
+
+        holder.btnPlay.setVisibility(View.GONE);
+
+
+        Channel.Item rssItem = mDataset.get(holder.getAdapterPosition());
+        String title = rssItem.getTitle();
+
         /** If there is an image icon, show it**/
-        String url =  mDataset.get(holder.getAdapterPosition()).getLink();
-        String title = mDataset.get(holder.getAdapterPosition()).getTitle();
-        if(url != null) {
+        String url;
+        if(rssItem.getEnclosure() != null &&
+                rssItem.getEnclosure().getUrl() != null ) {
+            url = rssItem.getEnclosure().getUrl();
+
             SpannableString text = new SpannableString(title);
             text.setSpan(new URLSpan(url), 0, title.length(), 0);
             holder.txtTitle.setMovementMethod(LinkMovementMethod.getInstance());
             holder.txtTitle.setText(text, TextView.BufferType.SPANNABLE);
-        } else {
-            holder.txtTitle.setText(title);
-        }
 
-        /** If the item has music or video, show the link **/
-        if(mDataset.get(holder.getAdapterPosition()).getEnclosureLink() != null) {
-            holder.btnPlay.setVisibility(View.GONE);
-            holder.btnPlay.setVisibility(View.GONE);
+
 
             /** If the item is music, show the music player **/
-            if(mDataset.get(holder.getAdapterPosition()).getEnclosureType() != null
-            && mDataset.get(holder.getAdapterPosition()).getEnclosureType().contains("audio")) {
+            if(mDataset.get(holder.getAdapterPosition()).getEnclosure().getType() != null
+                    && mDataset.get(holder.getAdapterPosition()).getEnclosure().getType().contains("audio")) {
                 holder.btnPlay.setVisibility(View.VISIBLE);
 
                 /** Click play to activate media controller in main activity */
                 holder.btnPlay.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mRxBus.send(new AudioStream(holder.getAdapterPosition(),mDataset.get(holder.getAdapterPosition()).getEnclosureLink(),true,mDataset.get(holder.getAdapterPosition()).getEnclosureLength()));
+                        mRxBus.send(new AudioStream(holder.getAdapterPosition(),mDataset.get(holder.getAdapterPosition()).getEnclosure().getUrl(),true,mDataset.get(holder.getAdapterPosition()).getEnclosure().getLength()));
                     }
                 });
 
-//                /** Get file information */
-//                Uri uri =  Uri.parse(mDataset.get(holder.getAdapterPosition()).getEnclosureLink());
-//                Cursor c = mContext.getContentResolver().query(uri, null, null, null, null);
+            }
 
+
+
+        } else {
+            holder.txtTitle.setText(title);
+        }
+
+
+
+        if(rssItem.getPubDate() != null) {
+            holder.txtDate.setText(rssItem.getPubDate());
+        }
+
+        //Add image if possible
+        if(rssItem.getContent()!=null && rssItem.getContent().size()>0) {
+            if(rssItem.getContent().get(0).getUrl() != null) {
+                holder.image.setVisibility(View.VISIBLE);
+                Picasso.with(mContext).load(rssItem.getContent().get(0).getUrl())
+                        .into(holder.image);
+            } else if(rssItem.getContent().get(0).getThumbnail() != null)  {
+                holder.image.setVisibility(View.VISIBLE);
+                Picasso.with(mContext).load(rssItem.getContent().get(0).getThumbnail().getUrl())
+                        .into(holder.image);
+            } else {
+                holder.image.setVisibility(View.GONE);
+            }
+
+
+            if(rssItem.getContent().get(0).getDescription() != null) {
+                holder.txtDescription.setVisibility(View.VISIBLE);
+                holder.txtDescription.setText(rssItem.getContent().get(0).getDescription());
+            } else if(rssItem.getDescription() != null) {
+                holder.txtDescription.setVisibility(View.VISIBLE);
+                holder.txtDescription.setText(rssItem.getDescription());
+            } else {
+                holder.txtDescription.setVisibility(View.GONE);
             }
 
 
         }
 
-        if(mDataset.get(holder.getAdapterPosition()).getPubDate() != null) {
-            holder.txtDate.setText(mDataset.get(holder.getAdapterPosition()).getPubDate());
-
-        }
-
-        /** Add image if applicable **/
-        if(mDataset.get(holder.getAdapterPosition()).getContentURL() != null) {
-            holder.image.setVisibility(View.VISIBLE);
-            Picasso.with(mContext).load(mDataset.get(position).getContentURL())
-                    .into(holder.image);
-        } else {
-            holder.image.setVisibility(View.GONE);
-        }
-
-        if(mDataset.get(holder.getAdapterPosition()).getMediaDescription() != null) {
-            holder.txtDescription.setVisibility(View.VISIBLE);
-            holder.txtDescription.setText(mDataset.get(position).getMediaDescription());
-        } else if(mDataset.get(holder.getAdapterPosition()).getDescription() != null) {
-            holder.txtDescription.setVisibility(View.VISIBLE);
-            holder.txtDescription.setText(mDataset.get(position).getDescription());
-        } else {
-            holder.txtDescription.setVisibility(View.GONE);
-        }
 
 
 
