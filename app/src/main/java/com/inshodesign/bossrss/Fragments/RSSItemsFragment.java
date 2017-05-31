@@ -14,35 +14,30 @@ package com.inshodesign.bossrss.Fragments;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
-
-//        import com.github.piasy.rxandroidaudio.StreamAudioPlayer;
         import com.inshodesign.bossrss.Adapters.RSSItemsAdapter;
         import com.inshodesign.bossrss.Adapters.RxBus;
         import com.inshodesign.bossrss.Interfaces.OnFragmentInteractionListener;
+        import com.inshodesign.bossrss.MainActivity;
         import com.inshodesign.bossrss.Models.AudioStream;
-//        import com.inshodesign.bossrss.Models.ParcebleItem;
         import com.inshodesign.bossrss.Models.RSSList;
         import com.inshodesign.bossrss.R;
         import com.inshodesign.bossrss.XML_Models.Item;
-//        import com.inshodesign.bossrss.XML_Models.ChannelItem;
-
         import java.util.ArrayList;
-
         import rx.functions.Action1;
-
         import static com.inshodesign.bossrss.MainActivity.isUniqueClick;
 
+/**
+ * Displays a list of current Items for an RSS list, downloaded in {@link MainActivity#getRSSFeed(String)}, and
+ * displayed in this fragment
+ */
 public class RSSItemsFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
-    RSSItemsAdapter mAdapter;
+    private RSSItemsAdapter mAdapter;
     private ArrayList<Item> mDataset;
     private RxBus _rxBus = new RxBus();
     private long mLastClickTime = 0;
-
-    OnFragmentInteractionListener mCallback;
-
-
+    private OnFragmentInteractionListener mCallback;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -72,14 +67,16 @@ public class RSSItemsFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
-
         getArguments().getString("title");
         mDataset = getArguments().getParcelableArrayList("items");
         updateAdapter(mDataset);
     }
 
-
-
+    /**
+     * Given a dataset of RSS {@link Item}, sets up the dataset/rxBus callbacks and shows them
+     * in the recycler
+     * @param items RSS list items
+     */
     private void updateAdapter(ArrayList<Item> items) {
         mAdapter = new RSSItemsAdapter(items, _rxBus, getContext());
 
@@ -111,6 +108,14 @@ public class RSSItemsFragment extends Fragment {
         mRecyclerView.setAdapter(mAdapter);
     }
 
+    /**
+     * When user chooses to share the RSS list on facebook (by clicking the facebook button
+     * in the navbar), the MainActivity pulls the current RSS List from this Fragment in order to
+     * load its contents into the "share on facebook" popup window, which is opened from the mainactivity
+     * @return the current RSS list that the user is sharing on facebook
+     *
+     * @see MainActivity#openFacebookDialog()
+     */
     public RSSList getCurrentList() {
         RSSList rssList = new RSSList();
         if(getArguments() != null) {

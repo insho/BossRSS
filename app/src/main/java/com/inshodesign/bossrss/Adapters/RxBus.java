@@ -5,6 +5,15 @@ import rx.subjects.PublishSubject;
 import rx.subjects.SerializedSubject;
 import rx.subjects.Subject;
 
+/**
+ * Sends objects from adapters to fragments when user clicks/long-presses adapter items
+ *
+ * @see RSSItemsAdapter
+ * @see RSSListAdapter
+ *
+ * @see com.inshodesign.bossrss.Fragments.RSSItemsFragment
+ * @see com.inshodesign.bossrss.Fragments.RSSListFragment
+ */
 public class RxBus {
     private final Subject<Object, Object> _bus = new SerializedSubject<>(PublishSubject.create());
     private final Subject<Object, Object> _busLongClick = new SerializedSubject<>(PublishSubject.create());

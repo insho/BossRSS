@@ -25,7 +25,11 @@ import rx.functions.Action1;
 
 import static com.inshodesign.bossrss.MainActivity.isUniqueClick;
 
-public class MainFragment extends Fragment {
+/**
+ * Displays saved RSS Lists. They can be clicked on to download current items for the list
+ * and show them in {@link RSSItemsFragment}
+ */
+public class RSSListFragment extends Fragment {
     OnFragmentInteractionListener mCallback;
     private long mLastClickTime = 0;
 
@@ -45,8 +49,6 @@ public class MainFragment extends Fragment {
                     + " must implement OnHeadlineSelectedListener");
         }
     }
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -72,6 +74,12 @@ public class MainFragment extends Fragment {
         updateAdapter();
     }
 
+    /**
+     * Refreshes RSS lists, pulling saved RSS lists from the db and setting up adapter
+     *
+     * @see com.inshodesign.bossrss.MainActivity#onRemoveRSSDialogPositiveClick(String)
+     * @see com.inshodesign.bossrss.MainActivity#saveRSSFeed(String, boolean)
+     */
     public void updateAdapter() {
 
         //Initialize the rsslist;
@@ -131,8 +139,10 @@ public class MainFragment extends Fragment {
 
     }
 
-
-    /** If there are no saved lists, hide recycler and show No Lists message **/
+    /**
+     * Toggles between showing recycler view and showing "No lists saved" message
+     * @param show bool true to show recyler with saved lists, false to hide it and show no lists message
+     */
     private void showRecyclerView(boolean show) {
         if(show) {
             mRecyclerView.setVisibility(View.VISIBLE);

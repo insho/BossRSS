@@ -1,9 +1,11 @@
 package com.inshodesign.bossrss.Models;
 
 /**
- * Created by JClassic on 3/8/2017.
+ * Represents an audio stream in an RSS List item
+ *
+ * @see com.inshodesign.bossrss.Adapters.RSSItemsAdapter
+ * @see com.inshodesign.bossrss.RxMediaPlayer
  */
-
 public class AudioStream {
 
     private Integer rowid;

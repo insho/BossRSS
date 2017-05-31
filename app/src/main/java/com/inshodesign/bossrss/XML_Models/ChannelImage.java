@@ -3,7 +3,11 @@ package com.inshodesign.bossrss.XML_Models;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-//Image for channel (icon)
+/**
+ * Object representing the RSS list channel image icon (Which
+ * is saved and displayed in the {@link com.inshodesign.bossrss.Fragments.RSSListFragment} next
+ * to the title)
+ */
 @Root(name = "image", strict = false)
 public class ChannelImage {
     @Element(name = "title", required = false)

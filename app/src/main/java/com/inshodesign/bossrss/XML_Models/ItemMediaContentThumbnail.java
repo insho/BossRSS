@@ -6,6 +6,10 @@ import android.os.Parcelable;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
+/**
+ * Object within an RSS feed item ({@link Item}), with links to
+ * the thumbnail picture for the {@link ItemMediaContent}
+ */
 @Root(name = "thumbnail", strict = false)
 public class ItemMediaContentThumbnail implements Parcelable {
 

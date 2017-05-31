@@ -39,8 +39,6 @@ public class AddFeedDialog extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-
-
             mAddRSSDialogListener = (AddRSSDialogListener) context;
             Log.i(TAG,"mAddRSSDialogListener: " + mAddRSSDialogListener);
         } catch (ClassCastException e) {
@@ -55,9 +53,6 @@ public class AddFeedDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-
-
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.fragment_dialog, null);
@@ -74,11 +69,10 @@ public class AddFeedDialog extends DialogFragment {
 
         final EditText editText = (EditText) dialogView.findViewById(R.id.input);
 
-        //TODO -- Remove this after testing
+        /** USED FOR TESTING DEMONSTRATION */
         String[] feeds = getResources().getStringArray(R.array.testfeeds);
         testFeeds = Arrays.asList(feeds);
         for(int i =0; i<testFeeds.size(); i++) {
-            Log.d("TEST","TESTFEEDS: " + testFeeds.get(i));
             if(!InternalDB.getInstance(getActivity()).rssDataExistsInDB(testFeeds.get(i), true) && editText.getText().toString().isEmpty()) {
                 editText.setText(testFeeds.get(i));
             }
@@ -88,7 +82,6 @@ public class AddFeedDialog extends DialogFragment {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.i(TAG,"mAddRSSDialogListener: " + mAddRSSDialogListener);
                 if(editText.getText().toString().trim().length() == 0) {
                     Toast.makeText(getActivity(), "Enter an RSS Feed", Toast.LENGTH_SHORT).show();
                 } else {
@@ -105,14 +98,7 @@ public class AddFeedDialog extends DialogFragment {
             }
         });
         builder.setCancelable(true);
-
-
         return builder.create();
     }
 
-//    @Override
-//    public void onDismiss(DialogInterface dialog) {
-//        super.onDismiss(dialog);
-//        mAddRSSDialogListener.onAddRSSDialogDismiss();
-//    }
 }

@@ -1,11 +1,11 @@
 package com.inshodesign.bossrss.Interfaces;
 
-import com.inshodesign.bossrss.Fragments.MainFragment;
+import com.inshodesign.bossrss.Fragments.RSSListFragment;
 import com.inshodesign.bossrss.Fragments.RSSItemsFragment;
 import com.inshodesign.bossrss.Models.AudioStream;
 
 /**
- * Interface between fragments {@link MainFragment}, {@link RSSItemsFragment} and
+ * Interface between fragments {@link RSSListFragment}, {@link RSSItemsFragment} and
  * {@link com.inshodesign.bossrss.MainActivity}. MainActivity handles RSS feed look-up and media streaming that is initiated
  * in the fragments
  */

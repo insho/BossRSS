@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.inshodesign.bossrss.BuildConfig;
 import com.inshodesign.bossrss.R;
 import com.inshodesign.bossrss.Models.RSSList;
 import com.squareup.picasso.Picasso;
@@ -22,6 +24,10 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
     private Context mContext;
     private final String TAG = "TEST-ListAdap";
 
+    /**
+     * Adapter for recycler row in {@link com.inshodesign.bossrss.Fragments.RSSItemsFragment},
+     * showing the contents of one {@link com.inshodesign.bossrss.XML_Models.Item} in an RSS channel
+     */
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         public TextView txtTitle;
@@ -40,7 +46,6 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
          mContext = context;
     }
 
-    // Create new views (invoked by the layout manager)
     @Override
     public RSSListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_rsslist_recycler_row, parent, false);
@@ -55,13 +60,7 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
         // If there is an image icon, show it
         holder.image.setVisibility(View.VISIBLE);
         if(rssList.getImageURI() !=null) {
-        Log.d(TAG,"hasbitmap URI: " + rssList.getImageURI()) ;
-//                Picasso.with(mContext).load(rssList.getImageURI())
-//                        .into(holder.image);
-//
-//            holder.image.setVisibility(View.VISIBLE);
-//            holder.image.setAdjustViewBounds(true);
-
+            if(BuildConfig.DEBUG){Log.d(TAG,"SAVED URI: " + rssList.getImageURI());}
             Picasso picasso = new Picasso.Builder(mContext)
                     .listener(new Picasso.Listener() {
                         @Override
@@ -74,14 +73,8 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
             picasso.load(rssList.getImageURI())
                     .fit()
                     .into(holder.image);
-            ImageView testView = new ImageView(mContext);
-//            holder.image.setAdjustViewBounds(true);
-
         } else if(rssList.getImageURL() != null) {
-                    Log.d(TAG,"hasbitmap URL: " + rssList.getImageURL()) ;
-            holder.image.setVisibility(View.VISIBLE);
-//            Picasso.with(mContext).load(rssList.getImageURL()).fit().into(holder.image);
-
+            if(BuildConfig.DEBUG){Log.d(TAG,"NET URL: " + rssList.getImageURI());}
             Picasso picasso = new Picasso.Builder(mContext)
                     .listener(new Picasso.Listener() {
                         @Override
@@ -93,13 +86,10 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
             picasso.load(rssList.getImageURL())
                     .fit()
                     .into(holder.image);
-            holder.image.setAdjustViewBounds(true);
-
         } else {
             holder.image.setVisibility(View.GONE);
         }
 
-        Log.i(TAG,"TITLE: " + rssList.getTitle());
         // If there is no icon or title, show url and grey out the row, because it is considered incomplete
         if( !mDataset.get(position).hasTitle()) {
             holder.txtTitle.setText(rssList.getURL());
@@ -109,11 +99,10 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
             holder.txtTitle.setAlpha(1);
         }
 
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //If it's a short click, send the object (with title, image etc)
+                //If it's a short click, send the object (with title, image etc) and go to RSSItems fragment
                 _rxbus.send(rssList);
             }
         });
@@ -121,7 +110,7 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                //If it's a long click, send the row id only, for deletion
+                //If it's a long click, open delete list item dialog
                 _rxbus.sendLongClick(rssList);
                 return false;
             }
@@ -131,11 +120,6 @@ public class RSSListAdapter extends RecyclerView.Adapter<RSSListAdapter.ViewHold
     @Override
     public int getItemCount() {
         return mDataset.size();
-    }
-
-
-    public RSSList getList(int position) {
-        return mDataset.get(position);
     }
 
 }

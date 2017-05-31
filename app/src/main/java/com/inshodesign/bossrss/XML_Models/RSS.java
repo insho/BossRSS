@@ -1,10 +1,13 @@
 package com.inshodesign.bossrss.XML_Models;
 
-import com.inshodesign.bossrss.XML_Models.Channel;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+
+/**
+ * Container for an RSS simple xml call, containing one {@link Channel} object, with
+ * a list of {@link Item} objects for each RSS item
+ */
 
 @Root
 public class RSS {

@@ -3,6 +3,10 @@ package com.inshodesign.bossrss.XML_Models;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Text;
 
+/**
+ * Object representing link data for the {@link Channel}
+ */
+
 public class ChannelLink {
     @Attribute(required = false)
     public String href;

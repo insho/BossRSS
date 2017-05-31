@@ -10,12 +10,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.inshodesign.bossrss.BuildConfig;
+import com.inshodesign.bossrss.Fragments.RSSListFragment;
 import com.inshodesign.bossrss.Models.RSSList;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -26,7 +25,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * SQlite helper singleton. Handles all db related calls as well
+ * as saving/deleting saved RSS List icons
+ */
 public class InternalDB extends SQLiteOpenHelper {
 
     private static String TAG = "TEST -- Internal";
@@ -37,7 +39,6 @@ public class InternalDB extends SQLiteOpenHelper {
     public static final int DB_VERSION = 1;
 
     public static final String TABLE_MAIN = "RSSFeeds";
-
     public static final String COL_ID = "_id";
     public static final String COL0_URL = "URL";
     public static final String COL1_TITLE = "Title";
@@ -110,7 +111,7 @@ public class InternalDB extends SQLiteOpenHelper {
      * Pulls a list of saved RSS feeds from the RSSFeeds table in the database
      * @return array of RSSList objects for the saved feeds in the db
      *
-     * @see com.inshodesign.bossrss.Fragments.MainFragment
+     * @see RSSListFragment
      */
     public List<RSSList> getRSSLists() {
 
@@ -123,7 +124,6 @@ public class InternalDB extends SQLiteOpenHelper {
                 do {
                     RSSList itemData = new RSSList();
                     if(BuildConfig.DEBUG) {
-
                         Log.d(TAG, "putting url: " + c.getString(0));
                         Log.d(TAG, "putting title: " + c.getString(1));
                         Log.d(TAG, "putting imageURL: " + c.getString(2));
@@ -160,16 +160,14 @@ public class InternalDB extends SQLiteOpenHelper {
 
                 for (File file : directory.listFiles()) {
                     Uri uri = Uri.fromFile(file);
-                    Log.i(TAG,"FILE: " + uri);
+                    if(BuildConfig.DEBUG){Log.i(TAG,"FILE: " + uri);}
                     if(String.valueOf(savedImgTitle).equals(uri.toString())) {
-                        Log.i(TAG,"FILE DELETE!");
+                        if(BuildConfig.DEBUG){Log.i(TAG,"FILE DELETE!");}
                         file.delete();
                     }
                 }
             }
-
             sInstance.getWritableDatabase().delete(TABLE_MAIN, COL0_URL + "= ?", new String[]{removeUrl});
-
             return true;
         } catch (SQLiteException e) {
             Log.e(TAG,"InternalDB deleteRSSFeed sqlite error " + e.getCause());
@@ -194,7 +192,6 @@ public class InternalDB extends SQLiteOpenHelper {
     public boolean rssDataExistsInDB(String URL, Boolean onlyCheckForURL) {
         String queryRecordExists;
 
-        //
         if(onlyCheckForURL) {
             queryRecordExists = "Select URL From " + TABLE_MAIN + " WHERE " +  COL0_URL + " = ?" ;
         } else {
@@ -299,7 +296,16 @@ public class InternalDB extends SQLiteOpenHelper {
 
     }
 
-
+    /**
+     * Gets _id value for a saved RSS list, given the url for that list. _id is used
+     * as the "name" of the saved icon files (since urls cannot be used as file names), so
+     * to save/delete rss list icons, it is necessary to get the rowid first
+     * @param url url of saved RSS list
+     * @return row _id for a given url
+     *
+     * @see #deletedRSSFeed(Context, String)
+     * @see #downloadRSSListIcon(Context, RSSList)
+     */
     private int getRowIDforURL(String url) {
 
         String queryRecordExists = "Select _id From " + TABLE_MAIN + " where " + COL0_URL + " = ?" ;

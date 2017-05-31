@@ -11,12 +11,13 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 /**
- * Created by JClassic on 3/4/2017.
+ * Service making Retrofit calls to download the contents of an RSS feed
+ *
+ * @see MainActivity#getRSSFeed(String)
  */
-
 public class APIService {
 
-    public static <T> T createXmlAdapterFor(final Class<T> api, final String endpoint) {
+    public static <T> T createXmlAdapterFor(final Class<T> api) {
 
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -32,9 +33,7 @@ public class APIService {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://www.google.com/") //it's a dummy url
                 .client(okHttpClient) // Use OkHttp3 client
-
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create()) // RxJava adapter
-//                .addConverterFactory(SimpleXmlConverterFactory.create(new Persister(new AnnotationStrategy()))) // Simple XML converter
                 .addConverterFactory(SimpleXmlConverterFactory.create()) // Simple XML converter
 
                 .build();

@@ -19,6 +19,12 @@ import java.util.List;
 
 })
 
+/**
+ * Object representing a single Item (article, etc) in an RSS feed. Items appear as an array in {@link Channel} when
+ * pulled by {@link com.inshodesign.bossrss.APIService}. Items also contain {@link ItemEnclosure}, {@link ItemMediaContent},
+ * and {@link ItemMediaContentThumbnail}
+ */
+
 @Root(name = "item", strict = false)
 public class Item implements  Parcelable {
 

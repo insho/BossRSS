@@ -7,6 +7,10 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
+/**
+ * Object within an RSS feed item ({@link Item}), with links to
+ * media content for the item
+ */
 @Root(name = "content", strict=false)
 public class ItemMediaContent implements Parcelable {
 

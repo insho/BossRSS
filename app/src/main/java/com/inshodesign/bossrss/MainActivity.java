@@ -1,5 +1,5 @@
 package com.inshodesign.bossrss;
-//TODO handle subscription cancel and resume
+
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -8,7 +8,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -26,20 +25,16 @@ import com.facebook.share.widget.ShareDialog;
 import com.inshodesign.bossrss.Database.InternalDB;
 import com.inshodesign.bossrss.Dialogs.AddFeedDialog;
 import com.inshodesign.bossrss.Dialogs.RemoveFeedDialog;
-import com.inshodesign.bossrss.Fragments.MainFragment;
+import com.inshodesign.bossrss.Fragments.RSSListFragment;
 import com.inshodesign.bossrss.Fragments.RSSItemsFragment;
 import com.inshodesign.bossrss.Interfaces.AddRSSDialogListener;
 import com.inshodesign.bossrss.Interfaces.OnFragmentInteractionListener;
 import com.inshodesign.bossrss.Interfaces.RSSService;
 import com.inshodesign.bossrss.Interfaces.RemoveRSSDialogListener;
 import com.inshodesign.bossrss.Models.AudioStream;
-import com.inshodesign.bossrss.XML_Models.Channel;
-//import com.inshodesign.bossrss.Models.ParcebleItem;
 import com.inshodesign.bossrss.XML_Models.Item;
 import com.inshodesign.bossrss.XML_Models.RSS;
 import com.inshodesign.bossrss.Models.RSSList;
-//import com.inshodesign.bossrss.XML_Models.ChannelItem;
-
 import java.util.ArrayList;
 
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
@@ -49,20 +44,22 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+/**
+ * Main activity and traffic control between fragments
+ */
 public class MainActivity extends AppCompatActivity implements OnFragmentInteractionListener
         , AddRSSDialogListener, RemoveRSSDialogListener
         , MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl{
 
 
-    RSSItemsFragment rssItemsFragment;
     private static final String TAG = "TEST-MAIN";
     private Menu menu;
 
     private MediaPlayer mediaPlayer;
     private MediaController mediaController;
     private Handler handler = new Handler();
-
     private Subscription subscription;
+    private String searchinProgressURL = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,25 +73,26 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
             getWindow().getDecorView().setBackgroundResource(android.R.color.transparent);
             String url = intent.getStringExtra(Intent.EXTRA_TEXT);
             if(url != null) {
-               saveRSSFeed(url.trim(),true);
-               finish();
+                saveRSSFeed(url.trim(),true);
+                finish();
             }
         } else {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new MainFragment(), "mainfragment")
+                        .add(R.id.container, new RSSListFragment(), "mainfragment")
                         .commit();
             }
-        }
-    }
+
+            if(savedInstanceState!=null) {
+                searchinProgressURL = savedInstanceState.getString("searchinProgressURL");
+                if(searchinProgressURL != null) {
+                    getRSSFeed(searchinProgressURL);
+                }
 
 
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        if(getSupportActionBar() != null && getSupportActionBar().getTitle() != null) {
-            savedInstanceState.putString("title",getSupportActionBar().getTitle().toString());
+            }
         }
     }
 
@@ -198,18 +196,17 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
 
     /**
-     * Retrieves RSS feed f
-     * @param feedURL
+     * Retrieves RSS feed subscription from {@link APIService} for an RSS url, and passes the user on to {@link RSSItemsFragment} on success
+     * @param feedURL url of rss feed
      */
     public void getRSSFeed(final String feedURL) {
-        Log.i(TAG,"GET RSS FEED CALLED");
         showProgressBar(true);
-
+        searchinProgressURL = feedURL;
         // If all of the data for this feed already exists in the database, don't try to save it again
         final boolean rssListValuesAlreadyExist = InternalDB.getInstance(getBaseContext()).rssDataExistsInDB(feedURL.trim(), false);
-        Log.i(TAG, "EXISTING VALUE " + rssListValuesAlreadyExist);
+        if(BuildConfig.DEBUG){Log.d(TAG, "EXISTING VALUE " + rssListValuesAlreadyExist);}
 
-        RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class, "");
+        RSSService xmlAdapterFor = APIService.createXmlAdapterFor(RSSService.class);
         Observable<RSS> rssObservable = xmlAdapterFor.getFeed(feedURL);
 
         rssObservable.subscribeOn(Schedulers.io())
@@ -221,10 +218,10 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
                     @Override
                     public void onCompleted() {
-                        Log.d(TAG, "onCompleted() called");
 
                         showProgressBar(false);
-                        showRSSListFragment(rssList,items);
+                        searchinProgressURL = null;
+                        showRSSItemsFragmentForList(rssList,items);
 
                         // Put the RSS List thumbnail URL and Title into the db
                         if(!rssListValuesAlreadyExist) {
@@ -241,6 +238,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                         Log.e(TAG, "onError() called with: e = [" + e + "]");
 
                         showProgressBar(false);
+                        searchinProgressURL = null;
                         Toast.makeText(getBaseContext(), "Could not retrieve feed", Toast.LENGTH_SHORT).show();
                     }
 
@@ -254,19 +252,19 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                             * for title/image etc, pull them from the Channel xml response, assign them to the
                             * rssList object for this RSS list, and update the database entry for the list in the onComplete method */
 
-                                //Set RSSList title
-                                if(!rssList.hasTitle() && rss.getChannel().getTitle()!=null) {
-                                    rssList.setTitle(rss.getChannel().getTitle());
-                                }
+                            //Set RSSList title
+                            if(!rssList.hasTitle() && rss.getChannel().getTitle()!=null) {
+                                rssList.setTitle(rss.getChannel().getTitle());
+                            }
 
-                                //Set RSSList title
-                                if(!rssList.hasImageURL()) {
-                                    try {
-                                        rssList.setImageURL(rss.getChannel().getImageList().get(0).getUrl());
-                                    } catch (NullPointerException e) {
-                                        Log.e(TAG,"Nullpointer in assigning rssList image url");
-                                    }
+                            //Set RSSList title
+                            if(!rssList.hasImageURL()) {
+                                try {
+                                    rssList.setImageURL(rss.getChannel().getImageList().get(0).getUrl());
+                                } catch (NullPointerException e) {
+                                    Log.e(TAG,"Nullpointer in assigning rssList image url");
                                 }
+                            }
 
 
                             items = new ArrayList<>(rss.getChannel().getItemList());
@@ -279,38 +277,24 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     }
 
 
-    public void showRSSListFragment(RSSList rssList,ArrayList<Item> items) {
-
-        /** Convert items that aren't parceble to the parceble class... **/
-//        ArrayList<ParcebleItem> parcebleItems = new ArrayList<>();
-//        ArrayList<ChannelItem> parcebleItems = new ArrayList<>();
-//
-//        for (Channel.ChannelItem item: items) {
-//            parcebleItems.add(new ParcebleItem(item));
-//        }
-
-//        Log.i(TAG,"BEFORE BACKSTACK count: " + getSupportFragmentManager().getBackStackEntryCount());
-        rssItemsFragment = RSSItemsFragment.newInstance(rssList.getTitle(),rssList.getURL(),rssList.getImageURL(), items);
+    /**
+     * Shows {@link RSSItemsFragment} for a given RSS feed
+     * @param rssList RSSList object for the RSS feed whose items are being shown
+     * @param items List of items pulled from {@link APIService}, to be shown in RSSItemsFrag
+     */
+    public void showRSSItemsFragmentForList(RSSList rssList, ArrayList<Item> items) {
+        RSSItemsFragment rssItemsFragment = RSSItemsFragment.newInstance(rssList.getTitle(),rssList.getURL(),rssList.getImageURL(), items);
         getSupportFragmentManager().beginTransaction()
                 .addToBackStack("rssItemsFragment")
                 .replace(R.id.container, rssItemsFragment,"rssItemsFragment")
                 .commit();
-
-//        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//        //Add an entry to the backstack
-//        transaction.addToBackStack(null);
-//        transaction.replace(R.id.container, rssItemsFragment, "rssItemsFragment");
-//        transaction.commit();
         getSupportFragmentManager().executePendingTransactions();
-
         showActionBarBackButton(true, rssList.getTitle());
-
-        Log.i(TAG," AFTER Backstack count: " + getSupportFragmentManager().getBackStackEntryCount());
     }
 
     /**
      * Shows {@link RemoveFeedDialog} when user long-clicks on a saved RSS feed row
-     * in the {@link MainFragment}
+     * in the {@link RSSListFragment}
      * @param rssUrl url for saved RSS feed
      */
     public void showRemoveDialog(String rssUrl) {
@@ -338,23 +322,11 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
     @Override
     public void onBackPressed() {
+        /*Fragment only goes one level deep (ItemsFragment), so on back pressed should
+          always return the action bar to its original state */
         showActionBarBackButton(false,"BossRSS");
         super.onBackPressed();
-//        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
-////        Log.i(TAG,"Backstack count: " + backStackEntryCount);
-//        if (backStackEntryCount > 0)
-//        {
-//            showActionBarBackButton(true,"BossRSS");
-////            getSupportFragmentManager().popBackStack();
-//        } else {
-//            showActionBarBackButton(true,"BossRSS");
-//        }
-
-
     }
-
-
-
 
     /**
      * Checks whether device is online. Used when pulling user information & user timeline data
@@ -397,7 +369,10 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
      * @return bool true if success, false if rsslist or its url was null for some reason (i.e. fail)
      */
     public boolean openFacebookDialog() {
-        if(rssItemsFragment != null) {
+        if(getSupportFragmentManager().findFragmentByTag("rssItemsFragment") != null
+                && getSupportFragmentManager().findFragmentByTag("rssItemsFragment").isAdded()) {
+            RSSItemsFragment rssItemsFragment = (RSSItemsFragment) getSupportFragmentManager().findFragmentByTag("rssItemsFragment");
+
             RSSList rssList =  rssItemsFragment.getCurrentList();
             if(rssList == null || rssList.getURL() == null) {
                 return false;
@@ -427,12 +402,16 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     }
 
     /**
-     * Searches for MainFragment and updates the adapter for the list of RSS Feeds
+     * Searches for RSSListFragment and updates the adapter for the list of RSS Feeds (When items
+     * have been added/removed)
+     *
+     * @see #onRemoveRSSDialogPositiveClick(String)
+     * @see #saveRSSFeed(String, boolean)
      */
     private void updateRSSListFragment() {
         if(getSupportFragmentManager().findFragmentByTag("mainfragment") != null
                 && getSupportFragmentManager().findFragmentByTag("mainfragment").isAdded()) {
-            ((MainFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")).updateAdapter();
+            ((RSSListFragment) getSupportFragmentManager().findFragmentByTag("mainfragment")).updateAdapter();
         }
     }
 
@@ -477,8 +456,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
     /** Audio stuff **/
     public void playAudio(AudioStream audioStream) {
-
-        Log.i("TEST","SHOWING PROGRESS");
         showProgressBar(true);
 
         mediaPlayer = new MediaPlayer();
@@ -497,7 +474,29 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     }
 
 
-    /** Media Player Stuff **/
+    @Override
+    protected void onPause() {
+        if(subscription!=null) {
+            subscription.unsubscribe();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(subscription!=null) {
+            subscription.unsubscribe();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("searchinProgressURL",searchinProgressURL);
+    }
+
+    // Media Player Stuff
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //the MediaController will hide after 3 seconds - tap the screen to make it appear again

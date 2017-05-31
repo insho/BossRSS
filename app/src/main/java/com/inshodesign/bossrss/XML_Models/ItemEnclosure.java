@@ -7,6 +7,9 @@ import android.os.Parcelable;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
+/**
+ * Object within an RSS feed item ({@link Item}), with different urls
+ */
 @Root(name = "enclosure", strict = false)
 public class ItemEnclosure implements Parcelable {
 

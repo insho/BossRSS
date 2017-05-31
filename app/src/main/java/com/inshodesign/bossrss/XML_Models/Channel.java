@@ -1,25 +1,23 @@
 package com.inshodesign.bossrss.XML_Models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Namespace;
 import org.simpleframework.xml.NamespaceList;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Text;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @NamespaceList({
         @Namespace(reference = "http://www.w3.org/2005/Atom", prefix = "atom"),
         @Namespace(reference = "http://search.yahoo.com/mrss/", prefix = "media"),
         @Namespace(reference = "http://www.itunes.com/dtds/podcast-1.0.dtd", prefix = "itunes")
-
 })
+
+
+/**
+ * Object representing the results of an RSS simple xml call, contained in the {@link RSS} result.
+ * The RSS result contains a channel. The Channel contains a list of RSS {@link Item} objects.
+ */
 
 @Root(name = "channel", strict = false)
 public class Channel {
@@ -53,25 +51,5 @@ public class Channel {
     public List<Item> getItemList() {
         return itemList;
     }
-
-//    @Override
-//    public String toString() {
-//        return "Channel{" +
-//                "links=" + links +
-//                ", itemList=" + itemList +
-//                ", title='" + title + '\'' +
-//                ", language='" + language + '\'' +
-//                ", ttl=" + ttl +
-//                ", pubDate='" + pubDate + '\'' +
-//                '}';
-//    }
-
-
-
-
-
-
-
-
 
 }
