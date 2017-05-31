@@ -6,19 +6,31 @@
 //import org.simpleframework.xml.Attribute;
 //import org.simpleframework.xml.Element;
 //import org.simpleframework.xml.ElementList;
+//import org.simpleframework.xml.Namespace;
+//import org.simpleframework.xml.NamespaceList;
 //import org.simpleframework.xml.Root;
+//import org.simpleframework.xml.Text;
 //
+//import java.util.ArrayList;
 //import java.util.List;
 //
+//@NamespaceList({
+//        @Namespace(reference = "http://www.w3.org/2005/Atom", prefix = "atom"),
+//        @Namespace(reference = "http://search.yahoo.com/mrss/", prefix = "media"),
+//        @Namespace(reference = "http://www.itunes.com/dtds/podcast-1.0.dtd", prefix = "itunes")
 //
+//})
 //
 //@Root(name = "item", strict = false)
-//public class Item implements Parcelable {
+//public class Item implements  Parcelable {
+//
+//    public Item(){}
 //
 //    @Element(name = "title", required = true)
 //    String title;//The title of the item.	Venice Film Festival Tries to Quit Sinking
 //    @Element(name = "link", required = true)
 //    public String link;//The URL of the item.	http://www.nytimes.com/2002/09/07/movies/07FEST.html
+//    public String getLink() {return link;}
 //
 //    @Element(name = "description", required = true)
 //    String description;//The item synopsis.	Some of the most heated chatter at the Venice Film Festival this week was about the way that the arrival of the stars at the Palazzo del Cinema was being staged.
@@ -31,11 +43,12 @@
 //    @Element(name = "enclosure", required = false)
 //    Enclosure enclosure;
 //
-//
-//    public Item() {}
-//
 //    @Root(name = "enclosure", strict = false)
-//    public static class Enclosure {
+//    public static class Enclosure implements Parcelable {
+//
+//        public Enclosure(){}
+//
+//
 //        @Attribute(name = "url", required = false)
 //        public String url;
 //
@@ -48,14 +61,49 @@
 //        public String getUrl() {
 //            return url;
 //        }
-//
-//        public String getLength() {
-//            return length;
+//        //TODO make exception catch
+//        public Integer getLength() {
+//            return Integer.parseInt(length);
 //        }
 //
 //        public String getType() {
 //            return type;
 //        }
+//
+//        // Parcelling part
+//        private Enclosure(Parcel in){
+//
+//            String[] datafirst = new String[3];
+//            in.readStringArray(datafirst);
+//            this.url = datafirst[0];
+//            this.length = datafirst[1];
+//            this.type = datafirst[2];
+//
+//
+//        }
+//
+//        public int describeContents(){
+//            return 0;
+//        }
+//
+//        @Override
+//        public void writeToParcel(Parcel dest, int flags) {
+//            dest.writeStringArray(new String[] {this.url,
+//                    this.length,
+//                    this.type});
+//
+//        }
+//
+//        public static final Parcelable.Creator<Enclosure> CREATOR
+//                = new Parcelable.Creator<Enclosure>() {
+//            public Enclosure createFromParcel(Parcel in) {
+//                return new Enclosure(in);
+//            }
+//
+//            public Enclosure[] newArray(int size) {
+//                return new Enclosure[size];
+//            }
+//        };
 //    }
 //
 //
@@ -91,6 +139,15 @@
 //        this.title = title;
 //    }
 //
+//    public String getTitle() {
+//        if(title == null) {
+//            return "";
+//        } else {
+//            return title;
+//        }
+//    }
+//
+//
 //    public void setDescription(String description) {
 //        this.description = description;
 //    }
@@ -103,7 +160,10 @@
 //    public List<MediaContentTEST> content;
 //
 //    @Root(name = "content", strict=false)
-//    public static class MediaContentTEST {
+//    public static class MediaContentTEST implements Parcelable {
+//
+//        public MediaContentTEST(){}
+//
 //        @Attribute(name = "url", required = false)
 //        public String url;
 //
@@ -131,15 +191,60 @@
 //        public String getDescription() {
 //            return description;
 //        }
+//
+//
+//        // Parcelling part
+//        private MediaContentTEST(Parcel in){
+//
+//            thumbnail = in.readParcelable(getClass().getClassLoader());
+//
+//            String[] datafirst = new String[3];
+//            in.readStringArray(datafirst);
+//            this.url = datafirst[0];
+//            this.medium = datafirst[1];
+//            this.description = datafirst[2];
+//
+//
+//        }
+//
+//        public int describeContents(){
+//            return 0;
+//        }
+//
+//        @Override
+//        public void writeToParcel(Parcel dest, int flags) {
+//
+//            dest.writeParcelable(this.thumbnail,flags);
+//            dest.writeStringArray(new String[] {this.url,
+//                    this.medium,
+//                    this.description});
+//
+//        }
+//
+//        public static final Parcelable.Creator<MediaContentTEST> CREATOR
+//                = new Parcelable.Creator<MediaContentTEST>() {
+//            public MediaContentTEST createFromParcel(Parcel in) {
+//                return new MediaContentTEST(in);
+//            }
+//
+//            public MediaContentTEST[] newArray(int size) {
+//                return new MediaContentTEST[size];
+//            }
+//        };
 //    }
 //
-//    /** In the BBC Feeds they do not have media:content ROOT with media:thumbnail children
+//    /* NOTE: In the BBC Feeds they do not have media:content ROOT with media:thumbnail children
 //     *  Instead they have the media:thumbnail as an element
-//     * **/
+//     * */
 //    @ElementList(name = "thumbnail", inline = true, required = false)
 //    List<MediaContentThumbnail> thumbnailList;
+//
+//
 //    @Root(name = "thumbnail", strict = false)
-//    public static class MediaContentThumbnail {
+//    public static class MediaContentThumbnail implements Parcelable {
+//
+//        public MediaContentThumbnail(){}
+//
 //        @Attribute(required = false)
 //        public String url;
 //
@@ -155,6 +260,43 @@
 //        public String getUrl() {
 //            return url;
 //        }
+//
+//
+//        // Parcelling part
+//        private MediaContentThumbnail(Parcel in){
+//            String[] datafirst = new String[4];
+//
+//            in.readStringArray(datafirst);
+//            this.url = datafirst[0];
+//            this.medium = datafirst[1];
+//            this.width = datafirst[2];
+//            this.height = datafirst[3];
+//        }
+//
+//        public int describeContents(){
+//            return 0;
+//        }
+//
+//        @Override
+//        public void writeToParcel(Parcel dest, int flags) {
+//
+//            dest.writeStringArray(new String[] {this.url,
+//                    this.medium,
+//                    this.width,
+//                    this.height});
+//        }
+//
+//        public static final Parcelable.Creator<MediaContentThumbnail> CREATOR
+//                = new Parcelable.Creator<MediaContentThumbnail>() {
+//            public MediaContentThumbnail createFromParcel(Parcel in) {
+//                return new MediaContentThumbnail(in);
+//            }
+//
+//            public MediaContentThumbnail[] newArray(int size) {
+//                return new MediaContentThumbnail[size];
+//            }
+//        };
+//
 //    }
 //
 //    public List<MediaContentThumbnail> getThumbnailList() {
@@ -165,34 +307,6 @@
 //    public List<MediaContentTEST> getContent() {
 //        return content;
 //    }
-//    public String getTitle() {
-//        return title;
-//
-//    }
-//
-//    public String getLink() {
-//        return link;
-//    }
-//
-//    public String getAuthor() {
-//        return author;
-//    }
-//
-//    public String getCategory() {
-//        return category;
-//    }
-//
-////    public String getEnclosureLink() {
-////        return enclosureLink;
-////    }
-////
-////    public Integer getEnclosureLength() {
-////        return enclosureLength;
-////    }
-////
-////    public String getEnclosureType() {
-////        return enclosureType;
-////    }
 //
 //    public String getPubDate() {
 //        return pubDate;
@@ -201,8 +315,16 @@
 //
 //    // Parcelling part
 //    private Item(Parcel in){
-//        String[] datafirst = new String[10];
 //
+//        this.content = new ArrayList<>();
+//        in.readList(content,getClass().getClassLoader());
+//        this.thumbnailList = new ArrayList<>();
+//        in.readList(thumbnailList,getClass().getClassLoader());
+//
+//
+//        this.enclosure = in.readParcelable(getClass().getClassLoader());
+//
+//        String[] datafirst = new String[9];
 //        in.readStringArray(datafirst);
 //        this.title = datafirst[0];
 //        this.link = datafirst[1];
@@ -210,7 +332,6 @@
 //        this.author = datafirst[3];
 //        this.category = datafirst[4];
 //        this.comments = datafirst[5];
-//        this.enclosure.url = datafirst[6];
 //        this.guid = datafirst[7];
 //        this.pubDate = datafirst[8];
 //    }
@@ -221,6 +342,9 @@
 //
 //    @Override
 //    public void writeToParcel(Parcel dest, int flags) {
+//        dest.writeList(this.content);
+//        dest.writeList(this.thumbnailList);
+//        dest.writeParcelable(this.enclosure,flags);
 //
 //        dest.writeStringArray(new String[] {this.title,
 //                this.link,
@@ -228,10 +352,11 @@
 //                this.author,
 //                this.category,
 //                this.comments,
-//                this.enclosure.url,
 //                this.guid,
 //                this.pubDate,
 //                this.source});
+//
+//
 //    }
 //
 //    public static final Parcelable.Creator<Item> CREATOR
@@ -244,6 +369,5 @@
 //            return new Item[size];
 //        }
 //    };
-//
 //
 //}

@@ -23,6 +23,8 @@ import java.util.List;
 
 import rx.functions.Action1;
 
+import static com.inshodesign.bossrss.MainActivity.isUniqueClick;
+
 public class MainFragment extends Fragment {
     OnFragmentInteractionListener mCallback;
     private long mLastClickTime = 0;
@@ -90,13 +92,13 @@ public class MainFragment extends Fragment {
                         @Override
                         public void call(Object event) {
 
-                            if(!isUniqueClick(750)) {
-                                return;
+                            if(isUniqueClick(750,mLastClickTime)) {
+                                if(event instanceof RSSList) {
+                                    RSSList rssList = (RSSList) event;
+                                    mCallback.getRSSFeed(rssList.getURL());
+                                }
                             }
-                            if(event instanceof RSSList) {
-                                RSSList rssList = (RSSList) event;
-                                mCallback.getRSSFeed(rssList.getURL());
-                            }
+
                         }
 
                     });
@@ -105,15 +107,15 @@ public class MainFragment extends Fragment {
                     .subscribe(new Action1<Object>() {
                         @Override
                         public void call(Object event) {
-                            if(!isUniqueClick(750)) {
-                                return;
+                            if(isUniqueClick(750,mLastClickTime)) {
+                                if(event instanceof RSSList) {
+                                    RSSList rssList = (RSSList) event;
+                                    mCallback.showRemoveDialog(rssList.getURL());
+
+                                }
                             }
 
-                            if(event instanceof RSSList) {
-                                RSSList rssList = (RSSList) event;
-                                mCallback.showRemoveDialog(rssList.getURL());
 
-                            }
                         }
 
                     });
@@ -140,21 +142,21 @@ public class MainFragment extends Fragment {
     }
 
 
-    /**
-     * Checks how many milliseconds have elapsed since the last time "mLastClickTime" was updated
-     * If enough time has elapsed, returns True and updates mLastClickTime.
-     * This is to stop unwanted rapid clicks of the same button
-     * @param elapsedMilliSeconds threshold of elapsed milliseconds before a new button click is allowed
-     * @return bool True if enough time has elapsed, false if not
-     */
-    public boolean isUniqueClick(int elapsedMilliSeconds) {
-        if(SystemClock.elapsedRealtime() - mLastClickTime > elapsedMilliSeconds) {
-            mLastClickTime = SystemClock.elapsedRealtime();
-            return true;
-        } else {
-            return false;
-        }
-    }
+//    /**
+//     * Checks how many milliseconds have elapsed since the last time "mLastClickTime" was updated
+//     * If enough time has elapsed, returns True and updates mLastClickTime.
+//     * This is to stop unwanted rapid clicks of the same button
+//     * @param elapsedMilliSeconds threshold of elapsed milliseconds before a new button click is allowed
+//     * @return bool True if enough time has elapsed, false if not
+//     */
+//    public boolean isUniqueClick(int elapsedMilliSeconds) {
+//        if(SystemClock.elapsedRealtime() - mLastClickTime > elapsedMilliSeconds) {
+//            mLastClickTime = SystemClock.elapsedRealtime();
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 
 }
 

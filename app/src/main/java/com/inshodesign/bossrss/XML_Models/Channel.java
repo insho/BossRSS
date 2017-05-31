@@ -28,6 +28,7 @@ public class Channel {
     @ElementList(entry = "link", inline = true, required = false)
     public List<Link> links;
 
+
     @ElementList(name = "item", inline = true)
     public List<Item> itemList;
 
@@ -86,6 +87,8 @@ public class Channel {
                 '}';
     }
 
+
+
     public static class Link {
         @Attribute(required = false)
         public String href;
@@ -109,6 +112,7 @@ public class Channel {
         String title;//The title of the item.	Venice Film Festival Tries to Quit Sinking
         @Element(name = "link", required = true)
         public String link;//The URL of the item.	http://www.nytimes.com/2002/09/07/movies/07FEST.html
+        public String getLink() {return link;}
 
         @Element(name = "description", required = true)
         String description;//The item synopsis.	Some of the most heated chatter at the Venice Film Festival this week was about the way that the arrival of the stars at the Palazzo del Cinema was being staged.
@@ -224,6 +228,7 @@ public class Channel {
                 return title;
             }
         }
+
 
         public void setDescription(String description) {
             this.description = description;

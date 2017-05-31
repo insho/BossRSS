@@ -2,6 +2,7 @@
 package com.inshodesign.bossrss.Adapters;
 
         import android.content.Context;
+        import android.content.Intent;
         import android.support.v7.widget.RecyclerView;
         import android.text.SpannableString;
         import android.text.method.LinkMovementMethod;
@@ -15,8 +16,6 @@ package com.inshodesign.bossrss.Adapters;
         import android.widget.TextView;
         import com.inshodesign.bossrss.R;
         import com.inshodesign.bossrss.Models.AudioStream;
-//        import com.inshodesign.bossrss.Models.ParcebleItem;
-//        import com.inshodesign.bossrss.XML_Models.Item;
         import com.inshodesign.bossrss.XML_Models.Channel;
         import com.squareup.picasso.Picasso;
 
@@ -75,51 +74,23 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
-        Log.i("TEST","item null: " + (mDataset == null));
-        Log.i("TEST","item pos null: " + (mDataset.get(holder.getAdapterPosition()) == null));
-        Log.i("TEST","item pos enclosure null: " + (mDataset.get(holder.getAdapterPosition()).getEnclosure() == null));
-        Log.i("TEST","item pos getDescription null: " + (mDataset.get(holder.getAdapterPosition()).getDescription() == null));
-        Log.i("TEST","item pos getContent null: " + (mDataset.get(holder.getAdapterPosition()).getContent() == null));
-        Log.i("TEST","item pos getThumbnailList null: " + (mDataset.get(holder.getAdapterPosition()).getThumbnailList() == null));
-
-
-
-
         holder.btnPlay.setVisibility(View.GONE);
 
-
-        Channel.Item rssItem = mDataset.get(holder.getAdapterPosition());
+        final Channel.Item rssItem = mDataset.get(holder.getAdapterPosition());
         String title = rssItem.getTitle();
 
-        /** If there is an image icon, show it**/
-        String url;
-        if(rssItem.getEnclosure() != null &&
+//        String url;
+        if(rssItem.getLink() != null) {
+            linkifyTextView(holder.txtTitle,title,rssItem.getLink());
+        } else if(rssItem.getEnclosure() != null &&
                 rssItem.getEnclosure().getUrl() != null ) {
-            url = rssItem.getEnclosure().getUrl();
 
-            SpannableString text = new SpannableString(title);
-            text.setSpan(new URLSpan(url), 0, title.length(), 0);
-            holder.txtTitle.setMovementMethod(LinkMovementMethod.getInstance());
-            holder.txtTitle.setText(text, TextView.BufferType.SPANNABLE);
+            linkifyTextView(holder.txtTitle,title,rssItem.getEnclosure().getUrl());
 
-
-
-            /** If the item is music, show the music player **/
-            if(mDataset.get(holder.getAdapterPosition()).getEnclosure().getType() != null
-                    && mDataset.get(holder.getAdapterPosition()).getEnclosure().getType().contains("audio")) {
-                holder.btnPlay.setVisibility(View.VISIBLE);
-
-                /** Click play to activate media controller in main activity */
-                holder.btnPlay.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mRxBus.send(new AudioStream(holder.getAdapterPosition(),mDataset.get(holder.getAdapterPosition()).getEnclosure().getUrl(),true,mDataset.get(holder.getAdapterPosition()).getEnclosure().getLength()));
-                    }
-                });
-
-            }
-
-
+//            SpannableString text = new SpannableString(title);
+//            text.setSpan(new URLSpan(rssItem.getEnclosure().getUrl()), 0, title.length(), 0);
+//            holder.txtTitle.setMovementMethod(LinkMovementMethod.getInstance());
+//            holder.txtTitle.setText(text, TextView.BufferType.SPANNABLE);
 
         } else {
             holder.txtTitle.setText(title);
@@ -131,16 +102,40 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
             holder.txtDate.setText(rssItem.getPubDate());
         }
 
+        /** If the item is music, show the music player **/
+        if(rssItem.getEnclosure().getType() != null
+                && rssItem.getEnclosure().getType().contains("audio")) {
+            holder.btnPlay.setVisibility(View.VISIBLE);
+
+            /** Click play to activate media controller in main activity */
+            holder.btnPlay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mRxBus.send(new AudioStream(holder.getAdapterPosition()
+                            ,rssItem.getEnclosure().getUrl()
+                            ,true
+                            ,rssItem.getEnclosure().getLength()));
+                }
+            });
+
+        }
+
         //Add image if possible
         if(rssItem.getContent()!=null && rssItem.getContent().size()>0) {
             if(rssItem.getContent().get(0).getUrl() != null) {
-                holder.image.setVisibility(View.VISIBLE);
-                Picasso.with(mContext).load(rssItem.getContent().get(0).getUrl())
-                        .into(holder.image);
-            } else if(rssItem.getContent().get(0).getThumbnail() != null)  {
-                holder.image.setVisibility(View.VISIBLE);
-                Picasso.with(mContext).load(rssItem.getContent().get(0).getThumbnail().getUrl())
-                        .into(holder.image);
+//                holder.image.setVisibility(View.VISIBLE);
+//                Picasso.with(mContext).load(rssItem.getContent().get(0).getUrl())
+//                        .into(holder.image);
+
+                loadAndLinkPicture(holder.image,rssItem.getContent().get(0).getUrl());
+
+            } else if(rssItem.getContent().get(0).getThumbnail() != null &&
+                    rssItem.getContent().get(0).getThumbnail().getUrl() != null )  {
+//                holder.image.setVisibility(View.VISIBLE);
+//                Picasso.with(mContext).load(rssItem.getContent().get(0).getThumbnail().getUrl())
+//                        .into(holder.image);
+                loadAndLinkPicture(holder.image,rssItem.getContent().get(0).getThumbnail().getUrl());
+
             } else {
                 holder.image.setVisibility(View.GONE);
             }
@@ -158,10 +153,27 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 
 
         }
+    }
 
 
+    private void loadAndLinkPicture(ImageView image, final String imageUrl){
+        image.setVisibility(View.VISIBLE);
+        Picasso.with(mContext).load(imageUrl)
+                .into(image);
 
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRxBus.send(imageUrl);
+            }
+        });
+    }
 
+    private void linkifyTextView(TextView textView, String text, String linkUrl) {
+        SpannableString linkedText = new SpannableString(text);
+        linkedText.setSpan(new URLSpan(linkUrl), 0, text.length(), 0);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+        textView.setText(linkedText, TextView.BufferType.SPANNABLE);
     }
 
     @Override

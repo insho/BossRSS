@@ -2,6 +2,8 @@
 package com.inshodesign.bossrss.Fragments;
 
         import android.content.Context;
+        import android.content.Intent;
+        import android.net.Uri;
         import android.os.Bundle;
         import android.os.SystemClock;
         import android.support.annotation.NonNull;
@@ -27,6 +29,8 @@ package com.inshodesign.bossrss.Fragments;
         import java.util.ArrayList;
 
         import rx.functions.Action1;
+
+        import static com.inshodesign.bossrss.MainActivity.isUniqueClick;
 
 public class RSSItemsFragment extends Fragment {
 
@@ -84,17 +88,22 @@ public class RSSItemsFragment extends Fragment {
                     @Override
                     public void call(Object event) {
 
-                        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){
-                            return;
-                        }
-                        mLastClickTime = SystemClock.elapsedRealtime();
+                       if(isUniqueClick(750,mLastClickTime)) {
+                           if(event instanceof AudioStream) {
+                               AudioStream audioStream = (AudioStream) event;
+                               mCallback.playAudio(audioStream);
 
-                        /** Stupid way of differentiating between short and long clicks... **/
-                        if(event instanceof AudioStream) {
-                            AudioStream audioStream = (AudioStream) event;
-                            mCallback.playAudio(audioStream);
+                           } else if(event instanceof String) {
+                               // Follow the link, to image url or the story
+                               Intent intent = new Intent();
+                               intent.setAction(Intent.ACTION_VIEW);
+                               intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                               intent.setData(Uri.parse((String) event));
+                               startActivity(intent);
+                           }
 
-                        }
+                       }
+
                     }
 
                 });

@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -209,8 +210,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                 .subscribe(new Subscriber<RSS>() {
 
                     ArrayList<Channel.Item> items =  new ArrayList<>();
-
-                        RSSList rssList = new RSSList(feedURL);
+                    RSSList rssList = new RSSList(feedURL);
 
                     @Override
                     public void onCompleted() {
@@ -241,20 +241,39 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                         Log.d(TAG, "onNext() called with: rss = [" + rss + "]");
                         if (rss.getChannel() != null) {
 
-                            /** Assign a title for the feed to the RSSList object */
-                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && !rssList.hasTitle()) {
-                                rssList.setTitle(rss.getChannel().getTitle());
+                            /* If the current RSS list item that is saved in the db has blank columns
+                            * for title/image etc, pull them from the Channel xml response, assign them to the
+                            * rssList object for this RSS list, and update the database entry for the list in the onComplete method */
+                            if (!rssListValuesAlreadyExist) {
+
+                                //Set RSSList title
+                                if(!rssList.hasTitle() && rss.getChannel().getTitle()!=null) {
+                                    rssList.setTitle(rss.getChannel().getTitle());
+                                }
+                                //Set RSSList title
+                                if(!rssList.hasImageURL()) {
+                                    try {
+                                        rssList.setImageURL(rss.getChannel().getImageList().get(0).getUrl());
+                                    } catch (NullPointerException e) {
+                                        Log.e(TAG,"Nullpointer in assigning rssList image url");
+                                    }
+                                }
+
+
                             }
+//                            /** Assign a title for the feed to the RSSList object */
+//                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && !rssList.hasTitle()) {
+//                                rssList.setTitle(rss.getChannel().getTitle());
+//                            }
+//
+//                            /** Get Main Feed imageURL*/
+//                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && rss.getChannel().getImageList().get(0) != null && rss.getChannel().getImageList().get(0).getUrl() != null) {
+//                                rssList.setImageURL(rss.getChannel().getImageList().get(0).getUrl());
+//                            }
 
-                            /** Get Main Feed imageURL*/
-                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && rss.getChannel().getImageList().get(0) != null && rss.getChannel().getImageList().get(0).getUrl() != null) {
-                                rssList.setImageURL(rss.getChannel().getImageList().get(0).getUrl());
-                            }
 
-
-                            /**** Assign items list to "items" to be passed through to fragment in OnComplete somewhat redundant ***/
                             if (rss.getChannel() != null) {
-                                items = new ArrayList<Channel.Item>(rss.getChannel().getItemList());
+
                             }
 
                         }
@@ -430,6 +449,25 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
         }
     }
+
+
+    /**
+     * Checks how many milliseconds have elapsed since the last time "mLastClickTime" was updated
+     * If enough time has elapsed, returns True and updates mLastClickTime.
+     * This is to stop unwanted rapid clicks of the same button
+     * @param elapsedMilliSeconds threshold of elapsed milliseconds before a new button click is allowed
+     * @return bool True if enough time has elapsed, false if not
+     */
+    public static boolean isUniqueClick(int elapsedMilliSeconds, long lastClickTime) {
+        if(SystemClock.elapsedRealtime() - lastClickTime > elapsedMilliSeconds) {
+            lastClickTime = SystemClock.elapsedRealtime();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
 
     /** Audio stuff **/
     public void playAudio(AudioStream audioStream) {
