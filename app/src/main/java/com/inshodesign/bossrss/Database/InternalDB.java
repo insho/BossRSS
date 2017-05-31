@@ -38,6 +38,7 @@ public class InternalDB extends SQLiteOpenHelper {
 
     public static final String TABLE_MAIN = "RSSFeeds";
 
+    public static final String COL_ID = "_id";
     public static final String COL0_URL = "URL";
     public static final String COL1_TITLE = "Title";
     public static final String COL2_IMAGE_URL = "ImageURL";
@@ -64,10 +65,12 @@ public class InternalDB extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqlDB) {
         String sqlQueryMain =
                 String.format("CREATE TABLE IF NOT EXISTS %s (" +
-                                "%s TEXT PRIMARY KEY, " +
+                                "%s INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                                "%s TEXT, " +
                                 "%s TEXT, " +
                                 "%s TEXT, " +
                                 "%s TEXT)", TABLE_MAIN,
+                        COL_ID,
                         COL0_URL,
                         COL1_TITLE,
                         COL2_IMAGE_URL,
@@ -143,13 +146,30 @@ public class InternalDB extends SQLiteOpenHelper {
     }
 
     /**
-     * Removes an RSS feed from the database
+     * Removes an RSS feed from the database, and deletes its icon from the icons folder
      * @param removeUrl url of row to delete (pkey in db)
      * @return bool true if delete was successful, false if error occurred
      */
-    public boolean deletedRSSFeed(String removeUrl) {
+    public boolean deletedRSSFeed(Context context, String removeUrl) {
         try {
+            //Firstly delete icon (icon file name is the row id # in the db, so icon delete must occur before row is removed)
+            final int savedImgTitle = getRowIDforURL(removeUrl);
+            if(savedImgTitle>=0) {
+                ContextWrapper cw = new ContextWrapper(context);
+                File directory = cw.getDir("icons", Context.MODE_PRIVATE);
+
+                for (File file : directory.listFiles()) {
+                    Uri uri = Uri.fromFile(file);
+                    Log.i(TAG,"FILE: " + uri);
+                    if(String.valueOf(savedImgTitle).equals(uri.toString())) {
+                        Log.i(TAG,"FILE DELETE!");
+                        file.delete();
+                    }
+                }
+            }
+
             sInstance.getWritableDatabase().delete(TABLE_MAIN, COL0_URL + "= ?", new String[]{removeUrl});
+
             return true;
         } catch (SQLiteException e) {
             Log.e(TAG,"InternalDB deleteRSSFeed sqlite error " + e.getCause());
@@ -213,61 +233,87 @@ public class InternalDB extends SQLiteOpenHelper {
     /**
      * Inserts the URI link to the location in the phone of a saved RSS feed's icon image
      * @param URI URI of saved image
-     * @param url url of saved image (pkey for row in database)
+     * @param imageTitle title of saved image (row number of rss item in db)
      */
-    private void addIconImageFilePathURItoDB(String URI, String url) {
-        if(BuildConfig.DEBUG){Log.d(TAG,"URI VALUE: " + url + " - " + URI);}
+    private void addIconImageFilePathURItoDB(String URI, String imageTitle) {
+        if(BuildConfig.DEBUG){Log.d(TAG,"URI VALUE: " + imageTitle + " - " + URI);}
         ContentValues values = new ContentValues();
         values.put(COL3_IMAGE_FILE_PATH, URI);
-        sInstance.getWritableDatabase().update(TABLE_MAIN, values, COL0_URL + "= ?", new String[] {url});
+        sInstance.getWritableDatabase().update(TABLE_MAIN, values, COL_ID + "= ?", new String[] {imageTitle});
     }
 
 
     /**
      * Takes the url of an icon image from a saved RSS list, downloads the image with picasso
      * and saves it to a file on the phone
-     * @param imageUrl Url of icon image
-     * @param rssFeedUrl url of saved rss feed
+     *
+     * Note: Using the row number of the item as title of saved img  {@link #getRowIDforURL(String)}
+     *
+     * @param rssList RSSList object for list icon that is being downloaded. RSSList URL is used
+     *                to determine the row number of the RSSList in the db. RSSLIst Image URL is the one
+     *                downloaded by picasso and saved
      */
-    public void downloadRSSListIcon(final Context context, final String imageUrl, final String rssFeedUrl) {
+    public void downloadRSSListIcon(final Context context, final RSSList rssList) {
+        final int savedImgTitle = getRowIDforURL(rssList.getURL());
+        if(savedImgTitle>=0 && rssList.getImageURL() != null) {
+            Picasso.with(context).load(rssList.getImageURL()).into(new Target() {
+                @Override
+                public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                    new Thread(new Runnable() {
 
-        Picasso.with(context).load(imageUrl).into(new Target() {
-            @Override
-            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-                new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            File file = checkForImagePath(context, imageUrl);
-                            if(!file.exists()) {
-                                FileOutputStream ostream = new FileOutputStream(file);
-                                bitmap.compress(Bitmap.CompressFormat.PNG, 100, ostream);
-                                ostream.flush();
-                                ostream.close();
+                        @Override
+                        public void run() {
+                            try {
+                                File file = checkForImagePath(context, String.valueOf(savedImgTitle));
+                                if(!file.exists()) {
+                                    FileOutputStream ostream = new FileOutputStream(file);
+                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, ostream);
+                                    ostream.flush();
+                                    ostream.close();
+                                }
+                                Uri uri = Uri.fromFile(file);
+                                addIconImageFilePathURItoDB(uri.toString(),String.valueOf(savedImgTitle));
+                            } catch (IOException e) {
+                                Log.e(TAG, "IOException" + e.getLocalizedMessage());
+                            } catch (NullPointerException n) {
+                                Log.e(TAG,"Nullpointer exception on downloadRSSListIcon " +n.getCause());
                             }
-
-                            Uri uri = Uri.fromFile(file);
-                            addIconImageFilePathURItoDB(uri.toString(),rssFeedUrl);
-                        } catch (IOException e) {
-                            Log.e("IOException", e.getLocalizedMessage());
                         }
-                    }
-                }).start();
+                    }).start();
 
-            }
-            @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
+                }
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
 
-            }
+                }
 
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
 
-            }
-        });
+                }
+            });
+
+        } else {
+            Log.e(TAG,"Cant get row number for img: " + rssList.getURL() + " /" + rssList.getImageURL());
+        }
+
     }
 
+
+    private int getRowIDforURL(String url) {
+
+        String queryRecordExists = "Select _id From " + TABLE_MAIN + " where " + COL0_URL + " = ?" ;
+        Cursor c = sInstance.getReadableDatabase().rawQuery(queryRecordExists, new String[]{url.trim()});
+        int result;
+        if (c.moveToFirst()) {
+            //A record already exists, so return -2
+            result = c.getInt(0);
+        } else {
+            result = -1;
+        }
+        c.close();
+        return result;
+    }
 
 
     /**

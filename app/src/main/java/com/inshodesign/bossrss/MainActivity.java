@@ -1,5 +1,5 @@
 package com.inshodesign.bossrss;
-
+//TODO handle subscription cancel and resume
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -8,8 +8,10 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,9 +35,10 @@ import com.inshodesign.bossrss.Interfaces.RemoveRSSDialogListener;
 import com.inshodesign.bossrss.Models.AudioStream;
 import com.inshodesign.bossrss.XML_Models.Channel;
 //import com.inshodesign.bossrss.Models.ParcebleItem;
+import com.inshodesign.bossrss.XML_Models.Item;
 import com.inshodesign.bossrss.XML_Models.RSS;
 import com.inshodesign.bossrss.Models.RSSList;
-//import com.inshodesign.bossrss.XML_Models.Item;
+//import com.inshodesign.bossrss.XML_Models.ChannelItem;
 
 import java.util.ArrayList;
 
@@ -64,21 +67,25 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         new InternalDB(this);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new MainFragment(), "mainfragment")
-                    .commit();
-        }
+        setContentView(R.layout.activity_main);
 
         // Handle a URL intent from web, if user is on RSS feed there
         Intent intent = getIntent();
         if (intent.getAction().equals(Intent.ACTION_SEND)) {
+            getWindow().getDecorView().setBackgroundResource(android.R.color.transparent);
             String url = intent.getStringExtra(Intent.EXTRA_TEXT);
             if(url != null) {
                saveRSSFeed(url.trim(),true);
                finish();
+            }
+        } else {
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, new MainFragment(), "mainfragment")
+                        .commit();
             }
         }
     }
@@ -209,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<RSS>() {
 
-                    ArrayList<Channel.Item> items =  new ArrayList<>();
+                    ArrayList<Item> items =  new ArrayList<>();
                     RSSList rssList = new RSSList(feedURL);
 
                     @Override
@@ -224,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                             Log.i(TAG,rssList.getImageURL());
                             InternalDB.getInstance(getBaseContext()).addTitleandImageURLtoDB(rssList.getURL(),rssList.getTitle(),rssList.getImageURL());
                             // Ty to download the image icon and save it
-                            InternalDB.getInstance(getBaseContext()).downloadRSSListIcon(getBaseContext(),rssList.getImageURL(),rssList.getURL());
+                            InternalDB.getInstance(getBaseContext()).downloadRSSListIcon(getBaseContext(),rssList);
                         }
                     }
 
@@ -232,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                     @Override
                     public void onError(final Throwable e) {
                         Log.e(TAG, "onError() called with: e = [" + e + "]");
+
                         showProgressBar(false);
                         Toast.makeText(getBaseContext(), "Could not retrieve feed", Toast.LENGTH_SHORT).show();
                     }
@@ -241,15 +249,16 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                         Log.d(TAG, "onNext() called with: rss = [" + rss + "]");
                         if (rss.getChannel() != null) {
 
+
                             /* If the current RSS list item that is saved in the db has blank columns
                             * for title/image etc, pull them from the Channel xml response, assign them to the
                             * rssList object for this RSS list, and update the database entry for the list in the onComplete method */
-                            if (!rssListValuesAlreadyExist) {
 
                                 //Set RSSList title
                                 if(!rssList.hasTitle() && rss.getChannel().getTitle()!=null) {
                                     rssList.setTitle(rss.getChannel().getTitle());
                                 }
+
                                 //Set RSSList title
                                 if(!rssList.hasImageURL()) {
                                     try {
@@ -260,21 +269,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
                                 }
 
 
-                            }
-//                            /** Assign a title for the feed to the RSSList object */
-//                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && !rssList.hasTitle()) {
-//                                rssList.setTitle(rss.getChannel().getTitle());
-//                            }
-//
-//                            /** Get Main Feed imageURL*/
-//                            if (!rssListValuesAlreadyExist && rss.getChannel() != null && rss.getChannel().getImageList().get(0) != null && rss.getChannel().getImageList().get(0).getUrl() != null) {
-//                                rssList.setImageURL(rss.getChannel().getImageList().get(0).getUrl());
-//                            }
-
-
-                            if (rss.getChannel() != null) {
-
-                            }
+                            items = new ArrayList<>(rss.getChannel().getItemList());
 
                         }
                     }
@@ -284,24 +279,33 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
     }
 
 
-    public void showRSSListFragment(RSSList rssList,ArrayList<Channel.Item> items) {
+    public void showRSSListFragment(RSSList rssList,ArrayList<Item> items) {
 
         /** Convert items that aren't parceble to the parceble class... **/
 //        ArrayList<ParcebleItem> parcebleItems = new ArrayList<>();
-//        ArrayList<Item> parcebleItems = new ArrayList<>();
+//        ArrayList<ChannelItem> parcebleItems = new ArrayList<>();
 //
-//        for (Channel.Item item: items) {
+//        for (Channel.ChannelItem item: items) {
 //            parcebleItems.add(new ParcebleItem(item));
 //        }
 
+//        Log.i(TAG,"BEFORE BACKSTACK count: " + getSupportFragmentManager().getBackStackEntryCount());
         rssItemsFragment = RSSItemsFragment.newInstance(rssList.getTitle(),rssList.getURL(),rssList.getImageURL(), items);
         getSupportFragmentManager().beginTransaction()
-                .addToBackStack("mainfragment")
+                .addToBackStack("rssItemsFragment")
                 .replace(R.id.container, rssItemsFragment,"rssItemsFragment")
                 .commit();
+
+//        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//        //Add an entry to the backstack
+//        transaction.addToBackStack(null);
+//        transaction.replace(R.id.container, rssItemsFragment, "rssItemsFragment");
+//        transaction.commit();
+        getSupportFragmentManager().executePendingTransactions();
+
         showActionBarBackButton(true, rssList.getTitle());
 
-
+        Log.i(TAG," AFTER Backstack count: " + getSupportFragmentManager().getBackStackEntryCount());
     }
 
     /**
@@ -322,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
      */
     public void onRemoveRSSDialogPositiveClick(String rssUrl) {
 
-        boolean deleteSuccessful = InternalDB.getInstance(getBaseContext()).deletedRSSFeed(rssUrl);
+        boolean deleteSuccessful = InternalDB.getInstance(getBaseContext()).deletedRSSFeed(getBaseContext(),rssUrl);
         if (deleteSuccessful) {
             updateRSSListFragment();
         } else {
@@ -334,15 +338,18 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
 
     @Override
     public void onBackPressed() {
+        showActionBarBackButton(false,"BossRSS");
         super.onBackPressed();
+//        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+////        Log.i(TAG,"Backstack count: " + backStackEntryCount);
+//        if (backStackEntryCount > 0)
+//        {
+//            showActionBarBackButton(true,"BossRSS");
+////            getSupportFragmentManager().popBackStack();
+//        } else {
+//            showActionBarBackButton(true,"BossRSS");
+//        }
 
-        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
-        Log.i(TAG,"Backstack count: " + backStackEntryCount);
-        if (backStackEntryCount > 0) {
-            getSupportFragmentManager().popBackStack();
-        } else {
-            finish();
-        }
 
     }
 
@@ -366,7 +373,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
      * @param title title to show next to button
      */
     public void showActionBarBackButton(Boolean showBack, CharSequence title) {
-
+        Log.i(TAG,"TITLE: " + title);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(showBack);
             getSupportActionBar().setDisplayShowTitleEnabled(true);
@@ -460,7 +467,6 @@ public class MainActivity extends AppCompatActivity implements OnFragmentInterac
      */
     public static boolean isUniqueClick(int elapsedMilliSeconds, long lastClickTime) {
         if(SystemClock.elapsedRealtime() - lastClickTime > elapsedMilliSeconds) {
-            lastClickTime = SystemClock.elapsedRealtime();
             return true;
         } else {
             return false;

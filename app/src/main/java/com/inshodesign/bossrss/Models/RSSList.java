@@ -9,7 +9,7 @@ public class RSSList {
     private String title;
     private String imageURL;
     private String imageURI;
-    private Bitmap bitmap;
+//    private Bitmap bitmap;
     private String URL;
 
     public RSSList(String _URL) {
@@ -20,7 +20,7 @@ public class RSSList {
         this.title = title;
         this.imageURL = _imageURL;
         this.imageURI = _imageURI;
-        this.bitmap = _bitmap;
+//        this.bitmap = _bitmap;
         this.URL = _URL;
     }
     public RSSList() {
@@ -74,16 +74,16 @@ public class RSSList {
         return (imageURI != null);
     }
 
-    public Bitmap getBitmap() {
-        return bitmap;
-    }
-
-    public void setBitmap(Bitmap bitmap) {
-        this.bitmap = bitmap;
-    }
-
-    public boolean hasBitmap() {
-        return (bitmap != null);
-    }
+//    public Bitmap getBitmap() {
+//        return bitmap;
+//    }
+//
+//    public void setBitmap(Bitmap bitmap) {
+//        this.bitmap = bitmap;
+//    }
+//
+//    public boolean hasBitmap() {
+//        return (bitmap != null);
+//    }
 
 }

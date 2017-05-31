@@ -2,12 +2,10 @@
 package com.inshodesign.bossrss.Adapters;
 
         import android.content.Context;
-        import android.content.Intent;
         import android.support.v7.widget.RecyclerView;
         import android.text.SpannableString;
         import android.text.method.LinkMovementMethod;
         import android.text.style.URLSpan;
-        import android.util.Log;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
@@ -16,14 +14,14 @@ package com.inshodesign.bossrss.Adapters;
         import android.widget.TextView;
         import com.inshodesign.bossrss.R;
         import com.inshodesign.bossrss.Models.AudioStream;
-        import com.inshodesign.bossrss.XML_Models.Channel;
+        import com.inshodesign.bossrss.XML_Models.Item;
         import com.squareup.picasso.Picasso;
 
         import java.util.ArrayList;
 
-public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.ViewHolder> {
+public class RSSItemsAdapter extends RecyclerView.Adapter<RSSItemsAdapter.ViewHolder> {
 
-    private ArrayList<Channel.Item> mDataset;
+    private ArrayList<Item> mDataset;
     private Context mContext;
     private RxBus mRxBus;
 
@@ -55,15 +53,15 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
         }
     }
 
-    public RSSContentsAdapter(ArrayList<Channel.Item> myDataset, RxBus rxBus, Context context) {
+    public RSSItemsAdapter(ArrayList<Item> myDataset, RxBus rxBus, Context context) {
         mDataset = myDataset;
         mRxBus = rxBus;
         mContext = context;
     }
 
     @Override
-    public RSSContentsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                        int viewType) {
+    public RSSItemsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                         int viewType) {
 
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_rssitems_recycler_row, parent, false);
         return new ViewHolder(v);
@@ -76,7 +74,7 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
 
         holder.btnPlay.setVisibility(View.GONE);
 
-        final Channel.Item rssItem = mDataset.get(holder.getAdapterPosition());
+        final Item rssItem = mDataset.get(holder.getAdapterPosition());
         String title = rssItem.getTitle();
 
 //        String url;
@@ -103,7 +101,8 @@ public class RSSContentsAdapter extends RecyclerView.Adapter<RSSContentsAdapter.
         }
 
         /** If the item is music, show the music player **/
-        if(rssItem.getEnclosure().getType() != null
+        if(rssItem.getEnclosure() != null
+                && rssItem.getEnclosure().getType() != null
                 && rssItem.getEnclosure().getType().contains("audio")) {
             holder.btnPlay.setVisibility(View.VISIBLE);
 

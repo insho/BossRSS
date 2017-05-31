@@ -7,6 +7,8 @@
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
+
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,6 +17,26 @@
     android:id="@+id/main_content"
     android:orientation="vertical"
     tools:context=".MainActivity">
+
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:layout_scrollFlags=""
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -44,10 +66,11 @@ app:spb_stroke_width="1.5dp"
 app:spb_stroke_separator_length="4dp"
 app:spb_reversed="false"
 app:spb_mirror_mode="false"
+    android:layout_marginTop="1dp"
 app:spb_progressiveStart_activated="true"
 app:spb_progressiveStart_speed="3.0"
-app:layout_anchor="@id/main_content"
-app:layout_anchorGravity="top"
+app:layout_anchor="@id/toolbar"
+app:layout_anchorGravity="bottom"
 app:spb_progressiveStop_speed="3.4"
 
     />

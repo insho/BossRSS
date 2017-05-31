@@ -98,6 +98,7 @@ public class MainFragment extends Fragment {
                                     mCallback.getRSSFeed(rssList.getURL());
                                 }
                             }
+                            mLastClickTime = SystemClock.elapsedRealtime();
 
                         }
 
@@ -114,6 +115,7 @@ public class MainFragment extends Fragment {
 
                                 }
                             }
+                            mLastClickTime = SystemClock.elapsedRealtime();
 
 
                         }
@@ -140,23 +142,6 @@ public class MainFragment extends Fragment {
             mNoLists.setVisibility(View.VISIBLE);
         }
     }
-
-
-//    /**
-//     * Checks how many milliseconds have elapsed since the last time "mLastClickTime" was updated
-//     * If enough time has elapsed, returns True and updates mLastClickTime.
-//     * This is to stop unwanted rapid clicks of the same button
-//     * @param elapsedMilliSeconds threshold of elapsed milliseconds before a new button click is allowed
-//     * @return bool True if enough time has elapsed, false if not
-//     */
-//    public boolean isUniqueClick(int elapsedMilliSeconds) {
-//        if(SystemClock.elapsedRealtime() - mLastClickTime > elapsedMilliSeconds) {
-//            mLastClickTime = SystemClock.elapsedRealtime();
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
 
 }
 

@@ -16,15 +16,15 @@ package com.inshodesign.bossrss.Fragments;
         import android.view.ViewGroup;
 
 //        import com.github.piasy.rxandroidaudio.StreamAudioPlayer;
-        import com.inshodesign.bossrss.Adapters.RSSContentsAdapter;
+        import com.inshodesign.bossrss.Adapters.RSSItemsAdapter;
         import com.inshodesign.bossrss.Adapters.RxBus;
         import com.inshodesign.bossrss.Interfaces.OnFragmentInteractionListener;
         import com.inshodesign.bossrss.Models.AudioStream;
 //        import com.inshodesign.bossrss.Models.ParcebleItem;
         import com.inshodesign.bossrss.Models.RSSList;
         import com.inshodesign.bossrss.R;
-        import com.inshodesign.bossrss.XML_Models.Channel;
-//        import com.inshodesign.bossrss.XML_Models.Item;
+        import com.inshodesign.bossrss.XML_Models.Item;
+//        import com.inshodesign.bossrss.XML_Models.ChannelItem;
 
         import java.util.ArrayList;
 
@@ -35,8 +35,8 @@ package com.inshodesign.bossrss.Fragments;
 public class RSSItemsFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
-    RSSContentsAdapter mAdapter;
-    private ArrayList<Channel.Item> mDataset;
+    RSSItemsAdapter mAdapter;
+    private ArrayList<Item> mDataset;
     private RxBus _rxBus = new RxBus();
     private long mLastClickTime = 0;
 
@@ -56,7 +56,7 @@ public class RSSItemsFragment extends Fragment {
     public static RSSItemsFragment newInstance(@Nullable final String listTitle
             , @Nullable String feedURL
             , @Nullable String imageURL
-            ,@NonNull final ArrayList<Channel.Item> items) {
+            ,@NonNull final ArrayList<Item> items) {
         final RSSItemsFragment fragment = new RSSItemsFragment();
         final Bundle args = new Bundle();
         args.putString("title",listTitle);
@@ -80,8 +80,8 @@ public class RSSItemsFragment extends Fragment {
 
 
 
-    private void updateAdapter(ArrayList<Channel.Item> items) {
-        mAdapter = new RSSContentsAdapter(items, _rxBus, getContext());
+    private void updateAdapter(ArrayList<Item> items) {
+        mAdapter = new RSSItemsAdapter(items, _rxBus, getContext());
 
         _rxBus.toClickObserverable()
                 .subscribe(new Action1<Object>() {
@@ -103,6 +103,7 @@ public class RSSItemsFragment extends Fragment {
                            }
 
                        }
+                        mLastClickTime = SystemClock.elapsedRealtime();
 
                     }
 
