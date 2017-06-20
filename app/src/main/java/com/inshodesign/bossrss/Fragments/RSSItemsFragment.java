@@ -33,8 +33,6 @@ package com.inshodesign.bossrss.Fragments;
 public class RSSItemsFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
-    private RSSItemsAdapter mAdapter;
-    private ArrayList<Item> mDataset;
     private RxBus _rxBus = new RxBus();
     private long mLastClickTime = 0;
     private OnFragmentInteractionListener mCallback;
@@ -68,7 +66,7 @@ public class RSSItemsFragment extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
         getArguments().getString("title");
-        mDataset = getArguments().getParcelableArrayList("items");
+        ArrayList<Item> mDataset = getArguments().getParcelableArrayList("items");
         updateAdapter(mDataset);
     }
 
@@ -78,7 +76,7 @@ public class RSSItemsFragment extends Fragment {
      * @param items RSS list items
      */
     private void updateAdapter(ArrayList<Item> items) {
-        mAdapter = new RSSItemsAdapter(items, _rxBus, getContext());
+        RSSItemsAdapter  mAdapter = new RSSItemsAdapter(items, _rxBus, getContext());
 
         _rxBus.toClickObserverable()
                 .subscribe(new Action1<Object>() {
